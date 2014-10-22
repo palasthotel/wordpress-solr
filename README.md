@@ -1,0 +1,3 @@
+WordPress Solr by PALASTHOTEL
+=============================
+
