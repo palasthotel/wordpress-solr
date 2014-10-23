@@ -6,5 +6,4 @@ Version: 0.0.1
 Author: Palasthotel GmbH
 Author URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
-License: GPL3
 */
