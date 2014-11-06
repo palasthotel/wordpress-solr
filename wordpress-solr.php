@@ -40,15 +40,6 @@ function phsolr_get_instance() {
   return $_phsolr;
 }
 
-function phsolr_init() {
-  $phsolr = phsolr_get_instance();
-
-  $phsolr->updateIndexPosts();
-  $phsolr->updateIndexPages();
-}
-
-add_action('init', 'phsolr_init');
-
 register_activation_hook(__FILE__, 'phsolr_activation');
 register_deactivation_hook(__FILE__, 'phsolr_deactivation');
 
