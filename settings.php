@@ -1,87 +1,50 @@
 <?php
+add_action('admin_menu', 'plugin_admin_add_page');
 
-// set admin options page
-add_action('admin_menu', 'ph_solr_add_menu');
-
-function ph_solr_add_menu() {
-  add_options_page('WordPress Solr Settings', 'Solr', 'manage_options',
-      'ph_solr', 'ph_solr_settings_page');
+function plugin_admin_add_page() {
+  add_options_page('Custom Plugin Page', 'Custom Plugin Menu', 'manage_options',
+      'plugin', 'plugin_options_page');
 }
 
-function ph_solr_settings_page() {
+function plugin_options_page() {
   ?>
-<div class="wrap">
-  <h2>WordPress Solr by PALASTHOTEL</h2>
-  <form method="post" action="options.php">
-    <h3>Connection Options</h3>
-<?php settings_fields('ph_solr_connection'); ?>
-<?php do_settings_sections('ph_solr'); ?>
-<?php submit_button(); ?>
+<div>
+  <h2>My custom plugin</h2>
+  Options relating to the Custom Plugin.
+  <form action="options.php" method="post">
+<?php settings_fields('plugin_options'); ?>
+<?php do_settings_sections('plugin'); ?>
+    <input name="Submit" type="submit"
+      value="<?php esc_attr_e('Save Changes'); ?>" />
   </form>
 </div>
 <?php
 }
 
-function ph_solr_register_settings() {
-  register_setting('ph_solr', 'ph_solr_connection');
+add_action('admin_init', 'plugin_admin_init');
 
-  // sections
-  add_settings_section('ph_solr_connection', 'Solr Connection Settings',
-      'ph_solr_connection_desc', 'ph_solr');
-
-  // settings
-  add_settings_field('ph_solr_host', 'Host', 'ph_solr_field', 'ph_solr',
-      'ph_solr_connection',
-      array(
-        'group' => 'ph_solr_connection',
-        'key' => 'host',
-        'desc' => 'Solr host address'
-      ));
-
-  // add_settings_field('ph_solr_port', 'Port',
-  // 'ph_solr_connection_settings_callback', 'general', 'ph_solr_connection',
-  // array(
-  // 'key' => 'port',
-  // 'desc' => 'Solr port'
-  // ));
-
-  // add_settings_field('ph_solr_path', 'Path',
-  // 'ph_solr_connection_settings_callback', 'general', 'ph_solr_connection',
-  // array(
-  // 'key' => 'path',
-  // 'desc' => 'Path to Solr endpoint'
-  // ));
-
-  // add_settings_field('ph_solr_key', 'Key',
-  // 'ph_solr_connection_settings_callback', 'general', 'ph_solr_connection',
-  // array(
-  // 'key' => 'key',
-  // 'desc' => 'Authentication key token'
-  // ));
-
-  // add_settings_field('ph_solr_secret', 'Secret',
-  // 'ph_solr_connection_settings_callback', 'general', 'ph_solr_connection',
-  // array(
-  // 'key' => 'secret',
-  // 'desc' => 'Authentication secret'
-  // ));
+function plugin_admin_init() {
+  register_setting('plugin_options', 'plugin_options',
+      'plugin_options_validate');
+  add_settings_section('plugin_main', 'Main Settings', 'plugin_section_text',
+      'plugin');
+  add_settings_field('plugin_text_string', 'Plugin Text Input',
+      'plugin_setting_string', 'plugin', 'plugin_main');
 }
 
-function ph_solr_connection_desc() {
-  ?><p>Connection settings for Solr</p>
-<?php
+function plugin_section_text() {
+  echo '<p>Main description of this section here.</p>';
 }
 
-function ph_solr_field($args) {
-  $group = $args['group'];
-  $option = 'ph_solr_' . $args['key'];
+function plugin_setting_string() {
+  $options = get_option('plugin_options');
+  echo "<input id='plugin_text_string' name='plugin_options[text_string]' size='40' type='text' value='{$options['text_string']}' />";
+}
 
-  print_r($args);
-
-  // generate markup
-  ?><input type="text" name="<?php echo $group.'['.$option.']'; ?>"
-  value="<?php echo esc_attr(get_option($option)); ?>" /><?php
-  if (isset($args['desc'])) {
-    ?><p class="description"><?php echo esc_html($args['desc']); ?></p><?php
+function plugin_options_validate($input) {
+  $newinput['text_string'] = trim($input['text_string']);
+  if (!preg_match('/^[a-z0-9]{32}$/i', $newinput['text_string'])) {
+    $newinput['text_string'] = '';
   }
+  return $newinput;
 }
