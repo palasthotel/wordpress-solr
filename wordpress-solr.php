@@ -8,8 +8,6 @@
  * URI: http://palasthotel.de/
  * Plugin URI: https://github.com/palasthotel/wordpress-solr
  */
-
-require_once __DIR__ . '/init.php';
 require_once __DIR__ . '/phsolr.class.php';
 
 /**
@@ -35,42 +33,25 @@ function phsolr_add_document(Solarium\Client $client, $post) {
 function phsolr_optimize_index(Solarium\Client $client) {
 }
 
-function phsolr_test_something() {
-  global $phsolr_config;
+$phsolr = null;
 
-  $last_post_modified = '2014-10-23T08:28:49+0000';
-  $last_page_modified = '2014-10-23T08:28:49+0000';
+function phsolr_init() {
+  global $phsolr;
 
-  $posts = get_posts(
-      array(
-        'post_status' => 'publish',
-        'orderby' => 'modified',
-        'order' => 'ASC',
-        'posts_per_page' => $phsolr_config['posts_per_index_update'],
-        'date_query' => array(
-          'after' => $last_post_modified,
-          'column' => 'post_modified_gmt',
-          'inclusive' => TRUE
-        )
-      ));
+  // autoload dependencies
+  require_once __DIR__ . '/vendor/autoload.php';
 
-  $pages = get_pages(
-      array(
-        'post_status' => 'publish',
-        'orderby' => 'modified',
-        'order' => 'ASC',
-        'posts_per_page' => $phsolr_config['pages_per_index_update'],
-        'date_query' => array(
-          'after' => $last_page_modified,
-          'column' => 'post_modified_gmt',
-          'inclusive' => TRUE
-        )
-      ));
+  // load configuration
+  if (file_exists(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+  } else {
+    die(
+        'Configuration file missing. Please add authentication information to' .
+             ' "config.sample.php" and rename it to "config.php".');
+  }
 
-  var_dump($posts);
-  var_dump($pages);
+  // instantiate PhSolr
+  $phsolr = new PhSolr(new Solarium\Client($solarium_config), $phsolr_config);
 }
 
-add_action('init', 'phsolr_test_something');
-
-//exit();
+add_action('init', 'phsolr_init');
