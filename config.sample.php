@@ -26,3 +26,39 @@ $phsolr_config = array(
   'pages_update_interval' => 'hourly',
   'comments_update_interval' => 'daily'
 );
+
+/**
+ * Sets the fields from a WP_Post object to a Solarium Document, which will be
+ * uploaded to Solr.
+ *
+ * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
+ * @param WP_Post $post
+ */
+function phsolr_set_post_fields(
+    Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
+    WP_Post $post) {
+}
+
+/**
+ * Sets the fields from a WP_Post object to a Solarium Document, which will be
+ * uploaded to Solr.
+ *
+ * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
+ * @param WP_Post $post
+ */
+function phsolr_set_post_fields(
+    Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
+    WP_Post $page) {
+}
+
+/**
+ * Sets the fields from a WP_Comment object to a Solarium Document, which will be
+ * uploaded to Solr.
+ *
+ * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
+ * @param WP_Comment $comment
+ */
+function phsolr_set_post_fields(
+    Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
+    WP_Comment $comment) {
+}
