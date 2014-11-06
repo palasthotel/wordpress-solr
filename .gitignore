@@ -1,3 +1,5 @@
-.buildpath
-.project
-.settings
+/.buildpath
+/.project
+/.settings
+/config.php
+/vendor
