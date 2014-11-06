@@ -49,15 +49,37 @@ function phsolr_init() {
 
 add_action('init', 'phsolr_init');
 
+register_activation_hook(__FILE__, 'phsolr_activation');
+register_deactivation_hook(__FILE__, 'phsolr_deactivation');
+
 function phsolr_activation() {
   $phsolr = phsolr_get_instance();
-  ;
+  $config = $phsolr->getConfiguration();
+
+  // schedule index updates
+  // TODO show errors if something goes wrong
+  wp_schedule_event(time(), $config['posts_update_interval'],
+      'phsolr_posts_update_index');
+  wp_schedule_event(time() + 60 * 10, $config['pages_update_interval'],
+      'phsolr_pages_update_index');
+  wp_schedule_event(time() + 60 * 20, $config['comments_update_interval'],
+      'phsolr_comments_update_index');
 }
 
 function phsolr_deactivation() {
-  $phsolr = phsolr_get_instance();
-  ;
+  wp_clear_scheduled_hook('phsolr_posts_update_index');
+  wp_clear_scheduled_hook('phsolr_pages_update_index');
+  wp_clear_scheduled_hook('phsolr_comments_update_index');
 }
 
-register_activation_hook(__FILE__, 'phsolr_activation');
-register_deactivation_hook(__FILE__, 'phsolr_deactivation');
+function phsolr_posts_update_index() {
+  $phsolr = phsolr_get_instance();
+}
+
+function phsolr_pages_update_index() {
+  $phsolr = phsolr_get_instance();
+}
+
+function phsolr_comments_update_index() {
+  $phsolr = phsolr_get_instance();
+}
