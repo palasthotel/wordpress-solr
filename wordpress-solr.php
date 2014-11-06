@@ -8,8 +8,9 @@
  * URI: http://palasthotel.de/
  * Plugin URI: https://github.com/palasthotel/wordpress-solr
  */
-require_once __DIR__ . '/init.php';
 
+require_once __DIR__ . '/init.php';
+require_once __DIR__ . '/phsolr.class.php';
 
 /**
  * Adds a set of documents to the solr index.
