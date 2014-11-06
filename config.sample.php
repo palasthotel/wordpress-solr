@@ -13,3 +13,7 @@ $solarium_config = array(
     )
   )
 );
+
+$phsolr_config = array(
+  'docs_per_indexing_op' => 50
+);
