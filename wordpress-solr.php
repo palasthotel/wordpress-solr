@@ -67,19 +67,23 @@ function phsolr_activation() {
 }
 
 function phsolr_deactivation() {
-  wp_clear_scheduled_hook('phsolr_posts_update_index');
-  wp_clear_scheduled_hook('phsolr_pages_update_index');
-  wp_clear_scheduled_hook('phsolr_comments_update_index');
+  wp_clear_scheduled_hook('phsolr_update_post_index');
+  wp_clear_scheduled_hook('phsolr_update_page_index');
+  wp_clear_scheduled_hook('phsolr_update_comment_index');
 }
 
-function phsolr_posts_update_index() {
+function phsolr_update_post_index() {
   $phsolr = phsolr_get_instance();
+
+  $phsolr->updatePostIndex();
 }
 
-function phsolr_pages_update_index() {
+function phsolr_update_page_index() {
   $phsolr = phsolr_get_instance();
+
+  $phsolr->updatePageIndex();
 }
 
-function phsolr_comments_update_index() {
-  $phsolr = phsolr_get_instance();
+function phsolr_update_comment_index() {
+  // does nothing right now
 }

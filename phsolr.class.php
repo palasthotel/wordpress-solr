@@ -33,13 +33,13 @@ class PhSolr {
     return $posts;
   }
 
-  public function updateIndexPosts() {
+  public function updatePostIndex() {
     $posts = $this->getModifiedPosts();
 
     var_dump($posts);
   }
 
-  public function resetIndexPosts() {
+  public function resetPostIndex() {
   }
 
   private function getModifiedPages() {
@@ -61,13 +61,13 @@ class PhSolr {
     return $pages;
   }
 
-  public function updateIndexPages() {
+  public function updatePageIndex() {
     $pages = $this->getModifiedPages();
 
     var_dump($pages);
   }
 
-  public function resetIndexPages() {
+  public function resetPageIndex() {
   }
 
   public function search($query, $opt) {
