@@ -15,9 +15,7 @@ $solarium_config = array(
 
 $phsolr_config = array(
   // number of documents (posts, pages, comments) per index update
-  'posts_per_index_update' => 10,
-  'pages_per_index_update' => 10,
-  'comments_per_index_update' => 20,
+  'docs_per_index_update' => 50,
 
   // how often should the index be updated
   'update_interval' => 'hourly'
