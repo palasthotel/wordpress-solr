@@ -21,6 +21,8 @@ $phsolr_config = array(
   // number of comments per index update
   'comments_per_index_update' => 50,
 
-  // how often should the index be updated
-  'update_interval' => 'hourly'
+  // how often should the index be updated?
+  'posts_update_interval' => 'hourly',
+  'pages_update_interval' => 'hourly',
+  'comments_update_interval' => 'daily'
 );
