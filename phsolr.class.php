@@ -35,6 +35,9 @@ class PhSolr {
     var_dump($posts);
   }
 
+  public function resetIndexPosts() {
+  }
+
   private function getModifiedPages() {
     $last_page_modified = '2014-10-23T08:28:49+0000';
 
@@ -60,7 +63,7 @@ class PhSolr {
     var_dump($pages);
   }
 
-  public function updateIndexComments() {
+  public function resetIndexPages() {
   }
 
   public function search($query, $opt) {
