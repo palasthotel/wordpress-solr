@@ -3,6 +3,10 @@
  * This is an example configuration file. Change it according to your needs and
  * rename it to config.php.
  */
+
+/**
+ * Solarium connection information.
+ */
 $solarium_config = array(
   'endpoint' => array(
     array(
@@ -13,6 +17,9 @@ $solarium_config = array(
   )
 );
 
+/**
+ * Configuration for this module.
+ */
 $phsolr_config = array(
   // number of posts per index update
   'posts_per_index_update' => 50,
@@ -37,6 +44,25 @@ $phsolr_config = array(
 function phsolr_set_post_fields(
     Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
     WP_Post $post) {
+  // get the authors name
+  $author_name = get_user_by('id', $post->post_author)->display_name;
+
+  $document->id = 'post/' . $post->ID;
+  $document->title = $post->post_title;
+  $document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
+  $document->modified = date('Y-m-d\TH:i:s\Z',
+      strtotime($post->post_modified_gmt));
+  $document->author = $author_name;
+  $document->content = $post->post_content;
+  $document->url = $post->guid;
+
+  // aggregate field
+  $document->aggregate = $post->post_title . ' ' . $post->post_content . ' ' .
+       $post->post_date . ' ' . $author_name;
+
+  var_dump($document->aggregate);
+
+  $document->type = 'post';
 }
 
 /**
@@ -46,7 +72,7 @@ function phsolr_set_post_fields(
  * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
  * @param WP_Post $post
  */
-function phsolr_set_post_fields(
+function phsolr_set_page_fields(
     Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
     WP_Post $page) {
 }
@@ -58,7 +84,7 @@ function phsolr_set_post_fields(
  * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
  * @param WP_Comment $comment
  */
-function phsolr_set_post_fields(
+function phsolr_set_comment_fields(
     Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
     WP_Comment $comment) {
 }
