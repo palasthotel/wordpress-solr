@@ -10,6 +10,10 @@ class PhSolr {
     $this->config = $config;
   }
 
+  public function getConfiguration() {
+    return $this->config;
+  }
+
   private function getModifiedPosts() {
     $last_post_modified = '2014-10-23T08:28:49+0000';
 
