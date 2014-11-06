@@ -33,15 +33,6 @@ class PhSolr {
     return $posts;
   }
 
-  public function updatePostIndex() {
-    $posts = $this->getModifiedPosts();
-
-    var_dump($posts);
-  }
-
-  public function resetPostIndex() {
-  }
-
   private function getModifiedPages() {
     $last_page_modified = '2014-10-23T08:28:49+0000';
 
@@ -61,13 +52,64 @@ class PhSolr {
     return $pages;
   }
 
-  public function updatePageIndex() {
-    $pages = $this->getModifiedPages();
+  private function updateIndex(array $items, $type) {
+    // new update
+    $update = $this->client->createUpdate();
 
-    var_dump($pages);
+    $docs = array();
+
+    $set_fields = NULL;
+    if ($type === 'post') {
+      $set_fields = 'phsolr_set_post_fields';
+    } else if ($type === 'page') {
+      $set_fields = 'phsolr_set_page_fields';
+    } else if ($type === 'comment') {
+      $set_fields = 'phsolr_set_comment_fields';
+    } else {
+      throw new Exception('unknown type');
+    }
+
+    // for each page, add a document to the update
+    foreach ($items as $item) {
+      var_dump($item);
+      // create a new document for the data
+      $doc = $update->createDocument();
+
+      $set_fields($doc, $item);
+      $doc->type = $type;
+
+      $docs[] = $doc;
+    }
+
+    // add docs and commit
+    $update->addDocuments($docs);
+    $update->addCommit();
+
+    // execute the update
+    try {
+      $result = $this->client->update($update);
+
+      var_dump($result);
+    } catch (Solarium\Exception\HTTPException $e) {
+      die($e->getMessage());
+    }
+  }
+
+  public function updatePostIndex() {
+    $this->updateIndex($this->getModifiedPosts(), 'post');
+  }
+
+  public function updatePageIndex() {
+    $this->updateIndex($this->getModifiedPages(), 'page');
+  }
+
+  public function resetPostIndex() {
   }
 
   public function resetPageIndex() {
+  }
+
+  public function optimizeIndex() {
   }
 
   public function search($query, $opt) {
