@@ -10,48 +10,54 @@
  */
 require_once __DIR__ . '/phsolr.class.php';
 
+$_phsolr = NULL;
+
 /**
- * Adds a set of documents to the solr index.
+ * Returns an instance of PhSolr.
  *
- * @param array $posts
+ * @return PhSolr
  */
-function phsolr_add_documents(Solarium\Client $client, array $posts) {
-  foreach ($post_ids as $post_id) {
-    phsolr_add_document($post_id);
+function phsolr_get_instance() {
+  global $_phsolr;
+
+  if ($_phsolr === NULL) {
+    // autoload dependencies
+    require_once __DIR__ . '/vendor/autoload.php';
+
+    // load configuration
+    if (file_exists(__DIR__ . '/config.php')) {
+      require_once __DIR__ . '/config.php';
+    } else {
+      die(
+          'Configuration file missing. Please add authentication information to' .
+               ' "config.sample.php" and rename it to "config.php".');
+    }
+
+    // instantiate PhSolr
+    $_phsolr = new PhSolr(new Solarium\Client($solarium_config), $phsolr_config);
   }
-}
 
-/**
- * Adds a single post to the solr index.
- *
- * @param
- *          $post
- */
-function phsolr_add_document(Solarium\Client $client, $post) {
+  return $_phsolr;
 }
-
-function phsolr_optimize_index(Solarium\Client $client) {
-}
-
-$phsolr = null;
 
 function phsolr_init() {
-  global $phsolr;
+  $phsolr = phsolr_get_instance();
 
-  // autoload dependencies
-  require_once __DIR__ . '/vendor/autoload.php';
-
-  // load configuration
-  if (file_exists(__DIR__ . '/config.php')) {
-    require_once __DIR__ . '/config.php';
-  } else {
-    die(
-        'Configuration file missing. Please add authentication information to' .
-             ' "config.sample.php" and rename it to "config.php".');
-  }
-
-  // instantiate PhSolr
-  $phsolr = new PhSolr(new Solarium\Client($solarium_config), $phsolr_config);
+  $phsolr->updateIndexPosts();
+  $phsolr->updateIndexPages();
 }
 
 add_action('init', 'phsolr_init');
+
+function phsolr_activation() {
+  $phsolr = phsolr_get_instance();
+  ;
+}
+
+function phsolr_deactivation() {
+  $phsolr = phsolr_get_instance();
+  ;
+}
+
+register_activation_hook(__FILE__, 'phsolr_activation');
+register_deactivation_hook(__FILE__, 'phsolr_deactivation');
