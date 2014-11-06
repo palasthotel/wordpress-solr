@@ -15,15 +15,15 @@ class PhSolr {
 
     $posts = get_posts(
         array(
-            'post_status' => 'publish',
-            'orderby' => 'modified',
-            'order' => 'ASC',
-            'posts_per_page' => $phsolr_config['posts_per_index_update'],
-            'date_query' => array(
-                'after' => $last_post_modified,
-                'column' => 'post_modified_gmt',
-                'inclusive' => TRUE
-            )
+          'post_status' => 'publish',
+          'orderby' => 'modified',
+          'order' => 'ASC',
+          'posts_per_page' => $this->config['posts_per_index_update'],
+          'date_query' => array(
+            'after' => $last_post_modified,
+            'column' => 'post_modified_gmt',
+            'inclusive' => TRUE
+          )
         ));
 
     return $posts;
@@ -43,7 +43,7 @@ class PhSolr {
           'post_status' => 'publish',
           'orderby' => 'modified',
           'order' => 'ASC',
-          'posts_per_page' => $phsolr_config['pages_per_index_update'],
+          'posts_per_page' => $this->config['pages_per_index_update'],
           'date_query' => array(
             'after' => $last_page_modified,
             'column' => 'post_modified_gmt',
