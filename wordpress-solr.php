@@ -37,20 +37,37 @@ function phsolr_optimize_index(Solarium\Client $client) {
 function phsolr_test_something() {
   global $phsolr_config;
 
-  $query = new WP_Query(
+  $last_post_modified = '2014-10-23T08:28:49+0000';
+  $last_page_modified = '2014-10-23T08:28:49+0000';
+
+  $posts = get_posts(
       array(
-        'post_type' => 'any',
         'post_status' => 'publish',
         'orderby' => 'modified',
         'order' => 'ASC',
-        'posts_per_page' => $phsolr_config['docs_per_index_update'],
+        'posts_per_page' => $phsolr_config['posts_per_index_update'],
         'date_query' => array(
-          'after' => '2014-10-23T08:28:48+0000'
+          'after' => $last_post_modified,
+          'column' => 'post_modified_gmt',
+          'inclusive' => TRUE
         )
       ));
 
-  $posts = $query->get_posts();
+  $pages = get_pages(
+      array(
+        'post_status' => 'publish',
+        'orderby' => 'modified',
+        'order' => 'ASC',
+        'posts_per_page' => $phsolr_config['pages_per_index_update'],
+        'date_query' => array(
+          'after' => $last_page_modified,
+          'column' => 'post_modified_gmt',
+          'inclusive' => TRUE
+        )
+      ));
+
   var_dump($posts);
+  var_dump($pages);
 }
 
 add_action('init', 'phsolr_test_something');
