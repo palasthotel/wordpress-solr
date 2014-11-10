@@ -111,6 +111,7 @@ class PhSolr {
     // execute the update
     try {
       $result = $this->client->update($update);
+      return $result;
     } catch (Solarium\Exception\HTTPException $e) {
       die($e->getMessage());
     }
@@ -157,6 +158,19 @@ class PhSolr {
   }
 
   public function optimizeIndex() {
+    // get an update query instance
+    $update = $this->client->createUpdate();
+
+    // optimize the index
+    $update->addOptimize(NULL, NULL, NULL); // use solr defaults
+
+    // this executes the query and returns the result
+    try {
+      $result = $this->client->update($update);
+      return $result;
+    } catch (Solarium\Exception\HTTPException $e) {
+      die($e->getMessage());
+    }
   }
 
   public function search($query, $opt) {
