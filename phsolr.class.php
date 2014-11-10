@@ -76,7 +76,7 @@ class PhSolr {
     return $pages;
   }
 
-  private function updateIndex(array $items, $type) {
+  private function updateIndex(array $changedItems, array $deletedItems, $type) {
     // new update
     $update = $this->client->createUpdate();
 
@@ -94,8 +94,7 @@ class PhSolr {
     }
 
     // for each page, add a document to the update
-    foreach ($items as $item) {
-      var_dump($item);
+    foreach ($changedItems as $item) {
       // create a new document for the data
       $doc = $update->createDocument();
 
@@ -112,19 +111,39 @@ class PhSolr {
     // execute the update
     try {
       $result = $this->client->update($update);
-
-      var_dump($result);
     } catch (Solarium\Exception\HTTPException $e) {
       die($e->getMessage());
     }
   }
 
+  private function getDeletedPosts() {
+    $posts = get_posts(
+        array(
+          'post_status' => 'trash',
+          'posts_per_page' => 1000
+        ));
+
+    return $posts;
+  }
+
+  private function getDeletedPages() {
+    $pages = get_pages(
+        array(
+          'post_status' => 'trash',
+          'posts_per_page' => 1000
+        ));
+
+    return $pages;
+  }
+
   public function updatePostIndex() {
-    $this->updateIndex($this->getModifiedPosts(), 'post');
+    $this->updateIndex($this->getModifiedPosts(), $this->getDeletedPosts(),
+        'post');
   }
 
   public function updatePageIndex() {
-    $this->updateIndex($this->getModifiedPages(), 'page');
+    $this->updateIndex($this->getModifiedPages(), $this->getDeletedPages(),
+        'page');
   }
 
   public function resetPostIndex() {
