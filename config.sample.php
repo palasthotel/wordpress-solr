@@ -31,7 +31,9 @@ $phsolr_config = array(
   // how often should the index be updated?
   'posts_update_interval' => 'hourly',
   'pages_update_interval' => 'hourly',
-  'comments_update_interval' => 'daily'
+  'comments_update_interval' => 'daily',
+
+  'optimization_interval' => 'weekly'
 );
 
 /**
