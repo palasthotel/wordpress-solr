@@ -47,7 +47,9 @@ function phsolr_set_post_fields(
   // get the authors name
   $author_name = get_user_by('id', $post->post_author)->display_name;
 
+  // please keep the schema 'post/:id', so IDs are unique for all db tables
   $document->id = 'post/' . $post->ID;
+
   $document->title = $post->post_title;
   $document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
   $document->modified = date('Y-m-d\TH:i:s\Z',
