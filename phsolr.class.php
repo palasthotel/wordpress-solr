@@ -80,7 +80,6 @@ class PhSolr {
     // new update
     $update = $this->client->createUpdate();
 
-    $docs = array();
 
     $set_fields = NULL;
     if ($type === 'post') {
@@ -93,19 +92,31 @@ class PhSolr {
       throw new Exception('unknown document type');
     }
 
-    // for each page, add a document to the update
+    // for each item, add a document to the update query
     foreach ($changedItems as $item) {
       // create a new document for the data
       $doc = $update->createDocument();
 
+      // set the ID
+      $doc->id = $type . '/' . $item->ID;
+
+      // set the other fields
       $set_fields($doc, $item);
+
+      // and the type
       $doc->type = $type;
 
-      $docs[] = $doc;
+      // add document to query
+      $update->addDocument($doc);
     }
 
-    // add docs and commit
-    $update->addDocuments($docs);
+    // for each deleted item
+    foreach ($deletedItems as $item) {
+      // add a delete command to the query
+      $update->addDeleteById($type . '/' . $item->ID);
+    }
+
+    // commit
     $update->addCommit();
 
     // execute the update

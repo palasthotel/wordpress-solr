@@ -38,6 +38,8 @@ $phsolr_config = array(
  * Sets the fields from a WP_Post object to a Solarium Document, which will be
  * uploaded to Solr.
  *
+ * Don't set the ID explicitly. It will be set for you to.
+ *
  * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
  * @param WP_Post $post
  */
@@ -46,9 +48,6 @@ function phsolr_set_post_fields(
     WP_Post $post) {
   // get the authors name
   $author_name = get_user_by('id', $post->post_author)->display_name;
-
-  // please keep the schema 'post/:id', so IDs are unique for all db tables
-  $document->id = 'post/' . $post->ID;
 
   $document->title = $post->post_title;
   $document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
