@@ -15,8 +15,11 @@ class PhSolr {
   }
 
   private function getModifiedPosts() {
-    $last_post_modified = '2014-10-23T08:28:49+0000';
+    // get the modification time of the last indexed post
+    $last_post_modified = get_option('phsolr_last_post_modified',
+        '1970-01-01T00:00:00Z'); // default it unix epoch
 
+    // find newer posts
     $posts = get_posts(
         array(
           'post_status' => 'publish',
@@ -26,16 +29,28 @@ class PhSolr {
           'date_query' => array(
             'after' => $last_post_modified,
             'column' => 'post_modified_gmt',
-            'inclusive' => TRUE
+            'inclusive' => FALSE
           )
         ));
+
+    // when posts have been found
+    if (count($posts) > 0) {
+      $last_post_modified = date('c',
+          strtotime($posts[count($posts) - 1]->post_modified_gmt));
+
+      // remember the time
+      update_option('phsolr_last_post_modified', $last_post_modified);
+    }
 
     return $posts;
   }
 
   private function getModifiedPages() {
-    $last_page_modified = '2014-10-23T08:28:49+0000';
+    // get the modification time of the last indexed page
+    $last_page_modified = get_option('phsolr_last_page_modified',
+        '1970-01-01T00:00:00Z'); // default it unix epoch
 
+    // find newer pages
     $pages = get_pages(
         array(
           'post_status' => 'publish',
@@ -45,9 +60,18 @@ class PhSolr {
           'date_query' => array(
             'after' => $last_page_modified,
             'column' => 'post_modified_gmt',
-            'inclusive' => TRUE
+            'inclusive' => FALSE
           )
         ));
+
+    // when pages have been found
+    if (count($pages) > 0) {
+      $last_page_modified = date('c',
+          strtotime($pages[count($pages) - 1]->post_modified_gmt));
+
+      // remember the time
+      update_option('phsolr_last_page_modified', $last_page_modified);
+    }
 
     return $pages;
   }
@@ -104,9 +128,13 @@ class PhSolr {
   }
 
   public function resetPostIndex() {
+    // reset the last modified time, so the index will be rebuilt
+    update_option('phsolr_last_post_modified', '1970-01-01T00:00:00Z');
   }
 
   public function resetPageIndex() {
+    // reset the last modified time, so the index will be rebuilt
+    update_option('phsolr_last_page_modified', '1970-01-01T00:00:00Z');
   }
 
   public function optimizeIndex() {
