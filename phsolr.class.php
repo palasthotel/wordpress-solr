@@ -66,7 +66,7 @@ class PhSolr {
     } else if ($type === 'comment') {
       $set_fields = 'phsolr_set_comment_fields';
     } else {
-      throw new Exception('unknown type');
+      throw new Exception('unknown document type');
     }
 
     // for each page, add a document to the update
