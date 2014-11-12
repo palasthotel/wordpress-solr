@@ -184,6 +184,13 @@ class PhSolr {
     }
   }
 
-  public function search($query, $opt) {
+  public function search($args) {
+    $select = $this->client->createSelect();
+
+    $query = '*:' . $args['text'];
+
+    $select->setQuery($query);
+
+    return $this->client->select($select);
   }
 }
