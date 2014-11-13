@@ -185,12 +185,41 @@ class PhSolr {
   }
 
   public function search($args) {
+    if ($args === FALSE) {
+      return array();
+    }
+
     $select = $this->client->createSelect();
 
-    $query = '*:' . $args['text'];
+    $query = $args['text'];
 
     $select->setQuery($query);
 
-    return $this->client->select($select);
+    $search_results = $this->client->select($select);
+
+    return $search_results;
+  }
+
+  public function showResults($search_page_id, $search_args, $search_results) {
+    // make parameters global
+    global $phsolr_search_page_id;
+    global $phsolr_search_args;
+    global $phsolr_search_results;
+
+    $phsolr_search_page_id = $search_page_id;
+    $phsolr_search_args = $search_args;
+    $phsolr_search_results = $search_results;
+
+    $template_file = 'search-results.tpl.php';
+
+    $theme = wp_get_theme();
+    $theme_dir = $theme->get_theme_root() . '/' . $theme->get_stylesheet();
+    $include_path = $theme_dir . "/$template_file";
+
+    if (!file_exists($include_path)) {
+      $include_path = __DIR__ . "/templates/$template_file";
+    }
+
+    include $include_path;
   }
 }
