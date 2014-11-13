@@ -341,7 +341,7 @@
     <field name="author" type="string" indexed="true" stored="true"/>
     <field name="content" type="text_und" indexed="true" stored="true"/>
     <field name="url" type="string" indexed="true" stored="true"/>
-    <field name="type" type="string" indexed="true" stored="false"/>
+    <field name="type" type="string" indexed="true" stored="true"/>
     
     <!-- aggregation field that stores all other values -->
     <field name="aggregate" type="text_und" indexed="true" stored="false" multivalued="true"/>
@@ -351,7 +351,7 @@
     <copyField source="author" dest="aggregate" />
     <copyField source="content" dest="aggregate" />
   </fields>
-te
+
   <!-- Field to use to determine and enforce document uniqueness.
      Unless this field is marked with required="false", it will be a required field
   -->
