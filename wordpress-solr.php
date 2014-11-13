@@ -143,7 +143,8 @@ function phsolr_search_form($form) {
     <label> <span class="screen-reader-text">Search for:</span> <input
       type="search" class="search-field"
       placeholder="<?php echo __('Search …') ?>"
-      value="<?php echo $search_args['text']; ?>" name="search" title="Search for:" />
+      value="<?php echo $search_args['text']; ?>" name="search"
+      title="Search for:" />
     </label> <input type="submit" class="search-submit" value="Search" />
   </div>
 </form>
@@ -185,35 +186,5 @@ function phsolr_print_search_results() {
 
   $phsolr = phsolr_get_instance();
   $search_results = $phsolr->search($search_args);
-  ?>
-<form role="search" method="get" class="search-form"
-  action="<?php echo home_url('/') ?>">
-  <input type="hidden" name="page_id" value="<?php echo $search_page_id; ?>" />
-  <div>
-    <label> <span class="screen-reader-text">Search for:</span> <input
-      type="search" class="search-field"
-      placeholder="<?php echo __('Search …') ?>"
-      value="<?php echo $search_args['text']; ?>" name="search"
-      title="Search for:" />
-    </label> <input type="submit" class="search-submit" value="Search" />
-  </div>
-  <div class="advanced-search-settings">
-    <fieldset class="cbgrp-year">
-      <legend>Year</legend>
-      <input type="checkbox" name="year-2014" id="year-2014" /> <label
-        for="year-2014">2014 (15)</label><br /> <input type="checkbox"
-        name="year-2013" id="year-2013" /> <label for="year-2013">2013 (11)</label><br />
-      <input type="checkbox" name="year-2012" id="year-2012" /> <label
-        for="year-2012">2012 (3)</label><br />
-    </fieldset>
-  </div>
-</form>
-<div id="search-results">
-<?php
-  foreach ($search_results as $doc) {
-    echo $doc->id . ' -> ' . $doc->title . "<br />\n";
-  }
-?>
-</div>
-<?php
+  $phsolr->showResults($search_page_id, $search_args, $search_results);
 }
