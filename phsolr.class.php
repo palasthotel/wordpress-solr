@@ -194,6 +194,7 @@ class PhSolr {
     $query = $args['text'];
 
     $select->setQuery($query);
+    $select->setQueryDefaultOperator($this->config['default_query_operator']);
 
     $search_results = $this->client->select($select);
 
@@ -205,6 +206,11 @@ class PhSolr {
     global $phsolr_search_page_id;
     global $phsolr_search_args;
     global $phsolr_search_results;
+
+    // if there is no result, there also was no query and so skip the rest
+    if (!$search_results) {
+      return;
+    }
 
     $phsolr_search_page_id = $search_page_id;
     $phsolr_search_args = $search_args;

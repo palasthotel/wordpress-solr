@@ -33,7 +33,10 @@ $phsolr_config = array(
   'pages_update_interval' => 'hourly',
   'comments_update_interval' => 'daily',
 
-  'optimization_interval' => 'weekly'
+  'optimization_interval' => 'weekly',
+
+  // 'AND' or 'OR'
+  'default_query_operator' => 'AND'
 );
 
 /**
