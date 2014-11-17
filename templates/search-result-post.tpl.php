@@ -6,7 +6,7 @@
       <a href="<?php echo $phsolr_document->url ?>"><?php echo $phsolr_document->title ?></a>
     </h1>
     <div class="entry-meta">
-      <time class="entry-date" datetime="<?php echo $phsolr_document->date ?>"><?php echo explode('T',$phsolr_document->date)[0] ?></time>
+      <time class="entry-date" datetime="<?php echo $phsolr_document->date ?>"><?php echo explode('T', $phsolr_document->date)[0] ?></time>
 
     </div>
   </header>

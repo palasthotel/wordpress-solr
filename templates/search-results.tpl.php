@@ -11,14 +11,14 @@
     </label> <input type="submit" class="search-submit" value="Search" />
   </div>
   <div class="advanced-search-settings">
-    <fieldset class="cbgrp-year">
+    <!--fieldset class="cbgrp-year">
       <legend>Year</legend>
       <input type="checkbox" name="year-2014" id="year-2014" /> <label
         for="year-2014">2014 (15)</label><br /> <input type="checkbox"
         name="year-2013" id="year-2013" /> <label for="year-2013">2013 (11)</label><br />
       <input type="checkbox" name="year-2012" id="year-2012" /> <label
         for="year-2012">2012 (3)</label><br />
-    </fieldset>
+    </fieldset-->
   </div>
 </form>
 <div id="search-results">
