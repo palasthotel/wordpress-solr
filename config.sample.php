@@ -36,7 +36,18 @@ $phsolr_config = array(
   'optimization_interval' => 'weekly',
 
   // 'AND' or 'OR'
-  'default_query_operator' => 'AND'
+  'default_query_operator' => 'AND',
+
+  'facets' => array(
+    'type' => array(
+      'field' => 'type',
+      'title' => 'Type'
+    ),
+    'date' => array(
+      'field' => 'date',
+      'title' => 'Date'
+    )
+  )
 );
 
 /**
