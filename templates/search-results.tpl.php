@@ -11,6 +11,19 @@
     </label> <input type="submit" class="search-submit" value="Search" />
   </div>
   <div class="advanced-search-settings">
+<?php
+$facets = $phsolr_search_results->getFacetSet()->getFacets();
+foreach ($facets as $facet):
+?>
+    <fieldset class="facet-type">
+      <legend>Type</legend>
+<?php foreach ($facet as $value => $count): ?>
+      <input type="checkbox" name="facet-type-<?php echo $value ?>"
+        id="facet-type-<?php echo $value ?>" /> <label
+        for="facet-type-<?php echo $value ?>"><?php echo "$value ($count)" ?></label><br />
+<?php endforeach; ?>
+    </fieldset>
+<?php endforeach; ?>
     <!--fieldset class="cbgrp-year">
       <legend>Year</legend>
       <input type="checkbox" name="year-2014" id="year-2014" /> <label

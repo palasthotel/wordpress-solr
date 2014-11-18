@@ -191,6 +191,12 @@ class PhSolr {
 
     $select = $this->client->createSelect();
 
+    $facetSet = $select->getFacetSet();
+    $facetSet->createFacetField('type')->setField('type')->setMinCount(1);
+    $facetSet->createFacetRange('date')->setField('date')->setStart(
+        '2000-01-01T00:00:00Z')->setEnd(str_replace('+00:00', 'Z', date('c')))->setGap(
+        '+1YEAR');
+
     $query = $args['text'];
 
     $select->setQuery($query);
@@ -207,7 +213,7 @@ class PhSolr {
     global $phsolr_search_args;
     global $phsolr_search_results;
 
-    // if there is no result, there also was no query and so skip the rest
+    // if there is no result, there also was no query. skip the rest.
     if (!$search_results) {
       return;
     }
