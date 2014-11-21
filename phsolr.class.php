@@ -81,6 +81,14 @@ class PhSolr {
     return array_merge($posts, $pages);
   }
 
+  private function getNewComments() {
+    // get the modification time of the last indexed comment
+    $last_comment_modified = get_option('phsolr_last_comment_modified',
+        '1970-01-01T00:00:00Z'); // default it unix epoch
+
+    return array();
+  }
+
   private function updateIndex(array $changedItems, array $deletedItems, $type) {
     // new update
     $update = $this->client->createUpdate();
@@ -147,9 +155,18 @@ class PhSolr {
     return array_merge($posts, $pages);
   }
 
+  private function getDeletedComments() {
+    return array();
+  }
+
   public function updatePostIndex() {
     $this->updateIndex($this->getModifiedPosts(), $this->getDeletedPosts(),
         'post');
+  }
+
+  public function updateCommentIndex() {
+    $this->updateIndex($this->getNewComments(), $this->getDeletedComments(),
+        'comment');
   }
 
   public function resetPostIndex() {
@@ -158,6 +175,10 @@ class PhSolr {
 
     // reset the last modified time, so the index will be rebuilt
     update_option('phsolr_last_page_modified', '1970-01-01T00:00:00Z');
+  }
+
+  public function resetCommentIndex() {
+    update_option('phsolr_last_comment_modified', '1970-01-01T00:00:00Z');
   }
 
   public function optimizeIndex() {
