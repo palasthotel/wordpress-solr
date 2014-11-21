@@ -17,11 +17,20 @@ foreach ($facets as $facet) :
   ?>
     <fieldset class="facet-type">
       <legend>?</legend>
-<?php foreach ($facet as $value => $count): ?>
+<?php
+  foreach ($facet as $value => $count) :
+    if ($count > 0) :
+      ?>
       <input type="checkbox" name="facet-type-<?php echo $value ?>"
         id="facet-type-<?php echo $value ?>" /> <label
         for="facet-type-<?php echo $value ?>"><?php echo "$value ($count)" ?></label><br />
-<?php endforeach; ?>
+
+
+
+    <?php endif;
+  endforeach
+  ;
+  ?>
     </fieldset>
 <?php endforeach; ?>
     <!--fieldset class="cbgrp-year">
@@ -48,9 +57,7 @@ foreach ($phsolr_search_results as $doc) {
 
   if ($type === 'post') {
     include __DIR__ . '/search-result-post.tpl.php';
-  } else if ($type === 'page') {
-    include __DIR__ . '/search-result-page.tpl.php';
-  } else if ($type === 'page') {
+  } else if ($type === 'comment') {
     include __DIR__ . '/search-result-comment.tpl.php';
   } else {
     throw new Exception('Unknown document type: ' . $doc->type);
