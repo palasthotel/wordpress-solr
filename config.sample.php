@@ -70,7 +70,7 @@ function phsolr_set_post_fields(
   $document->modified = date('Y-m-d\TH:i:s\Z',
       strtotime($post->post_modified_gmt));
   $document->author = $author_name;
-  $document->content = $post->post_content;
+  $document->content = strip_tags($post->post_content);
   $document->url = $post->guid;
 
   // aggregate field
