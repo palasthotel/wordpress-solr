@@ -70,7 +70,7 @@ function phsolr_set_post_fields(
   $document->content = strip_tags($post->post_content);
   $document->url = $post->guid;
 
-  $document->type = 'post';
+  $document->type = $post->type;
 }
 
 /**
@@ -83,4 +83,8 @@ function phsolr_set_post_fields(
 function phsolr_set_comment_fields(
     Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
     WP_Comment $comment) {
+  $document->content = $comment['comment_content'];
+  $document->author = $comment['comment_author'];
+  $document->date = date('Y-m-d\TH:i:s\Z',
+      strtotime($comment['comment_date_gmt']));
 }
