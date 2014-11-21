@@ -50,6 +50,12 @@ $phsolr_config = array(
     'author'
   ),
 
+  // list of fields that are intended to be highlighted
+  'highlight_fields' => array(
+    'title',
+    'content'
+  ),
+
   'facets' => array(
     'type' => array(
       'field' => 'type',
