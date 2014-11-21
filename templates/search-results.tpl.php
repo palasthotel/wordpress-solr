@@ -13,10 +13,10 @@
   <div class="advanced-search-settings">
 <?php
 $facets = $phsolr_search_results->getFacetSet()->getFacets();
-foreach ($facets as $facet):
-?>
+foreach ($facets as $facet) :
+  ?>
     <fieldset class="facet-type">
-      <legend>Type</legend>
+      <legend>?</legend>
 <?php foreach ($facet as $value => $count): ?>
       <input type="checkbox" name="facet-type-<?php echo $value ?>"
         id="facet-type-<?php echo $value ?>" /> <label

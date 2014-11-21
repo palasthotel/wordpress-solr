@@ -87,8 +87,6 @@ function phsolr_activate() {
   // schedule index updates
   wp_schedule_event(time(), $config['posts_update_interval'],
       'phsolr_posts_update_index');
-  wp_schedule_event(time() + 60 * 10, $config['pages_update_interval'],
-      'phsolr_pages_update_index');
   wp_schedule_event(time() + 60 * 20, $config['comments_update_interval'],
       'phsolr_comments_update_index');
 
@@ -101,7 +99,6 @@ function phsolr_activate() {
 
 function phsolr_deactivate() {
   wp_clear_scheduled_hook('phsolr_update_post_index');
-  wp_clear_scheduled_hook('phsolr_update_page_index');
   wp_clear_scheduled_hook('phsolr_update_comment_index');
 }
 
@@ -109,12 +106,6 @@ function phsolr_update_post_index() {
   $phsolr = phsolr_get_instance();
 
   $phsolr->updatePostIndex();
-}
-
-function phsolr_update_page_index() {
-  $phsolr = phsolr_get_instance();
-
-  $phsolr->updatePageIndex();
 }
 
 function phsolr_update_comment_index() {

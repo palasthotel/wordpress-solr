@@ -42,38 +42,43 @@ class PhSolr {
       update_option('phsolr_last_post_modified', $last_post_modified);
     }
 
-    return $posts;
-  }
+    // how many posts did we get?
+    $posts_count = count($posts);
+    $max_pages_count = $this->config['posts_per_index_update'] - $posts_count;
 
-  private function getModifiedPages() {
-    // get the modification time of the last indexed page
-    $last_page_modified = get_option('phsolr_last_page_modified',
-        '1970-01-01T00:00:00Z'); // default it unix epoch
+    $pages = array();
 
-    // find newer pages
-    $pages = get_pages(
-        array(
-          'post_status' => 'publish',
-          'orderby' => 'modified',
-          'order' => 'ASC',
-          'posts_per_page' => $this->config['pages_per_index_update'],
-          'date_query' => array(
-            'after' => $last_page_modified,
-            'column' => 'post_modified_gmt',
-            'inclusive' => FALSE
-          )
-        ));
+    if ($max_pages_count > 0) {
 
-    // when pages have been found
-    if (count($pages) > 0) {
-      $last_page_modified = date('c',
-          strtotime($pages[count($pages) - 1]->post_modified_gmt));
+      // get the modification time of the last indexed page
+      $last_page_modified = get_option('phsolr_last_page_modified',
+          '1970-01-01T00:00:00Z'); // default it unix epoch
 
-      // remember the time
-      update_option('phsolr_last_page_modified', $last_page_modified);
+      $pages = get_pages(
+          array(
+            'post_status' => 'publish',
+            'orderby' => 'modified',
+            'order' => 'ASC',
+            'posts_per_page' => $this->config['posts_per_index_update'] -
+                 $posts_count,
+                'date_query' => array(
+                  'after' => $last_page_modified,
+                  'column' => 'post_modified_gmt',
+                  'inclusive' => FALSE
+                )
+          ));
+
+      // when pages have been found
+      if (count($pages) > 0) {
+        $last_page_modified = date('c',
+            strtotime($pages[count($pages) - 1]->post_modified_gmt));
+
+        // remember the time
+        update_option('phsolr_last_page_modified', $last_page_modified);
+      }
     }
 
-    return $pages;
+    return array_merge($posts, $pages);
   }
 
   private function updateIndex(array $changedItems, array $deletedItems, $type) {
@@ -84,8 +89,6 @@ class PhSolr {
     $set_fields = NULL;
     if ($type === 'post') {
       $set_fields = 'phsolr_set_post_fields';
-    } else if ($type === 'page') {
-      $set_fields = 'phsolr_set_page_fields';
     } else if ($type === 'comment') {
       $set_fields = 'phsolr_set_comment_fields';
     } else {
@@ -132,20 +135,16 @@ class PhSolr {
     $posts = get_posts(
         array(
           'post_status' => 'trash',
-          'posts_per_page' => 1000
+          'posts_per_page' => 500
         ));
 
-    return $posts;
-  }
-
-  private function getDeletedPages() {
     $pages = get_pages(
         array(
           'post_status' => 'trash',
-          'posts_per_page' => 1000
+          'posts_per_page' => 500
         ));
 
-    return $pages;
+    return array_merge($posts, $pages);
   }
 
   public function updatePostIndex() {
@@ -153,17 +152,10 @@ class PhSolr {
         'post');
   }
 
-  public function updatePageIndex() {
-    $this->updateIndex($this->getModifiedPages(), $this->getDeletedPages(),
-        'page');
-  }
-
   public function resetPostIndex() {
     // reset the last modified time, so the index will be rebuilt
     update_option('phsolr_last_post_modified', '1970-01-01T00:00:00Z');
-  }
 
-  public function resetPageIndex() {
     // reset the last modified time, so the index will be rebuilt
     update_option('phsolr_last_page_modified', '1970-01-01T00:00:00Z');
   }
@@ -200,6 +192,8 @@ class PhSolr {
     $query = $args['text'];
 
     $select->setQuery($query);
+    $dismax = $select->getDisMax();
+    $dismax->setQueryFields('title^4.0 content author^0.5 type^0.4');
     $select->setQueryDefaultOperator($this->config['default_query_operator']);
 
     $search_results = $this->client->select($select);

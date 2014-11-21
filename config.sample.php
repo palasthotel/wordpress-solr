@@ -23,14 +23,11 @@ $solarium_config = array(
 $phsolr_config = array(
   // number of posts per index update
   'posts_per_index_update' => 50,
-  // number of posts per index update
-  'pages_per_index_update' => 50,
   // number of comments per index update
   'comments_per_index_update' => 50,
 
   // how often should the index be updated?
   'posts_update_interval' => 'hourly',
-  'pages_update_interval' => 'hourly',
   'comments_update_interval' => 'daily',
 
   'optimization_interval' => 'weekly',
@@ -73,25 +70,7 @@ function phsolr_set_post_fields(
   $document->content = strip_tags($post->post_content);
   $document->url = $post->guid;
 
-  // aggregate field
-  $document->aggregate = $post->post_title . ' ' . $post->post_content . ' ' .
-       $post->post_date . ' ' . $author_name;
-
-  var_dump($document->aggregate);
-
   $document->type = 'post';
-}
-
-/**
- * Sets the fields from a WP_Post object to a Solarium Document, which will be
- * uploaded to Solr.
- *
- * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
- * @param WP_Post $post
- */
-function phsolr_set_page_fields(
-    Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
-    WP_Post $page) {
 }
 
 /**
