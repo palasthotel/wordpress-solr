@@ -35,6 +35,21 @@ $phsolr_config = array(
   // 'AND' or 'OR'
   'default_query_operator' => 'AND',
 
+  // list of fields to search and their corresponding weight
+  'search_fields' => array(
+    'title' => 4.0,
+    'date' => 0.5,
+    'author' => 0.5,
+    'content' => 1.0
+  ),
+
+  // list of fields to return
+  'return_fields' => array(
+    'title',
+    'date',
+    'author'
+  ),
+
   'facets' => array(
     'type' => array(
       'field' => 'type',
