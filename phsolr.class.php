@@ -225,7 +225,11 @@ class PhSolr {
     if ($this->search_args['facets']) {
       foreach ($this->search_args['facets'] as $facet_key_val => $enabled) {
         if ($enabled) {
-          var_dump($facet_key_val);
+          $kv = explode('-', $facet_key_val);
+          var_dump($kv);
+          $filter_query = new \Solarium\QueryType\Select\Query\FilterQuery();
+          $filter_query->setKey($kv[0]);
+          $filter_query->setQuery($kv[1]);
         }
       }
     }
@@ -234,6 +238,7 @@ class PhSolr {
     if ($this->config['facets']) {
       $facetSet = $select->getFacetSet();
 
+      // content type facet
       if ($this->config['facets']['type']) {
         $facet = $this->config['facets']['type'];
         // type facet
@@ -241,6 +246,7 @@ class PhSolr {
             1);
       }
 
+      // year facet
       if ($this->config['facets']['date']) {
         $facet = $this->config['facets']['date'];
         // the date facet

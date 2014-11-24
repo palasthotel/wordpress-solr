@@ -13,14 +13,14 @@
   <div class="advanced-search-settings">
 <?php
 $facets = $phsolr_search_results->getFacetSet()->getFacets();
-foreach ($facets as $facet) :
+foreach ($facets as $key => $facet) :
 ?>
     <fieldset class="facet-type">
       <legend><?php echo $key; ?></legend>
 <?php
   foreach ($facet as $value => $count) :
     if ($count > 0) :
-      if ($legend === 'Date') {
+      if ($key === 'Date') {
         $value = date('Y', strtotime($value));
       }
       ?>
@@ -36,7 +36,6 @@ foreach ($facets as $facet) :
 endforeach;
 ?>
   </div>
-  <input type="submit" value="Submit" />
 </form>
 <div id="search-results">
   <h1>
