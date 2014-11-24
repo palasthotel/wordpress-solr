@@ -205,9 +205,9 @@ class PhSolr {
     $select = $this->client->createSelect();
 
     $facetSet = $select->getFacetSet();
-    $facetSet->createFacetField('type')->setField('type')->setMinCount(1);
-    $facetSet->createFacetRange('date')->setField('date')->setStart(
-        '2000-01-01T00:00:00Z')->setEnd(str_replace('+00:00', 'Z', date('c')))->setGap(
+    $facetSet->createFacetField('Type')->setField('type')->setMinCount(1);
+    $facetSet->createFacetRange('Year')->setField('date')->setStart(
+        '1970-01-01T00:00:00Z')->setEnd(str_replace('+00:00', 'Z', date('c')))->setGap(
         '+1YEAR');
 
     $query = $args['text'];

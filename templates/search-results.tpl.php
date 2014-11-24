@@ -13,34 +13,26 @@
   <div class="advanced-search-settings">
 <?php
 $facets = $phsolr_search_results->getFacetSet()->getFacets();
-foreach ($facets as $facet) :
-  ?>
+foreach ($facets as $legend => $facet) :
+?>
     <fieldset class="facet-type">
-      <legend>?</legend>
+      <legend><?php echo $legend; ?></legend>
 <?php
   foreach ($facet as $value => $count) :
     if ($count > 0) :
+      if ($legend === 'Year') {
+        $value = date('Y', strtotime($value));
+      }
       ?>
-      <input type="checkbox" name="facet-type-<?php echo $value ?>"
-        id="facet-type-<?php echo $value ?>" /> <label
-        for="facet-type-<?php echo $value ?>"><?php echo "$value ($count)" ?></label><br />
-
-
-
-    <?php endif;
-  endforeach
-  ;
-  ?>
+      <input type="checkbox" name="facet-<?php echo $value ?>"
+        id="facet-<?php echo $value ?>" /> <label
+        for="facet-<?php echo $value ?>"><?php echo "$value ($count)" ?></label><br />
+<?php
+endif;
+endforeach;
+?>
     </fieldset>
 <?php endforeach; ?>
-    <!--fieldset class="cbgrp-year">
-      <legend>Year</legend>
-      <input type="checkbox" name="year-2014" id="year-2014" /> <label
-        for="year-2014">2014 (15)</label><br /> <input type="checkbox"
-        name="year-2013" id="year-2013" /> <label for="year-2013">2013 (11)</label><br />
-      <input type="checkbox" name="year-2012" id="year-2012" /> <label
-        for="year-2012">2012 (3)</label><br />
-    </fieldset-->
   </div>
 </form>
 <div id="search-results">
@@ -49,11 +41,17 @@ foreach ($facets as $facet) :
     for <em>“<?php echo $phsolr_search_args['text'] ?>”</em>
   </h1>
 <?php
+$highlighting = $phsolr_search_results->getHighlighting();
 foreach ($phsolr_search_results as $doc) {
   global $phsolr_document;
+  global $phsolr_highlighted_document;
   $phsolr_document = $doc;
 
   $type = explode('/', $doc->id)[0];
+
+  if ($highlighting) {
+    $phsolr_highlighted_document = $highlighting->getResult($doc->id);
+  }
 
   if ($type === 'post') {
     include __DIR__ . '/search-result-post.tpl.php';
