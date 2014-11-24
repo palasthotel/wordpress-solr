@@ -205,6 +205,11 @@ class PhSolr {
     }
   }
 
+  /**
+   * Runs the search.
+   *
+   * @return array search results
+   */
   public function search() {
     if ($this->search_args === FALSE) {
       return array();
@@ -212,19 +217,39 @@ class PhSolr {
 
     $select = $this->client->createSelect();
 
-    $facetSet = $select->getFacetSet();
-
-    // type facet
-    $facetSet->createFacetField('Type')->setField('type')->setMinCount(1);
-
-    // the date facet
-    $facetSet->createFacetRange('Year')->setField('date')->setStart(
-        '1970-01-01T00:00:00Z')->setEnd(str_replace('+00:00', 'Z', date('c')))->setGap(
-        '+1YEAR');
-
+    // set search query
     $query = $this->search_args['text'];
-
     $select->setQuery($query);
+
+    // apply facets
+    if ($this->search_args['facets']) {
+      foreach ($this->search_args['facets'] as $facet_key_val => $enabled) {
+        if ($enabled) {
+          var_dump($facet_key_val);
+        }
+      }
+    }
+
+    // show other facets
+    if ($this->config['facets']) {
+      $facetSet = $select->getFacetSet();
+
+      if ($this->config['facets']['type']) {
+        $facet = $this->config['facets']['type'];
+        // type facet
+        $facetSet->createFacetField($facet['title'])->setField($facet['field'])->setMinCount(
+            1);
+      }
+
+      if ($this->config['facets']['date']) {
+        $facet = $this->config['facets']['date'];
+        // the date facet
+        // from epoch until now
+        $facetSet->createFacetRange($facet['title'])->setField($facet['field'])->setStart(
+            '1970-01-01T00:00:00Z')->setEnd(
+            str_replace('+00:00', 'Z', date('c')))->setGap('+1YEAR');
+      }
+    }
 
     // weight of fields
     $dismax = $select->getDisMax();

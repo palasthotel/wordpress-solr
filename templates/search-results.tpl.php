@@ -13,21 +13,20 @@
   <div class="advanced-search-settings">
 <?php
 $facets = $phsolr_search_results->getFacetSet()->getFacets();
-foreach ($facets as $legend => $facet) :
-  $type = strtolower($legend);
+foreach ($facets as $facet) :
 ?>
     <fieldset class="facet-type">
-      <legend><?php echo $legend; ?></legend>
+      <legend><?php echo $key; ?></legend>
 <?php
   foreach ($facet as $value => $count) :
     if ($count > 0) :
-      if ($legend === 'Year') {
+      if ($legend === 'Date') {
         $value = date('Y', strtotime($value));
       }
       ?>
-      <input type="checkbox" name="facet-<?php echo $type.'-'.$value ?>"
-        id="facet-<?php echo $type.'-'.$value ?>" /> <label
-        for="facet-<?php echo $type.'-'.$value ?>"><?php echo "$value ($count)" ?></label><br />
+      <input type="checkbox" name="facet-<?php echo $key.'-'.$value ?>"
+        id="facet-<?php echo $key.'-'.$value ?>" /> <label
+        for="facet-<?php echo $key.'-'.$value ?>"><?php echo "$value ($count)" ?></label><br />
 <?php
     endif;
   endforeach;
@@ -37,6 +36,7 @@ foreach ($facets as $legend => $facet) :
 endforeach;
 ?>
   </div>
+  <input type="submit" value="Submit" />
 </form>
 <div id="search-results">
   <h1>
