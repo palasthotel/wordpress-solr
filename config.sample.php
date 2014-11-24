@@ -56,6 +56,7 @@ $phsolr_config = array(
     'content'
   ),
 
+  // facet definitions
   'facets' => array(
     'type' => array(
       'field' => 'type',
