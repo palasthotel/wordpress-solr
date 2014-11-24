@@ -14,6 +14,7 @@
 <?php
 $facets = $phsolr_search_results->getFacetSet()->getFacets();
 foreach ($facets as $legend => $facet) :
+  $type = strtolower($legend);
 ?>
     <fieldset class="facet-type">
       <legend><?php echo $legend; ?></legend>
@@ -24,15 +25,17 @@ foreach ($facets as $legend => $facet) :
         $value = date('Y', strtotime($value));
       }
       ?>
-      <input type="checkbox" name="facet-<?php echo $value ?>"
-        id="facet-<?php echo $value ?>" /> <label
-        for="facet-<?php echo $value ?>"><?php echo "$value ($count)" ?></label><br />
+      <input type="checkbox" name="facet-<?php echo $type.'-'.$value ?>"
+        id="facet-<?php echo $type.'-'.$value ?>" /> <label
+        for="facet-<?php echo $type.'-'.$value ?>"><?php echo "$value ($count)" ?></label><br />
 <?php
-endif;
-endforeach;
+    endif;
+  endforeach;
 ?>
     </fieldset>
-<?php endforeach; ?>
+<?php
+endforeach;
+?>
   </div>
 </form>
 <div id="search-results">
