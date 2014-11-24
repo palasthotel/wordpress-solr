@@ -208,6 +208,45 @@
       </analyzer>
     </fieldType>
 
+    <fieldType name="text_de" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <!-- in this example, we will only use synonyms at query time
+        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+        -->
+        <!-- Case insensitive stop word removal.
+          add enablePositionIncrements=true in both the index and query
+          analyzers to leave a 'gap' for more accurate phrase queries.
+        -->
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"
+          enablePositionIncrements="true"/>
+        <filter class="solr.WordDelimiterFilterFactory" protected="protwords.txt"
+          generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1"
+          catenateAll="0" splitOnCaseChange="1" preserveOriginal="1"/>
+        <filter class="solr.LengthFilterFactory" min="2" max="100"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="German2" />
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <charFilter class="solr.MappingCharFilterFactory" mapping="mapping-ISOLatin1Accent.txt"/>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true"
+          expand="true"/>
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="stopwords.txt"
+          enablePositionIncrements="true"/>
+        <filter class="solr.WordDelimiterFilterFactory" protected="protwords.txt"
+          generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0"
+          catenateAll="0" splitOnCaseChange="1" preserveOriginal="1"/>
+        <filter class="solr.LengthFilterFactory" min="2" max="100"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="German" />
+        <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
     <!-- An unstemmed text field - good if one does not know the language of the field -->
     <fieldType name="text_und" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
@@ -339,17 +378,9 @@
     <field name="date" type="date" indexed="true" stored="true"/>
     <field name="modified" type="date" indexed="true" stored="true"/>
     <field name="author" type="string" indexed="true" stored="true"/>
-    <field name="content" type="text_und" indexed="true" stored="true"/>
+    <field name="content" type="text" indexed="true" stored="true" compressed="true"/>
     <field name="url" type="string" indexed="true" stored="true"/>
     <field name="type" type="string" indexed="true" stored="true"/>
-    
-    <!-- aggregation field that stores all other values -->
-    <field name="aggregate" type="text_und" indexed="true" stored="false" multivalued="true"/>
-    
-    <copyField source="title" dest="aggregate" />
-    <copyField source="date" dest="aggregate" />
-    <copyField source="author" dest="aggregate" />
-    <copyField source="content" dest="aggregate" />
   </fields>
 
   <!-- Field to use to determine and enforce document uniqueness.
@@ -358,7 +389,7 @@
   <uniqueKey>id</uniqueKey>
 
   <!-- field for the QueryParser to use when an explicit fieldname is absent -->
-  <defaultSearchField>aggregate</defaultSearchField>
+  <defaultSearchField>title</defaultSearchField>
 
   <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
   <solrQueryParser defaultOperator="AND"/>
