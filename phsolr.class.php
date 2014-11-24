@@ -5,13 +5,21 @@ class PhSolr {
 
   private $config;
 
-  public function __construct(Solarium\Client $client, array $config) {
+  private $search_args;
+
+  public function __construct(Solarium\Client $client, array $config,
+      array $search_args) {
     $this->client = $client;
     $this->config = $config;
+    $this->search_args = $search_args;
   }
 
   public function getConfiguration() {
     return $this->config;
+  }
+
+  public function getSearchArgs() {
+    return $this->searchArgs;
   }
 
   private function getModifiedPosts() {
@@ -197,24 +205,34 @@ class PhSolr {
     }
   }
 
-  public function search($args) {
-    if ($args === FALSE) {
+  public function search() {
+    if ($this->searchArgs === FALSE) {
       return array();
     }
 
     $select = $this->client->createSelect();
 
     $facetSet = $select->getFacetSet();
-    $facetSet->createFacetField('Type')->setField('type')->setMinCount(1);
-    $facetSet->createFacetRange('Year')->setField('date')->setStart(
-        '1970-01-01T00:00:00Z')->setEnd(str_replace('+00:00', 'Z', date('c')))->setGap(
-        '+1YEAR');
 
-    $query = $args['text'];
+    // type facet
+    $facetSet->createFacetField('Type')->setField('type')->setMinCount(1);
+
+    // the date facet
+    $facetSet->createFacetRange('Year')->setField('date')->setStart(
+        '1970-01-01T00:00:00Z')->setEnd(
+        str_replace('+00:00', 'Z', date('c')))->setGap('+1YEAR');
+
+    $query = $this->searchArgs['text'];
 
     $select->setQuery($query);
     $dismax = $select->getDisMax();
-    $dismax->setQueryFields('title^4.0 content author^0.5 type^0.4');
+
+    $weightString = '';
+    foreach ($this->config['search_fields'] as $field => $weight) {
+      $weightString .= ' ' . $field . '^' . $weight;
+    }
+
+    $dismax->setQueryFields(substr($weightString, 1));
     $select->setQueryDefaultOperator($this->config['default_query_operator']);
 
     $search_results = $this->client->select($select);
