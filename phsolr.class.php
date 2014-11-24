@@ -240,8 +240,8 @@ class PhSolr {
     return $search_results;
   }
 
-  public function showResults($search_page_id, $search_args, $search_results) {
-    // make parameters global
+  public function showResults($search_page_id, $search_results) {
+    // make parameters global, so they can be used in the template
     global $phsolr_search_page_id;
     global $phsolr_search_args;
     global $phsolr_search_results;
@@ -252,14 +252,15 @@ class PhSolr {
     }
 
     $phsolr_search_page_id = $search_page_id;
-    $phsolr_search_args = $search_args;
+    $phsolr_search_args = $this->searchArgs;
     $phsolr_search_results = $search_results;
 
     $template_file = 'search-results.tpl.php';
 
+    // theme/template paths
     $theme = wp_get_theme();
     $theme_dir = $theme->get_theme_root() . '/' . $theme->get_stylesheet();
-    $include_path = $theme_dir . "/$template_file";
+    $include_path = "$theme_dir/$template_file";
 
     if (!file_exists($include_path)) {
       $include_path = __DIR__ . "/templates/$template_file";
