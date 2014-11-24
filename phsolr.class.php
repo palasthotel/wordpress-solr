@@ -206,7 +206,7 @@ class PhSolr {
   }
 
   public function search() {
-    if ($this->searchArgs === FALSE) {
+    if ($this->search_args === FALSE) {
       return array();
     }
 
@@ -219,20 +219,25 @@ class PhSolr {
 
     // the date facet
     $facetSet->createFacetRange('Year')->setField('date')->setStart(
-        '1970-01-01T00:00:00Z')->setEnd(
-        str_replace('+00:00', 'Z', date('c')))->setGap('+1YEAR');
+        '1970-01-01T00:00:00Z')->setEnd(str_replace('+00:00', 'Z', date('c')))->setGap(
+        '+1YEAR');
 
-    $query = $this->searchArgs['text'];
+    $query = $this->search_args['text'];
 
     $select->setQuery($query);
+
+    // weight of fields
     $dismax = $select->getDisMax();
 
+    // build the weight string
     $weightString = '';
     foreach ($this->config['search_fields'] as $field => $weight) {
-      $weightString .= ' ' . $field . '^' . $weight;
+      $weightString .= " $field^$weight";
     }
 
     $dismax->setQueryFields(substr($weightString, 1));
+
+    // set the default operator
     $select->setQueryDefaultOperator($this->config['default_query_operator']);
 
     $search_results = $this->client->select($select);
@@ -252,7 +257,7 @@ class PhSolr {
     }
 
     $phsolr_search_page_id = $search_page_id;
-    $phsolr_search_args = $this->searchArgs;
+    $phsolr_search_args = $this->search_args;
     $phsolr_search_results = $search_results;
 
     $template_file = 'search-results.tpl.php';
