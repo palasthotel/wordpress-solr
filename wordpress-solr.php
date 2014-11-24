@@ -33,19 +33,20 @@ function phsolr_get_instance() {
     }
 
     // instantiate PhSolr
-    $_phsolr = new PhSolr(new Solarium\Client($solarium_config), $phsolr_config);
+    $_phsolr = new PhSolr(new Solarium\Client($solarium_config), $phsolr_config,
+        phsolr_get_search_args());
   }
 
   return $_phsolr;
 }
 
-function phsolr_test() {
-  $phsolr = phsolr_get_instance();
-
-  // $phsolr->updatePostIndex();
-}
-
-add_action('init', 'phsolr_test');
+// function phsolr_test() {
+//   $phsolr = phsolr_get_instance();
+//
+//   // $phsolr->updatePostIndex();
+// }
+//
+// add_action('init', 'phsolr_test');
 
 register_activation_hook(__FILE__, 'phsolr_activate');
 register_deactivation_hook(__FILE__, 'phsolr_deactivate');
@@ -123,6 +124,7 @@ function phsolr_print_search_form() {
 }
 
 function phsolr_search_form($form) {
+  $phsolr =
   $search_args = phsolr_get_search_args();
   $search_page_id = phsolr_get_search_page_id();
   ob_start();
@@ -182,9 +184,8 @@ add_shortcode('phsolr_search_results', 'phsolr_print_search_results');
 
 function phsolr_print_search_results() {
   $search_page_id = phsolr_get_search_page_id();
-  $search_args = phsolr_get_search_args();
 
   $phsolr = phsolr_get_instance();
-  $search_results = $phsolr->search($search_args);
-  $phsolr->showResults($search_page_id, $search_args, $search_results);
+  $search_results = $phsolr->search();
+  $phsolr->showResults($search_page_id, $search_results);
 }
