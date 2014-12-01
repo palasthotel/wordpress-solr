@@ -8,7 +8,7 @@ class PhSolr {
   private $search_args;
 
   public function __construct(Solarium\Client $client, array $config,
-      array $search_args) {
+      $search_args) {
     $this->client = $client;
     $this->config = $config;
     $this->search_args = $search_args;
