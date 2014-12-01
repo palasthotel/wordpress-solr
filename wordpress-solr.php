@@ -1,12 +1,12 @@
 <?php
-/**
- * Plugin Name: WordPress Solr by PALASTHOTEL
- * Description: Use the Apache Solr search engine in WordPress.
- * Version: 0.0.1
- * Author: Palasthotel GmbH
- * URI: http://palasthotel.de/
- * Plugin URI: https://github.com/palasthotel/wordpress-solr
- */
+/*
+Plugin Name: WordPress Solr by PALASTHOTEL
+Description: Use the Apache Solr search engine in WordPress.
+Version: 0.0.1
+Author: Palasthotel GmbH
+URI: http://palasthotel.de/
+Plugin URI: https://github.com/palasthotel/wordpress-solr
+*/
 require_once __DIR__ . '/phsolr.class.php';
 
 $_phsolr = NULL;
