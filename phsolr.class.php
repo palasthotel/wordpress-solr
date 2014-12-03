@@ -222,6 +222,17 @@ class PhSolr {
     $query = $this->search_args['text'];
     $select->setQuery($query);
 
+    // enable spellchecker
+    if ($this->config['spellcheck']) {
+      $spellcheck = $select->getSpellcheck();
+      $spellcheck->setQuery($query);
+      $spellcheck->setCount(10);
+      $spellcheck->setBuild(TRUE);
+      $spellcheck->setCollate(TRUE);
+      $spellcheck->setExtendedResults(TRUE);
+      $spellcheck->setCollateExtendedResults(TRUE);
+    }
+
     // apply facets
     if ($this->search_args['facets']) {
       foreach ($this->search_args['facets'] as $facet_key_val => $enabled) {
