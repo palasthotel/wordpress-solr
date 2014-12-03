@@ -14,7 +14,7 @@
 <?php
 $facets = $phsolr_search_results->getFacetSet()->getFacets();
 foreach ($facets as $key => $facet) :
-?>
+  ?>
     <fieldset class="facet-type">
       <legend><?php echo $key; ?></legend>
 <?php
@@ -27,13 +27,19 @@ foreach ($facets as $key => $facet) :
       <input type="checkbox" name="facet-<?php echo $key.'-'.$value ?>"
         id="facet-<?php echo $key.'-'.$value ?>" /> <label
         for="facet-<?php echo $key.'-'.$value ?>"><?php echo "$value ($count)" ?></label><br />
-<?php
+
+
+    <?php
     endif;
-  endforeach;
-?>
+  endforeach
+  ;
+  ?>
     </fieldset>
 <?php
-endforeach;
+endforeach
+;
+$spellcheck_result = $phsolr_search_results->getSpellcheck();
+
 ?>
   </div>
 </form>
@@ -43,6 +49,19 @@ endforeach;
     for <em>“<?php echo $phsolr_search_args['text'] ?>”</em>
   </h1>
 <?php
+if (!$spellcheck_result->getCorrectlySpelled()) :
+  $collations = $spellcheck_result->getCollations();
+  if (count($collations) > 0) :
+    $corrections = $spellcheck_result->getCollation(0)->getCorrections();
+    ?>
+  <p>
+    Did you mean <em><?php echo implode(' ', $corrections); ?>?</em>
+
+  <?php
+  endif;
+
+endif;
+
 $highlighting = $phsolr_search_results->getHighlighting();
 foreach ($phsolr_search_results as $doc) {
   global $phsolr_document;
@@ -64,5 +83,7 @@ foreach ($phsolr_search_results as $doc) {
   }
 }
 ?>
+
+
 </div>
 <?php

@@ -722,11 +722,17 @@
     <!-- default values for query parameters can be specified, these
          will be overridden by parameters in the request
       -->
-     <lst name="defaults">
-       <str name="echoParams">explicit</str>
-       <int name="rows">10</int>
-       <str name="df">content</str>
-     </lst>
+    <lst name="defaults">
+      <str name="echoParams">explicit</str>
+      <int name="rows">10</int>
+      <str name="df">content</str>
+      <str name="spellcheck.onlyMorePopular">false</str>
+      <str name="spellcheck.extendedResults">false</str>
+      <str name="spellcheck.count">1</str>
+    </lst>
+    <arr name="last-components">
+      <str>spellcheck</str>
+    </arr>
     <!-- In addition to defaults, "appends" params can be specified
          to identify values which should be appended to the list of
          multi-val params from the query (or the existing "defaults").
@@ -1118,14 +1124,12 @@
       -->
     <lst name="spellchecker">
       <str name="name">default</str>
-      <str name="field">name</str>
+      <str name="field">content</str>
       <str name="spellcheckIndexDir">spellchecker</str>
       <!-- uncomment this to require terms to occur in 1% of the documents
            in order to be included in the dictionary
         -->
-      <!--
-      	<float name="thresholdTokenFrequency">.01</float>
-      -->
+      <float name="thresholdTokenFrequency">.0001</float>
     </lst>
 
     <!-- a spellchecker that uses a different distance measure -->
@@ -1181,7 +1185,7 @@
        See http://wiki.apache.org/solr/SpellCheckComponent for details
        on the request parameters.
     -->
-  <requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
+  <!--requestHandler name="/spell" class="solr.SearchHandler" startup="lazy">
     <lst name="defaults">
       <str name="df">content</str>
       <str name="spellcheck.onlyMorePopular">false</str>
@@ -1191,7 +1195,7 @@
     <arr name="last-components">
       <str>spellcheck</str>
     </arr>
-  </requestHandler>
+  </requestHandler-->
 
   <!-- Term Vector Component
 
