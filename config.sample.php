@@ -39,7 +39,7 @@ $phsolr_config = array(
   // 'AND' or 'OR'
   'default_query_operator' => 'AND',
 
-  // spellchecker
+  // enable spellchecker
   'spellcheck' => TRUE,
 
   // list of fields to search and their corresponding weight
