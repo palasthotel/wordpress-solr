@@ -1,6 +1,7 @@
 <?php
 /**
- * This is an example configuration file. Change it according to your needs and
+ * This is an example configuration file.
+ * Change it according to your needs and
  * rename it to config.php.
  */
 
@@ -21,6 +22,9 @@ $solarium_config = array(
  * Configuration for this module.
  */
 $phsolr_config = array(
+  // either 'any' or an array of the post types that shall be indexed
+  'post_types' => 'any',
+
   // number of posts per index update
   'posts_per_index_update' => 50,
   // number of comments per index update
