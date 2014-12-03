@@ -30,12 +30,13 @@ class PhSolr {
     // find newer posts
     $posts = get_posts(
         array(
+          'post_type' => $this->config['post_types'],
           'post_status' => 'publish',
           'orderby' => 'modified',
           'order' => 'ASC',
           'posts_per_page' => $this->config['posts_per_index_update'],
           'date_query' => array(
-            'after' => $last_post_modified,
+            'after' => '1970-01-01T00:00:00Z', // $last_post_modified,
             'column' => 'post_modified_gmt',
             'inclusive' => FALSE
           )
