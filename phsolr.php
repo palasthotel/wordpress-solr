@@ -40,9 +40,6 @@ function phsolr_get_instance() {
   return $_phsolr;
 }
 
-register_activation_hook(__FILE__, 'phsolr_activate');
-register_deactivation_hook(__FILE__, 'phsolr_deactivate');
-
 function phsolr_create_search_result_page() {
   // search for a page titled 'Search Results'
   $page = get_page_by_title('Search Results', 'OBJECT', 'page');
@@ -77,16 +74,16 @@ function phsolr_activate() {
 
   phsolr_create_search_result_page();
 
-  // schedule index updates
+  // schedule index updates in 1 min
   wp_schedule_event(time(), $config['posts_update_interval'],
       'phsolr_update_post_index');
   // comments are indexed 20 mins later
-  wp_schedule_event(time() + 60 * 20, $config['comments_update_interval'],
+  wp_schedule_event(time() + 60 * 10, $config['comments_update_interval'],
       'phsolr_update_comment_index');
 
   // optimize index
   if ($config['optimization_interval'] !== 'never') {
-    wp_schedule_event(time() + 60 * 30, $config['optimization_interval'],
+    wp_schedule_event(time() + 60 * 15, $config['optimization_interval'],
         'phsolr_optimize_index');
   }
 }
@@ -96,7 +93,13 @@ function phsolr_deactivate() {
   wp_clear_scheduled_hook('phsolr_update_comment_index');
 }
 
+// workaround, since register_activation_hook doesn't work with symlinks
+$__FILE__ = basename(dirname(__FILE__)) . '/' . basename(__FILE__);
+register_activation_hook($__FILE__, 'phsolr_activate');
+register_deactivation_hook($__FILE__, 'phsolr_deactivate');
+
 function phsolr_update_post_index() {
+  exit();
   $phsolr = phsolr_get_instance();
 
   $phsolr->updatePostIndex();
