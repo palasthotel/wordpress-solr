@@ -76,21 +76,22 @@ function phsolr_activate() {
 
   // schedule index updates in 1 min
   wp_schedule_event(time(), $config['posts_update_interval'],
-      'phsolr_update_post_index');
+      'phsolr_update_post_index_event');
   // comments are indexed 20 mins later
   wp_schedule_event(time() + 60 * 10, $config['comments_update_interval'],
-      'phsolr_update_comment_index');
+      'phsolr_update_comment_index_event');
 
   // optimize index
   if ($config['optimization_interval'] !== 'never') {
     wp_schedule_event(time() + 60 * 15, $config['optimization_interval'],
-        'phsolr_optimize_index');
+        'phsolr_optimize_index_event');
   }
 }
 
 function phsolr_deactivate() {
-  wp_clear_scheduled_hook('phsolr_update_post_index');
-  wp_clear_scheduled_hook('phsolr_update_comment_index');
+  wp_clear_scheduled_hook('phsolr_update_post_index_event');
+  wp_clear_scheduled_hook('phsolr_update_comment_index_event');
+  wp_clear_scheduled_hook('phsolr_optimize_index_event');
 }
 
 // workaround, since register_activation_hook doesn't work with symlinks
@@ -99,21 +100,23 @@ register_activation_hook($__FILE__, 'phsolr_activate');
 register_deactivation_hook($__FILE__, 'phsolr_deactivate');
 
 function phsolr_update_post_index() {
-  exit();
   $phsolr = phsolr_get_instance();
 
   $phsolr->updatePostIndex();
 }
+add_action('phsolr_update_post_index_event', 'phsolr_update_post_index');
 
 function phsolr_update_comment_index() {
   // does nothing right now
 }
+add_action('phsolr_update_comment_index_event', 'phsolr_update_comment_index');
 
 function phsolr_optimize_index() {
   $phsolr = phsolr_get_instance();
 
   $phsolr->optimizeIndex();
 }
+add_action('phsolr_optimize_index_event', 'phsolr_optimize_index');
 
 function phsolr_print_search_form() {
   echo phsolr_search_form();
