@@ -48,6 +48,7 @@ function phsolr_create_search_result_page() {
     // if it doesn't exist, create a new page
     $page = array(
       'post_type' => 'page',
+      'post_name' => 'search',
       'post_title' => 'Search Results',
       'post_content' => '[phsolr_search_results]',
       'post_status' => 'publish',
