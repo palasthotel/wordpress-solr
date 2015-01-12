@@ -1,6 +1,5 @@
 <?php
 class PhSolr {
-
   private $client;
 
   private $config;
@@ -36,7 +35,7 @@ class PhSolr {
           'order' => 'ASC',
           'posts_per_page' => $this->config['posts_per_index_update'],
           'date_query' => array(
-            'after' => '1970-01-01T00:00:00Z', // $last_post_modified,
+            'after' => $last_post_modified,
             'column' => 'post_modified_gmt',
             'inclusive' => FALSE
           )
