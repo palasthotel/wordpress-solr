@@ -42,6 +42,9 @@ $phsolr_config = array(
   // enable spellchecker
   'spellcheck' => TRUE,
 
+  // maximum number of search results
+  'query_limit' => 15,
+
   // list of fields to search and their corresponding weight
   'search_fields' => array(
     'title' => 4.0,
