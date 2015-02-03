@@ -295,10 +295,12 @@ class PhSolr {
     global $phsolr_search_page_id;
     global $phsolr_search_args;
     global $phsolr_search_results;
+    global $phsolr_search_config;
 
     $phsolr_search_page_id = $search_page_id;
     $phsolr_search_args = $this->search_args;
     $phsolr_search_results = $search_results;
+    $phsolr_search_config = $this->config;
 
     $template_file = 'search-results.php';
 
