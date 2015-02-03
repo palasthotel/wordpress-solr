@@ -309,6 +309,8 @@ class PhSolr {
     $theme_dir = $theme->get_theme_root() . '/' . $theme->get_stylesheet();
     $include_path = "$theme_dir/$template_file";
 
+    // if a custom template exists in the directory of the current template,
+    // use it, otherwise use the default template in this plugin's directory
     if (!file_exists($include_path)) {
       $include_path = __DIR__ . "/templates/$template_file";
     }
