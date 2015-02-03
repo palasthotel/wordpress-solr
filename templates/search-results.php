@@ -15,8 +15,8 @@
 $facets = $phsolr_search_results->getFacetSet()->getFacets();
 foreach ($facets as $key => $facet) :
   ?>
-    <fieldset class="facet-type">
-      <legend><?php echo $key; ?></legend>
+    <div class="facet-type">
+      <span class="facet-type-id"><?php echo $key; ?></span>
 <?php
   foreach ($facet as $value => $count) :
     if ($count > 0) :
@@ -27,13 +27,12 @@ foreach ($facets as $key => $facet) :
       <input type="checkbox" name="facet-<?php echo $key.'-'.$value ?>"
         id="facet-<?php echo $key.'-'.$value ?>" /> <label
         for="facet-<?php echo $key.'-'.$value ?>"><?php echo "$value ($count)" ?></label><br />
-
     <?php
     endif;
   endforeach
   ;
   ?>
-    </fieldset>
+    </div>
 <?php
 endforeach
 ;
@@ -60,10 +59,8 @@ if (!$spellcheck_result->getCorrectlySpelled()) :
 
 
 
-
   <?php
   endif;
-
 
 
 
@@ -83,9 +80,9 @@ foreach ($phsolr_search_results as $doc) {
   }
 
   if ($type === 'post') {
-    include __DIR__ . '/search-result-post.tpl.php';
+    include __DIR__ . '/search-result-post.php';
   } else if ($type === 'comment') {
-    include __DIR__ . '/search-result-comment.tpl.php';
+    include __DIR__ . '/search-result-comment.php';
   } else {
     throw new Exception('Unknown document type: ' . $type);
   }

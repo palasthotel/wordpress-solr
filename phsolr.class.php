@@ -305,7 +305,7 @@ class PhSolr {
     $phsolr_search_args = $this->search_args;
     $phsolr_search_results = $search_results;
 
-    $template_file = 'search-results.tpl.php';
+    $template_file = 'search-results.php';
 
     // theme/template paths
     $theme = wp_get_theme();
