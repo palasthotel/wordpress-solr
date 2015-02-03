@@ -221,6 +221,8 @@ class PhSolr {
     $query = $this->search_args['text'];
     $select->setQuery($query);
 
+    $select->setFields($this->config['return_fields']);
+
     // enable spellchecker
     if ($this->config['spellcheck']) {
       $spellcheck = $select->getSpellcheck();
