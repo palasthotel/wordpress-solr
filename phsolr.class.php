@@ -296,11 +296,6 @@ class PhSolr {
     global $phsolr_search_args;
     global $phsolr_search_results;
 
-    // if there is no result, there also was no query. skip the rest.
-    if (!$search_results) {
-      return;
-    }
-
     $phsolr_search_page_id = $search_page_id;
     $phsolr_search_args = $this->search_args;
     $phsolr_search_results = $search_results;
