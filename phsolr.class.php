@@ -221,6 +221,10 @@ class PhSolr {
     $query = $this->search_args['text'];
     $select->setQuery($query);
 
+    // set query offset and limit
+    $select->setStart(($this->search_args['page'] - 1) * $this->config['query_limit']);
+    $select->setRows($this->config['query_limit']);
+
     // set result fields
     $select->setFields($this->config['result_fields']);
 

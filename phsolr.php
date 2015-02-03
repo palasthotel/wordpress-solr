@@ -165,6 +165,17 @@ function phsolr_get_search_args() {
     return FALSE;
   }
 
+  // sanitize page param
+  if (isset($_GET['page'])) {
+    $args['page'] = (int) $_GET['page'];
+
+    if ($args['page'] < 1) {
+      $args['page'] = 1;
+    }
+  } else {
+    $args['page'] = 1;
+  }
+
   $facet_args = array();
   foreach ($_GET as $key => $value) {
     if (strpos($key, 'facet-') === 0) {
