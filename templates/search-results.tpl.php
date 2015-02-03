@@ -28,7 +28,6 @@ foreach ($facets as $key => $facet) :
         id="facet-<?php echo $key.'-'.$value ?>" /> <label
         for="facet-<?php echo $key.'-'.$value ?>"><?php echo "$value ($count)" ?></label><br />
 
-
     <?php
     endif;
   endforeach
@@ -49,16 +48,24 @@ $spellcheck_result = $phsolr_search_results->getSpellcheck();
     for <em>“<?php echo $phsolr_search_args['text'] ?>”</em>
   </h1>
 <?php
+
 if (!$spellcheck_result->getCorrectlySpelled()) :
   $collations = $spellcheck_result->getCollations();
   if (count($collations) > 0) :
     $corrections = $spellcheck_result->getCollation(0)->getCorrections();
     ?>
   <p>
-    Did you mean <em><?php echo implode(' ', $corrections); ?>?</em>
+    Did you mean “<a href="?query=<?php echo implode('+', $corrections); ?>"><?php echo implode(' ', $corrections); ?></a>”?
+  </p>
+
+
+
 
   <?php
   endif;
+
+
+
 
 endif;
 
@@ -68,7 +75,8 @@ foreach ($phsolr_search_results as $doc) {
   global $phsolr_highlighted_document;
   $phsolr_document = $doc;
 
-  $type = explode('/', $doc->id)[0];
+  $tmp = explode('/', $doc->id);
+  $type = $tmp[0];
 
   if ($highlighting) {
     $phsolr_highlighted_document = $highlighting->getResult($doc->id);
@@ -79,7 +87,7 @@ foreach ($phsolr_search_results as $doc) {
   } else if ($type === 'comment') {
     include __DIR__ . '/search-result-comment.tpl.php';
   } else {
-    throw new Exception('Unknown document type: ' . $doc->type);
+    throw new Exception('Unknown document type: ' . $type);
   }
 }
 ?>
