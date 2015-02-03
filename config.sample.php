@@ -51,7 +51,7 @@ $phsolr_config = array(
   ),
 
   // list of fields to return
-  'return_fields' => array(
+  'result_fields' => array(
     'title',
     'date',
     'author'
