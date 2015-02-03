@@ -12,30 +12,34 @@
   </div>
   <div class="advanced-search-settings">
 <?php
-$facets = $phsolr_search_results->getFacetSet()->getFacets();
-foreach ($facets as $key => $facet) :
-  ?>
+if ($phsolr_search_results->getFacetSet()) :
+  $facets = $phsolr_search_results->getFacetSet()->getFacets();
+  foreach ($facets as $key => $facet) :
+    ?>
     <div class="facet-type">
       <span class="facet-type-id"><?php echo $key; ?></span>
 <?php
-  foreach ($facet as $value => $count) :
-    if ($count > 0) :
-      if ($key === 'Date') {
-        $value = date('Y', strtotime($value));
-      }
-      ?>
+    foreach ($facet as $value => $count) :
+      if ($count > 0) :
+        if ($key === 'Date') {
+          $value = date('Y', strtotime($value));
+        }
+        ?>
       <input type="checkbox" name="facet-<?php echo $key.'-'.$value ?>"
         id="facet-<?php echo $key.'-'.$value ?>" /> <label
         for="facet-<?php echo $key.'-'.$value ?>"><?php echo "$value ($count)" ?></label><br />
-    <?php
+
+      <?php
     endif;
-  endforeach
-  ;
-  ?>
+    endforeach
+    ;
+    ?>
     </div>
 <?php
-endforeach
-;
+  endforeach
+  ;
+
+endif;
 $spellcheck_result = $phsolr_search_results->getSpellcheck();
 
 ?>
@@ -56,13 +60,8 @@ if (!$spellcheck_result->getCorrectlySpelled()) :
   <p>
     Did you mean “<a href="?query=<?php echo implode('+', $corrections); ?>"><?php echo implode(' ', $corrections); ?></a>”?
   </p>
-
-
-
   <?php
   endif;
-
-
 
 endif;
 
@@ -88,7 +87,6 @@ foreach ($phsolr_search_results as $doc) {
   }
 }
 ?>
-
 
 </div>
 <?php
