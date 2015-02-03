@@ -10,9 +10,11 @@
       title="Search for:" />
     </label> <input type="submit" class="search-submit" value="Search" />
   </div>
+<?php
+if ($phsolr_search_results) :
+?>
   <div class="advanced-search-settings">
 <?php
-if ($phsolr_search_results->getFacetSet()) :
   $facets = $phsolr_search_results->getFacetSet()->getFacets();
   foreach ($facets as $key => $facet) :
     ?>
@@ -39,53 +41,63 @@ if ($phsolr_search_results->getFacetSet()) :
   endforeach
   ;
 
-endif;
 $spellcheck_result = $phsolr_search_results->getSpellcheck();
 
 ?>
   </div>
+<?php
+endif;
+?>
 </form>
 <div id="search-results">
+<?php
+if (!$phsolr_search_results):
+?>
+<h1><em>No results found for
+  <em>“<?php echo $phsolr_search_args['text'] ?>”</em></h1>
+<?php
+else:
+?>
   <h1>
     <em><?php echo $phsolr_search_results->getNumFound() ?></em> Result(s) found
     for <em>“<?php echo $phsolr_search_args['text'] ?>”</em>
   </h1>
 <?php
+  if (!$spellcheck_result->getCorrectlySpelled()) :
+    $collations = $spellcheck_result->getCollations();
+    if (count($collations) > 0) :
+      $corrections = $spellcheck_result->getCollation(0)->getCorrections();
+      ?>
+    <p>
+      Did you mean “<a href="?query=<?php echo implode('+', $corrections); ?>"><?php echo implode(' ', $corrections); ?></a>”?
+    </p>
+    <?php
+    endif;
 
-if (!$spellcheck_result->getCorrectlySpelled()) :
-  $collations = $spellcheck_result->getCollations();
-  if (count($collations) > 0) :
-    $corrections = $spellcheck_result->getCollation(0)->getCorrections();
-    ?>
-  <p>
-    Did you mean “<a href="?query=<?php echo implode('+', $corrections); ?>"><?php echo implode(' ', $corrections); ?></a>”?
-  </p>
-  <?php
   endif;
 
+  $highlighting = $phsolr_search_results->getHighlighting();
+  foreach ($phsolr_search_results as $doc) {
+    global $phsolr_document;
+    global $phsolr_highlighted_document;
+    $phsolr_document = $doc;
+
+    $tmp = explode('/', $doc->id);
+    $type = $tmp[0];
+
+    if ($highlighting) {
+      $phsolr_highlighted_document = $highlighting->getResult($doc->id);
+    }
+
+    if ($type === 'post') {
+      include __DIR__ . '/search-result-post.php';
+    } else if ($type === 'comment') {
+      include __DIR__ . '/search-result-comment.php';
+    } else {
+      throw new Exception('Unknown document type: ' . $type);
+    }
+  }
 endif;
-
-$highlighting = $phsolr_search_results->getHighlighting();
-foreach ($phsolr_search_results as $doc) {
-  global $phsolr_document;
-  global $phsolr_highlighted_document;
-  $phsolr_document = $doc;
-
-  $tmp = explode('/', $doc->id);
-  $type = $tmp[0];
-
-  if ($highlighting) {
-    $phsolr_highlighted_document = $highlighting->getResult($doc->id);
-  }
-
-  if ($type === 'post') {
-    include __DIR__ . '/search-result-post.php';
-  } else if ($type === 'comment') {
-    include __DIR__ . '/search-result-comment.php';
-  } else {
-    throw new Exception('Unknown document type: ' . $type);
-  }
-}
 ?>
 
 </div>
