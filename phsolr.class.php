@@ -24,7 +24,7 @@ class PhSolr {
   private function getModifiedPosts() {
     // get the modification time of the last indexed post
     $last_post_modified = get_option('phsolr_last_post_modified',
-        '1970-01-01T00:00:00Z'); // default it unix epoch
+        '1970-01-01T00:00:00Z'); // default is unix epoch
 
     // find newer posts
     $posts = get_posts(
