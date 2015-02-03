@@ -135,7 +135,7 @@ function phsolr_search_form($form) {
     <label> <span class="screen-reader-text">Search for:</span> <input
       type="search" class="search-field"
       placeholder="<?php echo __('Search …') ?>"
-      value="<?php echo $search_args['text']; ?>" name="search"
+      value="<?php echo $search_args['text']; ?>" name="query"
       title="Search for:" />
     </label> <input type="submit" class="search-submit" value="Search" />
   </div>
@@ -159,8 +159,8 @@ function phsolr_get_search_page_id() {
  */
 function phsolr_get_search_args() {
   $args = array();
-  if (isset($_GET['search'])) {
-    $args['text'] = $_GET['search'];
+  if (isset($_GET['query'])) {
+    $args['text'] = $_GET['query'];
   } else {
     return FALSE;
   }
