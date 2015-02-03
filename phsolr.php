@@ -166,8 +166,8 @@ function phsolr_get_search_args() {
   }
 
   // sanitize page param
-  if (isset($_GET['page'])) {
-    $args['page'] = (int) $_GET['page'];
+  if (isset($_GET['page_num'])) {
+    $args['page'] = (int) $_GET['page_num'];
 
     if ($args['page'] < 1) {
       $args['page'] = 1;
