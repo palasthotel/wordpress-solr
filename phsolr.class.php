@@ -244,10 +244,10 @@ class PhSolr {
       foreach ($this->search_args['facets'] as $facet_key_val => $enabled) {
         if ($enabled) {
           $kv = explode('-', $facet_key_val);
-          var_dump($kv);
           $filter_query = new \Solarium\QueryType\Select\Query\FilterQuery();
-          $filter_query->setKey($kv[0]);
+          $filter_query->setKey(strtolower($kv[0]));
           $filter_query->setQuery($kv[1]);
+          $select->addFilterQuery($filter_query);
         }
       }
     }
