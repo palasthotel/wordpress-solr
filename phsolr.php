@@ -108,7 +108,10 @@ function phsolr_update_post_index() {
 add_action('phsolr_update_post_index_event', 'phsolr_update_post_index');
 
 function phsolr_update_comment_index() {
-  // does nothing right now
+  // do nothing for now
+  // $phsolr = phsolr_get_instance();
+  //
+  // $phsolr->updateCommentIndex();
 }
 add_action('phsolr_update_comment_index_event', 'phsolr_update_comment_index');
 
