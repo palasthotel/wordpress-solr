@@ -119,4 +119,6 @@ function phsolr_set_comment_fields(
   $document->author = $comment['comment_author'];
   $document->date = date('Y-m-d\TH:i:s\Z',
       strtotime($comment['comment_date_gmt']));
+
+  $document->type = 'comment';
 }
