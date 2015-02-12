@@ -53,6 +53,11 @@ $phsolr_config = array(
     'content' => 1.0
   ),
 
+  // list of additional boost functions
+  'boost_functions' => array(
+    'recip(abs(ms(NOW,date)),3.16e-11,1,1)^5'
+  ),
+
   // list of fields to return
   'result_fields' => array(
     'title',
