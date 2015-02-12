@@ -381,6 +381,7 @@
     <field name="content" type="text" indexed="true" stored="true" compressed="true"/>
     <field name="url" type="string" indexed="true" stored="true"/>
     <field name="type" type="string" indexed="true" stored="true"/>
+    <field name="category" type="string" indexed="true" stored="true" multiValued="true"/>
   </fields>
 
   <!-- Field to use to determine and enforce document uniqueness.
