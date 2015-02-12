@@ -228,8 +228,10 @@ class PhSolr {
     // set result fields
     $select->setFields($this->config['result_fields']);
 
-    $dismax = $select->getDisMax();
-    $dismax->setBoostFunctions(implode(' ', $this->config['boost_functions']));
+    if (count($this->config['boost_functions']) > 0) {
+      $dismax = $select->getDisMax();
+      $dismax->setBoostFunctions(implode(' ', $this->config['boost_functions']));
+    }
 
     // enable spellchecker
     if ($this->config['spellcheck']) {
