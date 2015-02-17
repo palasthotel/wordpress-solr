@@ -215,6 +215,8 @@ function phsolr_print_search_results() {
     } else if ($_GET['action'] === 'delete') {
       $phsolr->deleteIndex();
       echo '<p>Index deleted</p>';
+    } else {
+      echo '<p>Unknown action "'.$_GET['action'].'"</p>';
     }
   } else {
     $search_results = $phsolr->search();
