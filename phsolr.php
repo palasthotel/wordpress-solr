@@ -8,6 +8,7 @@ URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
 */
 require_once __DIR__ . '/phsolr.class.php';
+require_once __DIR__ . '/settings.php';
 
 $_phsolr = NULL;
 
@@ -27,8 +28,7 @@ function phsolr_get_instance() {
     if (file_exists(__DIR__ . '/config.php')) {
       require_once __DIR__ . '/config.php';
     } else {
-      die(
-          'Configuration file missing. Please add authentication information to' .
+      die('Configuration file missing. Please add authentication information to' .
                ' "config.sample.php" and rename it to "config.php".');
     }
 
@@ -199,6 +199,18 @@ function phsolr_print_search_results() {
   $search_page_id = phsolr_get_search_page_id();
 
   $phsolr = phsolr_get_instance();
+
+  if (isset($_GET['action'])) {
+    if ($_GET['action'] === 'reindex') {
+      $phsolr->resetPostIndex();
+      $phsolr->resetCommentIndex();
+      echo '<p>Index recreation initiated</p>';
+    } else if ($_GET['action'] == 'optimize') {
+      $phsolr->optimizeIndex();
+      echo '<p>Index optimized</p>';
+    }
+  }
+
   $search_results = $phsolr->search();
   $phsolr->showResults($search_page_id, $search_results);
 }
