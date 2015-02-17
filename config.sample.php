@@ -107,6 +107,15 @@ function phsolr_set_post_fields(
   $document->content = strip_tags($post->post_content);
   $document->url = $post->guid;
 
+  // set categories
+  $categories = get_the_category($post->id);
+  foreach ($categories as $category) {
+    $document->addField('category', $category->cat_name);
+  }
+
+  // set published field (boolean value)
+  $document->published = $post->post_status === 'publish';
+
   $document->type = $post->type;
 }
 
