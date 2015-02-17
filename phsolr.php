@@ -201,17 +201,20 @@ function phsolr_print_search_results() {
   $phsolr = phsolr_get_instance();
 
   if (isset($_GET['action'])) {
-    if ($_GET['action'] === 'reindex') {
+    if ($_GET['action'] === 'rebuild') {
       $phsolr->resetPostIndex();
       $phsolr->resetCommentIndex();
-      echo '<p>Index recreation initiated</p>';
+      echo '<p>Index rebuild initialized.</p>';
     } else if ($_GET['action'] == 'optimize') {
       $phsolr->optimizeIndex();
       echo '<p>Index optimized</p>';
-    } else if ($_GET['action'] == 'index-update') {
+    } else if ($_GET['action'] == 'update') {
       $phsolr->updatePostIndex();
       $phsolr->updateCommentIndex();
       echo '<p>Index updated</p>';
+    } else if ($_GET['action'] === 'delete') {
+      $phsolr->deleteIndex();
+      echo '<p>Index deleted</p>';
     }
   } else {
     $search_results = $phsolr->search();

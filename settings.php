@@ -19,14 +19,12 @@ function phsolr_settings_page() {
   ?>
 <div>
   <h2>WordPress Solr by PALASTHOTEL</h2>
-  <h3>Index reset and optimization</h3>
+  <h3>Advanced index operations</h3>
   <ul>
-    <li><a href="<?php echo home_url('/?pagename=search&action=reindex'); ?>"><?php esc_attr_e('Rebuild index'); ?></a></li>
+    <li><a href="<?php echo home_url('/?pagename=search&action=update'); ?>"><?php esc_attr_e('Update index'); ?></a></li>
+    <li><a href="<?php echo home_url('/?pagename=search&action=rebuild'); ?>"><?php esc_attr_e('Rebuild index'); ?></a></li>
     <li><a href="<?php echo home_url('/?pagename=search&action=optimize'); ?>"><?php esc_attr_e('Optimize index'); ?></a></li>
-  </ul>
-  <h3>Update index</h3>
-  <ul>
-    <li><a href="<?php echo home_url('/?pagename=search&action=index-update'); ?>"><?php esc_attr_e('Update index'); ?></a></li>
+    <li><a href="<?php echo home_url('/?pagename=search&action=delete'); ?>"><?php esc_attr_e('Delete index'); ?></a></li>
   </ul>
 </div>
 <?php

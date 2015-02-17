@@ -205,6 +205,22 @@ class PhSolr {
     }
   }
 
+  public function deleteIndex() {
+    // get an update query instance
+    $update = $this->client->createUpdate();
+
+    // delete the index
+    $update->addDeleteQuery('*:*');
+
+    // this executes the query and returns the result
+    try {
+      $result = $this->client->update($update);
+      return $result;
+    } catch (Solarium\Exception\HTTPException $e) {
+      die($e->getMessage());
+    }
+  }
+
   /**
    * Runs the search.
    *
