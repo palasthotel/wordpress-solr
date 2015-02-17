@@ -208,9 +208,13 @@ function phsolr_print_search_results() {
     } else if ($_GET['action'] == 'optimize') {
       $phsolr->optimizeIndex();
       echo '<p>Index optimized</p>';
+    } else if ($_GET['action'] == 'index-update') {
+      $phsolr->updatePostIndex();
+      $phsolr->updateCommentIndex();
+      echo '<p>Index updated</p>';
     }
+  } else {
+    $search_results = $phsolr->search();
+    $phsolr->showResults($search_page_id, $search_results);
   }
-
-  $search_results = $phsolr->search();
-  $phsolr->showResults($search_page_id, $search_results);
 }

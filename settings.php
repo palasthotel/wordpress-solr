@@ -19,12 +19,15 @@ function phsolr_settings_page() {
   ?>
 <div>
   <h2>WordPress Solr by PALASTHOTEL</h2>
-  Rebuilding or optimizing the search index.
-
-  <ol>
-    <li><a href="<?php echo home_url('/?pagename=search&action=reindex'); ?>"><?php esc_attr_e('Rebuild index'); ?>.</a></li>
-    <li><a href="<?php echo home_url('/?pagename=search&action=optimize'); ?>"><?php esc_attr_e('Optimize index'); ?>.</a></li>
-  </ol>
+  <h3>Index reset and optimization</h3>
+  <ul>
+    <li><a href="<?php echo home_url('/?pagename=search&action=reindex'); ?>"><?php esc_attr_e('Rebuild index'); ?></a></li>
+    <li><a href="<?php echo home_url('/?pagename=search&action=optimize'); ?>"><?php esc_attr_e('Optimize index'); ?></a></li>
+  </ul>
+  <h3>Update index</h3>
+  <ul>
+    <li><a href="<?php echo home_url('/?pagename=search&action=index-update'); ?>"><?php esc_attr_e('Update index'); ?></a></li>
+  </ul>
 </div>
 <?php
 }
