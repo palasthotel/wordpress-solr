@@ -108,7 +108,7 @@ function phsolr_set_post_fields(
   $document->url = $post->guid;
 
   // set categories
-  $categories = get_the_category($post->id);
+  $categories = get_the_category($post->ID);
   foreach ($categories as $category) {
     $document->addField('category', $category->cat_name);
   }
