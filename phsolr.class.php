@@ -27,66 +27,37 @@ class PhSolr {
         '1970-01-01T00:00:00Z'); // default is unix epoch
 
     // find newer posts
-    $posts = get_posts(
+    $query = new WP_Query(
         array(
-          'post_type' => $this->config['post_types'],
-          'post_status' => 'publish',
           'orderby' => 'modified',
           'order' => 'ASC',
           'posts_per_page' => $this->config['posts_per_index_update'],
           'date_query' => array(
             'after' => $last_post_modified,
             'column' => 'post_modified_gmt',
-            'inclusive' => FALSE
+            'inclusive' => TRUE
           )
         ));
 
     // when posts have been found
-    if (count($posts) > 0) {
+    if ($query->have_posts()) {
       $last_post_modified = date('c',
-          strtotime($posts[count($posts) - 1]->post_modified_gmt));
+          strtotime($query->posts[count($query->posts) - 1]->post_modified_gmt));
 
       // remember the time
       update_option('phsolr_last_post_modified', $last_post_modified);
-    }
 
-    // how many posts did we get?
-    $posts_count = count($posts);
-    $max_pages_count = $this->config['posts_per_index_update'] - $posts_count;
-
-    $pages = array();
-
-    if ($max_pages_count > 0) {
-
-      // get the modification time of the last indexed page
-      $last_page_modified = get_option('phsolr_last_page_modified',
-          '1970-01-01T00:00:00Z'); // default it unix epoch
-
-      $pages = get_pages(
-          array(
-            'post_status' => 'publish',
-            'orderby' => 'modified',
-            'order' => 'ASC',
-            'posts_per_page' => $this->config['posts_per_index_update'] -
-                 $posts_count,
-                'date_query' => array(
-                  'after' => $last_page_modified,
-                  'column' => 'post_modified_gmt',
-                  'inclusive' => FALSE
-                )
-          ));
-
-      // when pages have been found
-      if (count($pages) > 0) {
-        $last_page_modified = date('c',
-            strtotime($pages[count($pages) - 1]->post_modified_gmt));
-
-        // remember the time
-        update_option('phsolr_last_page_modified', $last_page_modified);
+      // filter posts
+      $posts = array();
+      foreach ($query->posts as $post) {
+        if (phsolr_post_filter($post))
+          $posts[] = $post;
       }
-    }
 
-    return array_merge($posts, $pages);
+      return $posts;
+    } else {
+      return array();
+    }
   }
 
   private function getNewComments() {

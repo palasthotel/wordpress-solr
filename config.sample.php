@@ -22,9 +22,6 @@ $solarium_config = array(
  * Configuration for this module.
  */
 $phsolr_config = array(
-  // either 'any' or an array of the post types that shall be indexed
-  'post_types' => 'any',
-
   // number of posts per index update
   'posts_per_index_update' => 50,
   // number of comments per index update
@@ -84,6 +81,10 @@ $phsolr_config = array(
   )
 );
 
+function phsolr_post_filter(WP_Post $post) {
+  return true;
+}
+
 /**
  * Sets the fields from a WP_Post object to a Solarium Document, which will be
  * uploaded to Solr.
@@ -117,6 +118,10 @@ function phsolr_set_post_fields(
   $document->published = $post->post_status === 'publish';
 
   $document->type = $post->type;
+}
+
+function phsolr_comment_filter(WP_Comment $comment) {
+  return true;
 }
 
 /**
