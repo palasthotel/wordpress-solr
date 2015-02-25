@@ -23,29 +23,26 @@ class PhSolr {
 
   private function getModifiedPosts() {
     // get the modification time of the last indexed post
-    $last_post_modified = get_option('phsolr_last_post_modified',
-        '1970-01-01T00:00:00Z'); // default is unix epoch
+    $page = (int) get_option('phsolr_post_index_page', 0);
 
     // find newer posts
     $query = new WP_Query(
         array(
-          'orderby' => 'modified',
+          'post_type' => 'any',
+          'post_status' => 'any',
+          'orderby' => array('modified', 'date', 'ID'),
           'order' => 'ASC',
           'posts_per_page' => $this->config['posts_per_index_update'],
-          'date_query' => array(
-            'after' => $last_post_modified,
-            'column' => 'post_modified_gmt',
-            'inclusive' => TRUE
-          )
+          'paged' => $page,
+          'ignore_sticky_posts' => TRUE
         ));
+
+    echo $page.'<br>';
 
     // when posts have been found
     if ($query->have_posts()) {
-      $last_post_modified = date('c',
-          strtotime($query->posts[count($query->posts) - 1]->post_modified_gmt));
-
       // remember the time
-      update_option('phsolr_last_post_modified', $last_post_modified);
+      update_option('phsolr_post_index_page', $page + 1);
 
       // filter posts
       $posts = array();
@@ -119,19 +116,19 @@ class PhSolr {
   }
 
   private function getDeletedPosts() {
-    $posts = get_posts(
-        array(
-          'post_status' => 'trash',
-          'posts_per_page' => 500
-        ));
+//     $posts = get_posts(
+//         array(
+//           'post_status' => 'trash',
+//           'posts_per_page' => 500
+//         ));
 
-    $pages = get_pages(
-        array(
-          'post_status' => 'trash',
-          'posts_per_page' => 500
-        ));
+//     $pages = get_pages(
+//         array(
+//           'post_status' => 'trash',
+//           'posts_per_page' => 500
+//         ));
 
-    return array_merge($posts, $pages);
+    return array();//array_merge($posts, $pages);
   }
 
   private function getDeletedComments() {
@@ -150,10 +147,7 @@ class PhSolr {
 
   public function resetPostIndex() {
     // reset the last modified time, so the index will be rebuilt
-    update_option('phsolr_last_post_modified', '1970-01-01T00:00:00Z');
-
-    // reset the last modified time, so the index will be rebuilt
-    update_option('phsolr_last_page_modified', '1970-01-01T00:00:00Z');
+    update_option('phsolr_post_index_page', '0');
   }
 
   public function resetCommentIndex() {
@@ -208,6 +202,8 @@ class PhSolr {
     $query = $this->search_args['text'];
     $select->setQuery($query);
 
+    $filter = $select->createFilterQuery('published')->setQuery('published:true');
+
     // set query offset and limit
     $select->setStart(($this->search_args['page'] - 1) * $this->config['query_limit']);
     $select->setRows($this->config['query_limit']);
@@ -245,11 +241,11 @@ class PhSolr {
     }
 
     // show other facets
-    if ($this->config['facets']) {
+    if (isset($this->config['facets'])) {
       $facetSet = $select->getFacetSet();
 
       // content type facet
-      if ($this->config['facets']['type']) {
+      if (isset($this->config['facets']['type'])) {
         $facet = $this->config['facets']['type'];
         // type facet
         $facetSet->createFacetField($facet['title'])->setField($facet['field'])->setMinCount(
@@ -257,7 +253,7 @@ class PhSolr {
       }
 
       // year facet
-      if ($this->config['facets']['date']) {
+      if (isset($this->config['facets']['date'])) {
         $facet = $this->config['facets']['date'];
         // the date facet
         // from epoch until now
