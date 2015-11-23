@@ -7,7 +7,7 @@ Author: Palasthotel GmbH
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
 */
-require_once __DIR__ . '/phsolr.class.php';
+require_once dirname(__FILE__) . '/phsolr.class.php';
 require_once __DIR__ . '/settings.php';
 
 $_phsolr = NULL;
@@ -22,11 +22,11 @@ function phsolr_get_instance() {
 
   if ($_phsolr === NULL) {
     // autoload dependencies
-    require_once __DIR__ . '/vendor/autoload.php';
+    require_once dirname(__FILE__) . '/vendor/autoload.php';
 
     // load configuration
-    if (file_exists(__DIR__ . '/config.php')) {
-      require_once __DIR__ . '/config.php';
+    if (file_exists(dirname(__FILE__) . '/config.php')) {
+      require_once dirname(__FILE__) . '/config.php';
     } else {
       die('Configuration file missing. Please add authentication information to' .
                ' "config.sample.php" and rename it to "config.php".');
