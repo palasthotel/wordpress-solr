@@ -1,43 +1,81 @@
 <?php
 /*
-Plugin Name: WordPress Solr by PALASTHOTEL
+Plugin Name: Solr
 Description: Use the Apache Solr search engine in WordPress.
-Version: 0.0.1
-Author: Palasthotel GmbH
+Version: 0.1.0
+Author: Palasthotel (Edward Bock, Daniel Blume)
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
 */
-require_once dirname(__FILE__) . '/phsolr.class.php';
-require_once __DIR__ . '/settings.php';
 
-$_phsolr = NULL;
+// If this file is called directly, abort.
+if ( ! defined( 'WPINC' ) ) {
+  die;
+}
+
+require_once dirname(__FILE__) . '/phsolr.class.php';
+
+class SolrPlugin
+{
+	public $dir;
+	public $url;
+	private $solr;
+
+	/**
+	* construct grid plugin
+	*/
+	function __construct()
+	{
+		/**
+		* base paths
+		*/
+		$this->dir = plugin_dir_path(__FILE__);
+		$this->url = plugin_dir_url(__FILE__);
+
+		global $grid_loaded;
+		$grid_loaded = false;
+
+		/**
+		* settings page
+		*/
+		require('classes/settings.inc');
+		new \SolrPlugin\Settings();
+
+	}
+
+	public function get_solr(){
+		if ($this->solr === NULL) {
+			// autoload dependencies
+			require_once dirname(__FILE__) . '/vendor/autoload.php';
+
+			// load configuration
+			if (file_exists(dirname(__FILE__) . '/config.php')) {
+				require_once dirname(__FILE__) . '/config.php';
+			} else {
+				die('Configuration file missing. Please add authentication information to' .
+					' "config.sample.php" and rename it to "config.php".');
+			}
+
+			// instantiate PhSolr
+			$this->solr = new PhSolr(new Solarium\Client($solarium_config), $phsolr_config,
+				phsolr_get_search_args());
+		}
+
+		return $this->solr;
+	}
+
+}
+global $solr_plugin;
+$solr_plugin = new SolrPlugin();
 
 /**
- * Returns an instance of PhSolr.
+ * Returns an instance of Solr.
  *
- * @return PhSolr
+ * @return Solr
  */
 function phsolr_get_instance() {
-  global $_phsolr;
-
-  if ($_phsolr === NULL) {
-    // autoload dependencies
-    require_once dirname(__FILE__) . '/vendor/autoload.php';
-
-    // load configuration
-    if (file_exists(dirname(__FILE__) . '/config.php')) {
-      require_once dirname(__FILE__) . '/config.php';
-    } else {
-      die('Configuration file missing. Please add authentication information to' .
-               ' "config.sample.php" and rename it to "config.php".');
-    }
-
-    // instantiate PhSolr
-    $_phsolr = new PhSolr(new Solarium\Client($solarium_config), $phsolr_config,
-        phsolr_get_search_args());
-  }
-
-  return $_phsolr;
+	global $solr_plugin;
+	return $solr_plugin->get_solr();
 }
 
 function phsolr_create_search_result_page() {

@@ -1,4 +1,20 @@
 <?php
+
+namespace SolrPlugin;
+
+class Settings{
+  /**
+   * construct settings
+   */
+  function __construct()
+  {
+
+  }
+
+
+}
+
+
 add_action('init', 'phsolr_rewrites_init');
 function phsolr_rewrites_init() {
   add_rewrite_rule('phsolr/reindex',
