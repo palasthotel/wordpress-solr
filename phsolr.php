@@ -64,6 +64,10 @@ class SolrPlugin
 		return $this->solr;
 	}
 
+	public function save_latest_run(){
+		update_option('phsolr_post_index_run', date("Y-m-d h:i:s"));
+	}
+
 }
 global $solr_plugin;
 $solr_plugin = new SolrPlugin();
