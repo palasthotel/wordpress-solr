@@ -5,6 +5,8 @@
  * rename it to config.php.
  */
 
+// TODO: move to wp-config.php file global variables
+
 /**
  * Solarium connection information.
  */
@@ -81,7 +83,12 @@ $phsolr_config = array(
   )
 );
 
+// TODO: move to wordpress filter function
 function phsolr_post_filter(WP_Post $post) {
+  return true;
+}
+// TODO: move to wordpress filter function
+function phsolr_comment_filter(WP_Comment $comment) {
   return true;
 }
 
@@ -94,35 +101,32 @@ function phsolr_post_filter(WP_Post $post) {
  * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
  * @param WP_Post $post
  */
-function phsolr_set_post_fields(
-    Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
-    WP_Post $post) {
-  // get the authors name
-  $author_name = get_user_by('id', $post->post_author)->display_name;
+// TODO: move to wordpress action
+function phsolr_set_post_fields( Solarium\QueryType\Update\Query\Document\DocumentInterface $document, WP_Post $post) {
+	// get the authors name
+	$author_name = get_user_by('id', $post->post_author)->display_name;
 
-  $document->title = $post->post_title;
-  $document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
-  $document->modified = date('Y-m-d\TH:i:s\Z',
-      strtotime($post->post_modified_gmt));
-  $document->author = $author_name;
-  $document->content = strip_tags($post->post_content);
-  $document->url = $post->guid;
+	$document->title = $post->post_title;
+	$document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
+	$document->modified = date('Y-m-d\TH:i:s\Z',
+	  strtotime($post->post_modified_gmt));
+	$document->author = $author_name;
+	$document->content = strip_tags($post->post_content);
+	$document->url = $post->guid;
 
-  // set categories
-  $categories = get_the_category($post->ID);
-  foreach ($categories as $category) {
-    $document->addField('category', $category->cat_name);
-  }
+	// set categories
+	$categories = get_the_category($post->ID);
+	foreach ($categories as $category) {
+	$document->addField('category', $category->cat_name);
+	}
 
-  // set published field (boolean value)
-  $document->published = $post->post_status === 'publish';
+	// set published field (boolean value)
+	$document->published = $post->post_status === 'publish';
 
-  $document->type = $post->type;
+	$document->type = $post->type;
 }
 
-function phsolr_comment_filter(WP_Comment $comment) {
-  return true;
-}
+
 
 /**
  * Sets the fields from a WP_Comment object to a Solarium Document, which will be
@@ -131,13 +135,12 @@ function phsolr_comment_filter(WP_Comment $comment) {
  * @param Solarium\QueryType\Update\Query\Document\DocumentInterface $document
  * @param WP_Comment $comment
  */
-function phsolr_set_comment_fields(
-    Solarium\QueryType\Update\Query\Document\DocumentInterface $document,
-    WP_Comment $comment) {
-  $document->content = $comment['comment_content'];
-  $document->author = $comment['comment_author'];
-  $document->date = date('Y-m-d\TH:i:s\Z',
-      strtotime($comment['comment_date_gmt']));
+// TODO: move to wordpress action
+function phsolr_set_comment_fields( Solarium\QueryType\Update\Query\Document\DocumentInterface $document,  WP_Comment $comment) {
+	$document->content = $comment['comment_content'];
+	$document->author = $comment['comment_author'];
+	$document->date = date('Y-m-d\TH:i:s\Z',
+	  strtotime($comment['comment_date_gmt']));
 
-  $document->type = 'comment';
+	$document->type = 'comment';
 }
