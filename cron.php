@@ -12,23 +12,6 @@ require_once( $paths[0] . 'wp-load.php' );
 /**
  * do the cron stuff
  */
-print "looking\n";
-$query = new WP_Query(array('s'=>''));
 
 $solr_plugin = solr_get_plugin();
-$posts = $solr_plugin->posts->getModifiedPosts(2);
-
-foreach ($posts as $counter => $post) {
-	/* @var $post WP_Post */
-	print $post->post_title."\n";
-	$solr_plugin->posts->set_indexed($post->ID);
-}
-
-// TODO: search for new posts
-	// TODO: index posts
-	// TODO: use settings to finde out which fields should be indexed how
-	// TODO: label post as indexed in post meta
-
-// TODO: do the same for comments
-
-// TODO: optimize index
+$solr_plugin->index_posts();

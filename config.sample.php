@@ -5,9 +5,6 @@
  * rename it to config.php.
  */
 
-
-
-
 /**
  * Configuration for this module.
  */

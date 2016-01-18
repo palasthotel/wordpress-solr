@@ -22,11 +22,15 @@ class SolrPlugin
 	public $url;
 	public $prefix;
 
+
+
+
 	/**
 	 * subclasses
 	 */
-	public $solr;
-	public $config;
+	private $solr;
+	private $solarium;
+	private $config;
 	public $settings;
 	public $posts;
 
@@ -40,6 +44,10 @@ class SolrPlugin
 		*/
 		$this->dir = plugin_dir_path(__FILE__);
 		$this->url = plugin_dir_url(__FILE__);
+
+		/**
+		 * database prefix
+		 */
 		$this->prefix = "solr_";
 
 		/**
@@ -61,8 +69,6 @@ class SolrPlugin
 	 */
 	public function get_solr(){
 		if ($this->solr === NULL) {
-			// autoload dependencies
-			require_once dirname(__FILE__) . '/vendor/autoload.php';
 
 			// load configuration
 			if (file_exists(dirname(__FILE__) . '/config.php')) {
@@ -72,13 +78,38 @@ class SolrPlugin
 					' "config.sample.php" and rename it to "config.php".');
 			}
 
+
+
 			// instantiate PhSolr
 			require_once dirname(__FILE__) . '/classes/solr.php';
-//			$this->solr = new SolrPlugin\Solr(new Solarium\Client($solarium_config), $phsolr_config,
-//				phsolr_get_search_args());
+			$this->solr = new SolrPlugin\Solr($this);
 		}
-
 		return $this->solr;
+	}
+
+	/**
+	 * get the solarum client
+	 * @return \Solarium\Client
+	 */
+	public function get_solarium(){
+		if($this->solarium === null){
+			// autoload dependencies
+			require_once $this->dir . '/vendor/autoload.php';
+			$config = $this->get_config();
+			/**
+			 * init solarium configuration
+			 */
+			$this->solarium = new Solarium\Client(array(
+			  'endpoint' => array(
+				array(
+				  'host' => $config->get_option($config::$HOST),
+				  'port' => $config->get_option($config::$PORT),
+				  'path' => $config->get_option($config::$PATH),
+				)
+			  )
+			));
+		}
+		return $this->solarium;
 	}
 
 	public function save_latest_run(){
@@ -98,6 +129,65 @@ class SolrPlugin
 			$this->config = new \SolrPlugin\Config($this);
 		}
 		return $this->config;
+	}
+
+	/**
+	 * Returns the search arguments as an associative array or FALSE if there was no
+	 * search.
+	 *
+	 * @return array
+	 */
+	function get_search_args() {
+		$args = array();
+		if (isset($_GET['query'])) {
+			$args['text'] = $_GET['query'];
+		} else {
+			return FALSE;
+		}
+
+		// sanitize page param
+		if (isset($_GET['page_num'])) {
+			$args['page'] = (int) $_GET['page_num'];
+
+			if ($args['page'] < 1) {
+				$args['page'] = 1;
+			}
+		} else {
+			$args['page'] = 1;
+		}
+
+		$facet_args = array();
+		foreach ($_GET as $key => $value) {
+			if (strpos($key, 'facet-') === 0) {
+				$facet_args[substr($key, 6)] = $value === 'on';
+			}
+		}
+
+		$args['facets'] = $facet_args;
+
+		return $args;
+	}
+
+	/**
+	 * update index
+	 */
+	public function index_posts(){
+
+		// TODO: search for new posts
+		$posts = $this->posts->getModifiedPosts(2);
+		foreach ($posts as $counter => $post) {
+			/* @var $post WP_Post */
+
+			// TODO: index post
+			// TODO: use settings to finde out which fields should be indexed how
+			print $post->post_title."\n";
+
+			// TODO: label post as indexed in post meta
+			$this->posts->set_indexed($post->ID);
+		}
+		// TODO: do the same for comments
+
+		// TODO: optimize index
 	}
 
 	/**
@@ -132,7 +222,7 @@ function solr_get_plugin(){
 /**
  * LEGACY
  * Returns an instance of Solr.
- * @return Solr
+ * @return \SolrPlugin\Solr
  */
 function phsolr_get_instance() {
 	return solr_get_plugin()->get_solr();
