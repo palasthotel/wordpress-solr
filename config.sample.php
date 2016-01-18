@@ -5,44 +5,16 @@
  * rename it to config.php.
  */
 
-// TODO: move to wp-config.php file global variables
 
-/**
- * Solarium connection information.
- */
-$solarium_config = array(
-  'endpoint' => array(
-    array(
-      'host' => '127.0.0.1',
-      'port' => 8983,
-      'path' => '/solr/'
-    )
-  )
-);
+
 
 /**
  * Configuration for this module.
  */
 $phsolr_config = array(
-  // number of posts per index update
-  'posts_per_index_update' => 50,
-  // number of comments per index update
-  'comments_per_index_update' => 50,
-
-  // how often should the index be updated?
-  'posts_update_interval' => 'hourly',
-  'comments_update_interval' => 'daily',
-
-  'optimization_interval' => 'weekly',
 
   // 'AND' or 'OR'
   'default_query_operator' => 'AND',
-
-  // enable spellchecker
-  'spellcheck' => TRUE,
-
-  // maximum number of search results
-  'query_limit' => 15,
 
   // list of fields to search and their corresponding weight
   'search_fields' => array(

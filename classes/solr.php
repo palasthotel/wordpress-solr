@@ -1,15 +1,14 @@
 <?php
 namespace SolrPlugin;
 
-class PhSolr {
+class Solr {
   private $client;
 
   private $config;
 
   private $search_args;
 
-  public function __construct(\Solarium\Client $client, array $config,
-      $search_args) {
+  public function __construct(\Solarium\Client $client, array $config, $search_args) {
     $this->client = $client;
     $this->config = $config;
     $this->search_args = $search_args;
@@ -23,49 +22,7 @@ class PhSolr {
     return $this->searchArgs;
   }
 
-  private function getModifiedPosts() {
-    // get the modification time of the last indexed post
-    $page = (int) get_option('phsolr_post_index_page', 0);
 
-    // find newer posts
-    $query = new WP_Query(
-        array(
-          'post_type' => 'any',
-          'post_status' => 'any',
-          'orderby' => array('modified', 'date', 'ID'),
-          'order' => 'ASC',
-          'posts_per_page' => $this->config['posts_per_index_update'],
-          'paged' => $page,
-          'ignore_sticky_posts' => TRUE
-        ));
-
-    echo $page.'<br>';
-
-    // when posts have been found
-    if ($query->have_posts()) {
-      // remember the time
-      update_option('phsolr_post_index_page', $page + 1);
-
-      // filter posts
-      $posts = array();
-      foreach ($query->posts as $post) {
-        if (phsolr_post_filter($post))
-          $posts[] = $post;
-      }
-
-      return $posts;
-    } else {
-      return array();
-    }
-  }
-
-  private function getNewComments() {
-    // get the modification time of the last indexed comment
-    $last_comment_modified = get_option('phsolr_last_comment_modified',
-        '1970-01-01T00:00:00Z'); // default it unix epoch
-
-    return array();
-  }
 
   private function updateIndex(array $changedItems, array $deletedItems, $type) {
     // new update
@@ -117,26 +74,6 @@ class PhSolr {
     }
   }
 
-  private function getDeletedPosts() {
-//     $posts = get_posts(
-//         array(
-//           'post_status' => 'trash',
-//           'posts_per_page' => 500
-//         ));
-
-//     $pages = get_pages(
-//         array(
-//           'post_status' => 'trash',
-//           'posts_per_page' => 500
-//         ));
-
-    return array();//array_merge($posts, $pages);
-  }
-
-  private function getDeletedComments() {
-    return array();
-  }
-
   public function updatePostIndex() {
     $this->updateIndex($this->getModifiedPosts(), $this->getDeletedPosts(),
         'post');
@@ -145,15 +82,6 @@ class PhSolr {
   public function updateCommentIndex() {
     $this->updateIndex($this->getNewComments(), $this->getDeletedComments(),
         'comment');
-  }
-
-  public function resetPostIndex() {
-    // reset the last modified time, so the index will be rebuilt
-    update_option('phsolr_post_index_page', '0');
-  }
-
-  public function resetCommentIndex() {
-    update_option('phsolr_last_comment_modified', '1970-01-01T00:00:00Z');
   }
 
   public function optimizeIndex() {

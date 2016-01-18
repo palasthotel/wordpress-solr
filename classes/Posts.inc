@@ -11,39 +11,51 @@ namespace SolrPlugin;
 
 class Posts
 {
-	public $config;
-	public function __construct($config){
-		$this->config = $config;
+	/**
+	 * @var \SolrPlugins
+	 */
+	public $plugin;
+
+	/**
+	 * Posts constructor.
+	 * @param \SolrPlugin $plugin
+	 */
+	public function __construct(\SolrPlugin $plugin){
+		$this->plugin = $plugin;
+		$this->meta_indexed = $this->plugin->prefix."_indexed";
+		$this->meta_ignored = $this->plugin->prefix."_ignored";
 	}
 
-	public function getModifiedPosts() {
-
-		// find newer posts
+	/**
+	 * get modified posts
+	 * @return array
+	 */
+	public function getModifiedPosts( $number = 10) {
+		// not manipulated posts
 		$query = new WP_Query(
 			array(
 				'post_type' => 'any',
 				'post_status' => 'any',
 				'orderby' => array('modified', 'date', 'ID'),
 				'order' => 'ASC',
-				'posts_per_page' => $this->config['posts_per_index_update'],
+				'posts_per_page' => $number,
 				'ignore_sticky_posts' => TRUE,
 				'meta_query' => array(
 					'relation' => 'AND',
 					array(
-						'key' => $this->config['meta_key'],
+						'key' => $this->meta_indexed,
 						'compare' => 'NOT EXISTS',
 					),
 					array(
-						'key' => $this->config['meta_key_ignore'],
+						'key' => $this->meta_ignored,
 						'compare' => 'NOT EXISTS',
 					),
 				)
 			)
 		);
-
+		$posts = array();
 		// when posts have been found
 		if ($query->have_posts()) {
-
 			// filter posts
 			$posts = array();
 			foreach ($query->posts as $post) {
@@ -52,22 +64,14 @@ class Posts
 				$post_filtered = true;
 				$post_filtered = apply_filters('solr_post_filter',$post_filtered);
 
-				if (phsolr_post_filter($post))
+				if ($post_filtered)
 				{
 					$posts[] = $post;
-				} else {
-					$this->set_ignored($post->ID);
 				}
 			}
-
-			$count = get_option('phsolr_post_indexed_count',0);
-			$count = $count+count($posts);
-			update_option('phsolr_post_indexed_count', $count);
-
 			return $posts;
-		} else {
-			return array();
 		}
+		return $posts;
 	}
 
 	public function set_indexed($post_id){
