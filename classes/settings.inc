@@ -89,7 +89,7 @@ class Settings{
 		<tr>
 			<th scope="row"><label for="<?php echo $key; ?>"><?php echo $label; ?></label></th>
 			<td><?php
-				if(!empty($setting['type']) || $setting['type'] == 'checkbox'){
+				if(isset($setting['type']) && (!empty($setting['type']) || $setting['type'] == 'checkbox') ){
 					/**
 					 * checkbox render
 					 */

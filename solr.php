@@ -71,11 +71,11 @@ class SolrPlugin
 				die('Configuration file missing. Please add authentication information to' .
 					' "config.sample.php" and rename it to "config.php".');
 			}
-			$this->solr = true;
+
 			// instantiate PhSolr
 			require_once dirname(__FILE__) . '/classes/solr.php';
-			$this->solr = new SolrPlugin\PhSolr(new Solarium\Client($solarium_config), $phsolr_config,
-				phsolr_get_search_args());
+//			$this->solr = new SolrPlugin\Solr(new Solarium\Client($solarium_config), $phsolr_config,
+//				phsolr_get_search_args());
 		}
 
 		return $this->solr;

@@ -32,7 +32,7 @@ class Posts
 	 */
 	public function getModifiedPosts( $number = 10) {
 		// not manipulated posts
-		$query = new WP_Query(
+		$query = new \WP_Query(
 			array(
 				'post_type' => 'any',
 				'post_status' => 'any',
@@ -74,15 +74,15 @@ class Posts
 		return $posts;
 	}
 
-	public function set_indexed($post_id){
-		update_post_meta($post_id, $this->config['meta_key'], true);
-	}
-	public function set_ignored($post_id){
-		update_post_meta($post_id, $this->config['meta_key_ignore'], true);
-	}
-	public function increase_index_count($add = 1){
-		$count = get_option('phsolr_post_indexed_count',0);
-		$count = $count+$add;
-		update_option('phsolr_post_indexed_count', $count);
-	}
+//	public function set_indexed($post_id){
+//		update_post_meta($post_id, $this->config['meta_key'], true);
+//	}
+//	public function set_ignored($post_id){
+//		update_post_meta($post_id, $this->config['meta_key_ignore'], true);
+//	}
+//	public function increase_index_count($add = 1){
+//		$count = get_option('phsolr_post_indexed_count',0);
+//		$count = $count+$add;
+//		update_option('phsolr_post_indexed_count', $count);
+//	}
 }

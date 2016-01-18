@@ -2,18 +2,21 @@
 /**
  * load core
  */
-define( 'WP_MEMORY_LIMIT','2G' );
+//define( 'WP_MEMORY_LIMIT','2G' );
 define('WP_USE_THEMES', false);
 $paths = explode( 'wp-content',__FILE__ );
 require_once( $paths[0] . 'wp-load.php' );
-ini_set( 'memory_limit', '-1' );
+
+//ini_set( 'memory_limit', '-1' );
 
 /**
  * do the cron stuff
  */
+print "looking\n";
+$query = new WP_Query(array('s'=>''));
 
 $solr_plugin = solr_get_plugin();
-$posts = $solr_plugin->posts->getModifiedPosts(100);
+//$posts = $solr_plugin->posts->getModifiedPosts(100);
 
 
 var_dump($posts);
