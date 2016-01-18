@@ -16,10 +16,11 @@ print "looking\n";
 $query = new WP_Query(array('s'=>''));
 
 $solr_plugin = solr_get_plugin();
-//$posts = $solr_plugin->posts->getModifiedPosts(100);
+$posts = $solr_plugin->posts->getModifiedPosts(2);
 
-
-var_dump($posts);
+foreach ($posts as $counter => $post) {
+	print $post->post_title."\n";
+}
 
 // TODO: search for new posts
 	// TODO: index posts
