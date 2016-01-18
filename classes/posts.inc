@@ -74,12 +74,12 @@ class Posts
 		return $posts;
 	}
 
-//	public function set_indexed($post_id){
-//		update_post_meta($post_id, $this->config['meta_key'], true);
-//	}
-//	public function set_ignored($post_id){
-//		update_post_meta($post_id, $this->config['meta_key_ignore'], true);
-//	}
+	public function set_indexed($post_id){
+		update_post_meta($post_id, $this->meta_indexed, true);
+	}
+	public function set_ignored($post_id){
+		update_post_meta($post_id, $this->meta_ignored, true);
+	}
 //	public function increase_index_count($add = 1){
 //		$count = get_option('phsolr_post_indexed_count',0);
 //		$count = $count+$add;

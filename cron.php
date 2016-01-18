@@ -19,7 +19,9 @@ $solr_plugin = solr_get_plugin();
 $posts = $solr_plugin->posts->getModifiedPosts(2);
 
 foreach ($posts as $counter => $post) {
+	/* @var $post WP_Post */
 	print $post->post_title."\n";
+	$solr_plugin->posts->set_indexed($post->ID);
 }
 
 // TODO: search for new posts
