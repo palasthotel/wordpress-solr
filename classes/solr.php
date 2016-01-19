@@ -22,34 +22,9 @@ class Solr {
 	public function __construct(\SolrPlugin $plugin) {
 		$this->plugin = $plugin;
 		$this->client = $this->plugin->get_solarium();
-		add_filter('solr_set_post_fields', array($this, 'set_post_fields'));
-		add_filter('solr_set_post_fields', array($this, 'set_post_fields'));
-	}
-
-	/**
-	 * @param \Solarium\QueryType\Update\Query\Document\DocumentInterface $doc
-	 * @param \WP_Post $post
-	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
-	 */
-	public function set_post_fields(\Solarium\QueryType\Update\Query\Document\DocumentInterface $doc, \WP_Post $post) {
-		// get the authors name
-		$author_name = get_user_by('id', $post->post_author)->display_name;
-		$doc->title = $post->post_title;
-		$doc->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
-		$doc->modified = date('Y-m-d\TH:i:s\Z',
-		  strtotime($post->post_modified_gmt));
-		$doc->author = $author_name;
-		$doc->content = strip_tags($post->post_content);
-		$doc->url = $post->guid;
-		// set categories
-		$categories = get_the_category($post->ID);
-		foreach ($categories as $category) {
-			$doc->addField('category', $category->cat_name);
-		}
-		// set published field (boolean value)
-		$doc->published = $post->post_status === 'publish';
-		$doc->type = $post->type;
-		return $doc;
+		add_filter('solr_add_post_fields', array($this, 'add_post_fields'),10,2);
+		add_filter('solr_add_comment_fields', array($this, 'add_comment_fields'),10,2);
+		add_filter('solr_is_supported_type', array($this, 'is_supported_type'),10,2);
 	}
 
 	/**
@@ -68,52 +43,157 @@ class Solr {
 		return $this->plugin->get_search_args();
 	}
 
-	private function updateIndex(array $changedItems, array $deletedItems, $type) {
-		// new update
-		$update = $this->client->createUpdate();
-
-
-		$set_fields = NULL;
-		if ($type === 'post') {
-			$set_fields = 'phsolr_set_post_fields';
+	/**
+	 * Sets the fields from a WP_Post object to a Solarium Document, which will be
+	 * uploaded to Solr.
+	 *
+	 * @param \Solarium\QueryType\Update\Query\Document\DocumentInterface $document
+	 * @param \WP_Post $post
+	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
+	 */
+	public function add_post_fields(\Solarium\QueryType\Update\Query\Document\DocumentInterface $document, \WP_Post $post) {
+		// get the authors name
+		$author_name = get_user_by('id', $post->post_author)->display_name;
+		$document->title = $post->post_title;
+		$document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
+		$document->modified = date('Y-m-d\TH:i:s\Z', strtotime($post->post_modified_gmt));
+		$document->author = $author_name;
+		$document->content = strip_tags($post->post_content);
+		$document->url = $post->guid;
+		// set categories
+		$categories = get_the_category($post->ID);
+		foreach ($categories as $category) {
+			$document->addField('category', $category->cat_name);
 		}
-		else {
-			if ($type === 'comment') {
-				$set_fields = 'phsolr_set_comment_fields';
-			}
-			else {
-				throw new Exception('unknown document type');
-			}
-		}
+		// set published field (boolean value)
+		$document->published = $post->post_status === 'publish';
+		$document->type = $post->type;
+		return $document;
+	}
 
-		// for each item, add a document to the update query
+	/**
+	 * Sets the fields from a WP_Comment object to a Solarium Document, which will be
+	 * uploaded to Solr.
+	 *
+	 * @param \Solarium\QueryType\Update\Query\Document\DocumentInterface $document
+	 * @param \WP_Comment $comment
+	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
+	 */
+	public function add_comment_fields( \Solarium\QueryType\Update\Query\Document\DocumentInterface $document,  \WP_Comment $comment) {
+		$document->content = $comment['comment_content'];
+		$document->author = $comment['comment_author'];
+		$document->date = date('Y-m-d\TH:i:s\Z', strtotime($comment['comment_date_gmt']));
+		$document->type = 'comment';
+		return $document;
+	}
+
+	/**
+	 * supported types by core are post and comment
+	 * @param boolean $supported is true if any filter before supports type
+	 * @param string $type name of the document type
+	 * @return boolean
+	 */
+	public function is_supported_type($supported, $type){
+		/**
+		 * if already supported by other filter or supported by solr core itself return true
+		 */
+		if($supported || $type == 'comment' || $type == 'post') return true;
+		return false;
+	}
+
+	/**
+	 * create update
+	 * @param string $type
+	 * @return \Solarium\QueryType\Update\Query\Query
+	 * @throws \SolrPlugin\Exception
+	 */
+	private function createUpdate($type){
+		/**
+		 * check if type is supported else throw exception
+		 */
+		$supported = apply_filters('solr_is_supported_type',false, $type);
+		if(!$supported) throw new Exception('unknown document type');
+
+		/**
+		 * so create new update
+		 */
+		return $this->client->createUpdate();
+	}
+
+	/**
+	 * Update solr index for items
+	 * @param array $changedItems
+	 * @param string $type type of solr content (post or comment)
+	 * @return \Solarium\QueryType\Update\Result
+	 * @throws \SolrPlugin\Exception
+	 */
+	private function updateItemIndex(array $changedItems, $type) {
+
+		/**
+		 * so create new update
+		 */
+		$update = $this->createUpdate($type);
+
+		/**
+		 * for each item, add a document to the update query
+		 */
 		foreach ($changedItems as $item) {
-			// create a new document for the data
+			/**
+			 * create a new document for the data
+			 */
 			$doc = $update->createDocument();
 
-			// set the ID
+			/**
+			 * add type specific fields
+			 * filters are dynamically extensible
+			 */
+			$doc = apply_filters('solr_add_'.$type.'_fields',$doc,$item);
+
+			/**
+			 * set the ID
+			 */
 			$doc->id = $type . '/' . $item->ID;
 
-			// set the other fields
-			$set_fields($doc, $item);
-
-			// and the type
-			$doc->type = $type;
-
-			// add document to query
+			/**
+			 * add document to update
+			 */
 			$update->addDocument($doc);
 		}
 
-		// for each deleted item
-		foreach ($deletedItems as $item) {
-			// add a delete command to the query
+		return $this->doUpdate($update);
+
+	}
+
+	/**
+	 * @param array $deleted
+	 * @param string $type
+	 * @return \Solarium\QueryType\Update\Result
+	 * @throws \SolrPlugin\Exception
+	 */
+	private function deleteItemIndex(array $deleted, $type){
+		$update = $this->createUpdate($type);
+		/**
+		 * delete items from index
+		 */
+		foreach ($deleted as $item) {
 			$update->addDeleteById($type . '/' . $item->ID);
 		}
+		return $this->doUpdate($update);
+	}
 
-		// commit
+	/**
+	 * @param $update \Solarium\QueryType\Update\Query\Query
+	 * @return \Solarium\QueryType\Update\Result
+	 */
+	private function doUpdate(\Solarium\QueryType\Update\Query\Query $update){
+		/**
+		 * commit the update
+		 */
 		$update->addCommit();
 
-		// execute the update
+		/**
+		 * execute the update or throw exception if it fails
+		 */
 		try {
 			$result = $this->client->update($update);
 			return $result;
@@ -122,16 +202,40 @@ class Solr {
 		}
 	}
 
-	public function updatePostIndex() {
-		$this->updateIndex($this->getModifiedPosts(), $this->getDeletedPosts(),
-		  'post');
+	/**
+	 * Update posts to solr
+	 * @param array $modified
+	 * @return \Solarium\QueryType\Update\Result
+	 */
+	public function updatePostIndex(array $modified) {
+		return $this->updateItemIndex($modified,'post');
 	}
 
-	public function updateCommentIndex() {
-		$this->updateIndex($this->getNewComments(), $this->getDeletedComments(),
-		  'comment');
+	/**
+	 * delete index of items
+	 * @param array $deleted
+	 * @return \Solarium\QueryType\Update\Result
+	 */
+	public function deletePostIndex(array $deleted){
+		return $this->deleteItemIndex($deleted, 'post');
 	}
 
+	/**
+	 * Update comments to solr
+	 * @param array $modified
+	 * @return \Solarium\QueryType\Update\Result
+	 * @throws \SolrPlugin\Exception
+	 */
+	public function updateCommentIndex( $modified ) {
+		return $this->updateItemIndex($modified,'comment');
+	}
+
+
+
+	/**
+	 * optimize solr index
+	 * @return \Solarium\QueryType\Update\Result
+	 */
 	public function optimizeIndex() {
 		// get an update query instance
 		$update = $this->client->createUpdate();
@@ -148,6 +252,10 @@ class Solr {
 		}
 	}
 
+	/**
+	 * delete solr index completely
+	 * @return \Solarium\QueryType\Update\Result
+	 */
 	public function deleteIndex() {
 		// get an update query instance
 		$update = $this->client->createUpdate();
@@ -268,30 +376,6 @@ class Solr {
 	}
 
 	public function showResults($search_page_id, $search_results) {
-		// make parameters global, so they can be used in the template
-		global $phsolr_search_page_id;
-		global $phsolr_search_args;
-		global $phsolr_search_results;
-		global $phsolr_search_config;
 
-		$phsolr_search_page_id = $search_page_id;
-		$phsolr_search_args = $this->search_args;
-		$phsolr_search_results = $search_results;
-		$phsolr_search_config = $this->config;
-
-		$template_file = 'search-results.php';
-
-		// theme/template paths
-		$theme = wp_get_theme();
-		$theme_dir = $theme->get_theme_root() . '/' . $theme->get_stylesheet();
-		$include_path = "$theme_dir/$template_file";
-
-		// if a custom template exists in the directory of the current template,
-		// use it, otherwise use the default template in this plugin's directory
-		if (!file_exists($include_path)) {
-			$include_path = __DIR__ . "/templates/$template_file";
-		}
-
-		include $include_path;
 	}
 }

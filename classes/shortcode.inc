@@ -24,22 +24,37 @@ class Shortcode
 		add_filter('get_search_form', array($this, 'render_search_form') );
 	}
 
+	/**
+	 * render search results shortcode
+	 */
 	function render_search_results() {
-		$search_page_id = phsolr_get_search_page_id();
-		$solr = $this->plugin->get_solr();
-		$search_results = $solr->search();
-		$solr->showResults($search_page_id, $search_results);
-
+		/**
+		 * global use of search results
+		 */
+		global $search_results;
+		$search_results = $this->plugin->get_solr()->search();
+		/**
+		 * apply filter for custom search results page
+		 */
+		$custom_file = '';
+		apply_filters('solr_search_results_template', $custom_file);
+		if(is_file($custom_file)){
+			include $custom_file;
+		} else {
+			include $this->plugin->dir."/templates/search-results.php";
+		}
 	}
 
+	/**
+	 * render search form
+	 * @param $form
+	 * @return string
+	 */
 	function render_search_form($form) {
 		$search_args = phsolr_get_search_args();
-		$search_page_id = phsolr_get_search_page_id();
 		ob_start();
 		?>
-		<form role="search" method="get" class="search-form"
-			  action="<?php echo home_url('/') ?>">
-			<input type="hidden" name="page_id" value="<?php echo $search_page_id; ?>" />
+		<form role="search" method="get" class="search-form" action="<?php echo home_url('/') ?>">
 			<div>
 				<label> <span class="screen-reader-text">Search for:</span> <input
 					  type="search" class="search-field"

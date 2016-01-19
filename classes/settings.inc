@@ -25,7 +25,7 @@ class Settings{
 		?>
 		<h2>Solr Settings</h2>
 		<?php
-		$tabs = array( 'core' => 'Core', 'index' => 'Index' , 'advanced' => 'Advanced');
+		$tabs = array( 'core' => 'Core' , 'advanced' => 'Advanced', 'crons' => 'Crons', 'index' => 'Index');
 		echo '<h2 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current ) ? ' nav-tab-active' : '';
@@ -34,14 +34,20 @@ class Settings{
 		echo '</h2>';
 
 		/**
+		 * save changes if form war committed
+		 */
+		$this->try_save();
+
+		/**
 		 * all settings by template here
 		 */
-		if($current == 'index'){
-			require $this->plugin->dir."/parts/settings--$current.php";
+		$file = $this->plugin->dir."/parts/settings--$current.php";
+		if(file_exists($file)){
+			require $file;
 			return;
 		}
 		/**
-		 * else try settings by programming
+		 * else try settings dynamically
 		 */
 		?>
 		<div class="wrap">
@@ -68,9 +74,12 @@ class Settings{
 		switch($page){
 			case 'core':
 				return array(
-					array('key'=>$config::$HOST, 'label' => 'Host', 'default' => '127.0.0.1'),
-					array('key'=>$config::$PORT, 'label' => 'Port', 'default' => '8983'),
-					array('key'=>$config::$PATH, 'label' => 'Path', 'default' => '/solr/'),
+					array('key'=>$config::$HOST, 'label' => 'Host'),
+					array('key'=>$config::$PORT, 'label' => 'Port'),
+					array('key'=>$config::$PATH, 'label' => 'Path'),
+				  	array('key'=>$config::$CORE, 'label' => 'Core'),
+				  	array('key'=>$config::$USERNAME, 'label' => 'Username'),
+				  	array('key'=>$config::$PW, 'label' => 'Password', 'type' => 'password'),
 				);
 			case 'advanced':
 				return array(
@@ -82,14 +91,20 @@ class Settings{
 	}
 
 	private function render_setting($setting){
-		$key = $setting['key'];
+		$config = $this->plugin->get_config();
 		$label = $setting['label'];
-		$value = get_option('solr_'.$key, $this->plugin->get_config()->get_default($key));
+		$value = $config->get_option($setting['key']);
+		$key = $this->plugin->prefix.$setting['key'];
 		?>
 		<tr>
 			<th scope="row"><label for="<?php echo $key; ?>"><?php echo $label; ?></label></th>
 			<td><?php
-				if(isset($setting['type']) && (!empty($setting['type']) || $setting['type'] == 'checkbox') ){
+				$type = "text";
+				if( isset($setting['type']) && !empty($setting['type']) ){
+					$type = $setting['type'];
+				}
+
+				if( $type == 'checkbox' ){
 					/**
 					 * checkbox render
 					 */
@@ -99,14 +114,18 @@ class Settings{
 					}
 					?><input type="checkbox" id="<?php echo $key; ?>"
 							 name="<?php echo $key; ?>" <?php echo $checked; ?>
-							 class="checkbox"><?php
+							 class="checkbox">
+					<input type="hidden" name="<?php echo "checkbox_".$key; ?>" value="<?php echo $key; ?>" /><?php
 
 				} else {
 					/**
 					 * text input
 					 */
-					?><input type="text" id="<?php echo 'solr_'.$key; ?>"
-							 name="<?php echo 'solr_'.$key; ?>" value="<?php echo $value; ?>"
+					if($type != "password" || $type != "number"){
+						$type = "text";
+					}
+					?><input type="<?php echo $type; ?>" id="<?php echo $key; ?>"
+							 name="<?php echo $key; ?>" value="<?php echo $value; ?>"
 							 class="regular-text"><?php
 				}
 
@@ -114,6 +133,35 @@ class Settings{
 				?></td>
 		</tr>
 		<?php
+	}
+
+	private function try_save() {
+		$config = $this->plugin->get_config();
+		if( isset($_POST) && empty($_POST) ) return;
+		foreach($_POST as $key => $value){
+			/**
+			 * save every post value with plugin prefix
+			 */
+			if( strpos($key, $this->plugin->prefix) === 0 ){
+				/**
+				 * prevent double prefix
+				 */
+				$config->set_option($this->get_clean_option_key($key),$value);
+			} else if( strpos($key,"checkbox_".$this->plugin->prefix) === 0){
+				/**
+				 * save checkbox value
+				 */
+				$_key = str_replace("checkbox_",'',$key);
+				if(!isset($_POST[$_key]) || empty($_POST[$_key])){
+					$config->set_option($this->get_clean_option_key($value),false);
+				}
+			}
+
+		}
+	}
+
+	private function get_clean_option_key($key){
+		return str_replace($this->plugin->prefix,'',$key);;
 	}
 
 

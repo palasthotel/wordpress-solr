@@ -17,10 +17,12 @@ class Config {
 	public static $HOST = "host";
 	public static $PORT = "port";
 	public static $PATH = "path";
+	public static $CORE = "core";
+	public static $USERNAME = "username";
+	public static $PW = "password";
 	public static $SPELL_CHECK = "spellcheck";
 	public static $QUERY_LIMIT = "query_limit";
 	public static $SEARCH_PAGE_ID = "search_page_id";
-
 
 	/**
 	 * some other vars
@@ -59,9 +61,10 @@ class Config {
 	 * save option for key
 	 * @param $key
 	 * @param $value
+	 * @return bool
 	 */
 	public function set_option($key, $value){
-		$this->set_option($this->plugin->prefix.$key, $value);
+		return update_option($this->plugin->prefix.$key, $value);
 	}
 
 	/**
