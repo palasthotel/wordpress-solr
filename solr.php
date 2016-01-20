@@ -23,12 +23,24 @@ class SolrPlugin
 	public $prefix;
 
 	/**
-	 * subclasses
+	 * @var \SolrPlugin\Solr
 	 */
 	private $solr;
+	/**
+	 * @var Solarium\Client
+	 */
 	private $solarium;
+	/**
+	 * @var \SolrPlugin\Config
+	 */
 	private $config;
+	/**
+	 * @var \SolrPlugin\Settings
+	 */
 	public $settings;
+	/**
+	 * @var \SolrPlugin\Posts
+	 */
 	public $posts;
 
 	/**
@@ -58,6 +70,12 @@ class SolrPlugin
 		 */
 		require('classes/posts.inc');
 		$this->posts = new \SolrPlugin\Posts($this);
+
+		/**
+		 * shortcodes class
+		 */
+		require('classes/shortcode.inc');
+		$this->shortcode = new \SolrPlugin\Shortcode($this);
 
 	}
 
@@ -119,43 +137,6 @@ class SolrPlugin
 			$this->config = new \SolrPlugin\Config($this);
 		}
 		return $this->config;
-	}
-
-	/**
-	 * Returns the search arguments as an associative array or FALSE if there was no
-	 * search.
-	 *
-	 * @return array
-	 */
-	function get_search_args() {
-		$args = array();
-		if (isset($_GET['query'])) {
-			$args['text'] = $_GET['query'];
-		} else {
-			return FALSE;
-		}
-
-		// sanitize page param
-		if (isset($_GET['page_num'])) {
-			$args['page'] = (int) $_GET['page_num'];
-
-			if ($args['page'] < 1) {
-				$args['page'] = 1;
-			}
-		} else {
-			$args['page'] = 1;
-		}
-
-		$facet_args = array();
-		foreach ($_GET as $key => $value) {
-			if (strpos($key, 'facet-') === 0) {
-				$facet_args[substr($key, 6)] = $value === 'on';
-			}
-		}
-
-		$args['facets'] = $facet_args;
-
-		return $args;
 	}
 
 	/**
@@ -245,16 +226,3 @@ function solr_get_plugin(){
  */
 register_activation_hook(__FILE__, array('SolrPlugin','on_activate') );
 register_deactivation_hook(__FILE__, array('SolrPlugin','on_deactivate') );
-
-
-// ---------------- refactor ------------ .........
-
-
-
-function phsolr_get_search_page_id() {
-  $page = get_page_by_title('Search Results');
-  return $page->ID;
-}
-
-
-

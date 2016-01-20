@@ -1,21 +1,26 @@
+<?php
+/**
+ * @var \SolrPlugin\Shortcode $this
+ * @var array $solr_search_args
+ * @var \Solarium\QueryType\Select\Result\Result $solr_search_results;
+ */
+?>
 <form role="search" method="get" class="search-form"
   action="<?php echo home_url('/') ?>">
-  <input type="hidden" name="page_id"
-    value="<?php echo $phsolr_search_page_id ?>" />
   <div>
     <label> <span class="screen-reader-text">Search for:</span> <input
       type="search" class="search-field"
       placeholder="<?php echo __('Search …') ?>"
-      value="<?php echo $phsolr_search_args['text'] ?>" name="search"
+      value="<?php echo $solr_search_args['s'] ?>" name="s"
       title="Search for:" />
     </label> <input type="submit" class="search-submit" value="Search" />
   </div>
 <?php
-if ($phsolr_search_results) :
+if ($solr_search_results) :
 ?>
   <div class="advanced-search-settings">
 <?php
-  $facets = $phsolr_search_results->getFacetSet()->getFacets();
+  $facets = $solr_search_results->getFacetSet()->getFacets();
   foreach ($facets as $key => $facet) :
     ?>
     <div class="facet-type">
@@ -41,7 +46,10 @@ if ($phsolr_search_results) :
   endforeach
   ;
 
-$spellcheck_result = $phsolr_search_results->getSpellcheck();
+/**
+ * @var \Solarium\QueryType\Select\Result\Spellcheck\Result
+ */
+$spellcheck_result = $solr_search_results->getSpellcheck();
 
 ?>
   </div>
@@ -51,19 +59,19 @@ endif;
 </form>
 <div id="search-results">
 <?php
-if (!$phsolr_search_results):
+if (!$solr_search_results):
 ?>
 <h1><em>No results found for
-  <em>“<?php echo $phsolr_search_args['text'] ?>”</em></h1>
+  <em>“<?php echo $solr_search_args['s'] ?>”</em></h1>
 <?php
 else:
 ?>
   <h1>
-    <em><?php echo $phsolr_search_results->getNumFound() ?></em> Result(s) found
-    for <em>“<?php echo $phsolr_search_args['text'] ?>”</em>
+    <em><?php echo $solr_search_results->getNumFound() ?></em> Result(s) found
+    for <em>“<?php echo $solr_search_args['s'] ?>”</em>
   </h1>
 <?php
-  if (!$spellcheck_result->getCorrectlySpelled()) :
+  if ($spellcheck_result != null && !$spellcheck_result->getCorrectlySpelled()) :
     $collations = $spellcheck_result->getCollations();
     if (count($collations) > 0) :
       $corrections = $spellcheck_result->getCollation(0)->getCorrections();
@@ -76,27 +84,40 @@ else:
 
   endif;
 
-  $highlighting = $phsolr_search_results->getHighlighting();
-  foreach ($phsolr_search_results as $doc) {
-    global $phsolr_document;
-    global $phsolr_highlighted_document;
-    $phsolr_document = $doc;
+	// TODO: handle search results other than POSTs like comments
 
-    $tmp = explode('/', $doc->id);
-    $type = $tmp[0];
+	/**
+	 * get ids from solr result documents
+	 */
+	$ids = array();
+	foreach ($solr_search_results as $document) {
+		/**
+		* @var \Solarium\QueryType\Select\Result\DocumentInterface $document
+		*/
 
-    if ($highlighting) {
-      $phsolr_highlighted_document = $highlighting->getResult($doc->id);
-    }
+		/**
+		 * matches for posts
+		 */
+		if( preg_match("@^post/([0-9]+)$@ius", $document->id, $matches) ){
+			$ids[] = $matches[1];
+		}
+		// TODO: matches for other types like comments
+	}
 
-    if ($type === 'post') {
-      include __DIR__ . '/search-result-post.php';
-    } else if ($type === 'comment') {
-      include __DIR__ . '/search-result-comment.php';
-    } else {
-      throw new Exception('Unknown document type: ' . $type);
-    }
-  }
+	/**
+	 * do the loop with result ids
+	 */
+	$query = new \WP_Query(array(
+		'post__in' => $ids,
+	  	'order_by' => 'post__in',
+	  	'post_type' => 'any',
+	));
+	while($query->have_posts()){
+		$query->the_post();
+		include $this->plugin->dir."/templates/search-result-item.php";
+	}
+	wp_reset_postdata();
+
 endif;
 ?>
 

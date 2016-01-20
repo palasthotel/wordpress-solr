@@ -36,14 +36,6 @@ class Solr {
 	}
 
 	/**
-	 * get search args from url query
-	 * @return array
-	 */
-	public function getSearchArgs() {
-		return $this->plugin->get_search_args();
-	}
-
-	/**
 	 * Sets the fields from a WP_Post object to a Solarium Document, which will be
 	 * uploaded to Solr.
 	 *
@@ -67,7 +59,7 @@ class Solr {
 		}
 		// set published field (boolean value)
 		$document->published = $post->post_status === 'publish';
-		$document->type = $post->type;
+		$document->type = $post->post_type;
 		return $document;
 	}
 
@@ -275,36 +267,53 @@ class Solr {
 	/**
 	 * Runs the search.
 	 *
-	 * @return array search results
+	 * @param array|null $search_args
+	 * @return \Solarium\QueryType\Select\Result\Result search results
 	 */
-	public function search() {
-		if ($this->search_args === FALSE) {
+	public function search(array $search_args = null) {
+		/**
+		 * no search args return empty result
+		 */
+		if (empty($search_args)) {
 			return array();
 		}
 
+		$config = $this->plugin->get_config()->get_solr_config();
+
+		/**
+		 * create a select query
+		 */
 		$select = $this->client->createSelect();
 
-		// set search query
-		$query = $this->search_args['text'];
-		$select->setQuery($query);
+		/**
+		 * set search query
+		 */
+		if(!empty($search_args)){
+			$query = $search_args['s'];
+			$select->setQuery($query);
+		}
 
-		$filter = $select->createFilterQuery('published')
-		  ->setQuery('published:true');
+		/**
+		 * search for published
+		 */
+		$filter = $select->createFilterQuery('published')->setQuery('published:true');
 
-		// set query offset and limit
-		$select->setStart(($this->search_args['page'] - 1) * $this->config['query_limit']);
-		$select->setRows($this->config['query_limit']);
+		/**
+		 * set query offset and limit
+		 */
+		$select->setStart(($search_args['page'] - 1) * $config['query_limit']);
+		$select->setRows($config['query_limit']);
 
 		// set result fields
-		$select->setFields($this->config['result_fields']);
+		$select->setFields($config['result_fields']);
 
-		if (count($this->config['boost_functions']) > 0) {
+		if (!empty($config['boost_functions']) && count($config['boost_functions']) > 0) {
 			$dismax = $select->getDisMax();
-			$dismax->setBoostFunctions(implode(' ', $this->config['boost_functions']));
+			$dismax->setBoostFunctions(implode(' ', $config['boost_functions']));
 		}
 
 		// enable spellchecker
-		if ($this->config['spellcheck']) {
+		if (!empty($config['spellcheck']) && $config['spellcheck']) {
 			$spellcheck = $select->getSpellcheck();
 			$spellcheck->setQuery($query);
 			$spellcheck->setCount(10);
@@ -315,8 +324,8 @@ class Solr {
 		}
 
 		// apply facets
-		if ($this->search_args['facets']) {
-			foreach ($this->search_args['facets'] as $facet_key_val => $enabled) {
+		if(!empty($search_args['facets']) && $search_args['facets'] ) {
+			foreach ($search_args['facets'] as $facet_key_val => $enabled) {
 				if ($enabled) {
 					$kv = explode('-', $facet_key_val);
 					$filter_query = new \Solarium\QueryType\Select\Query\FilterQuery();
@@ -328,22 +337,21 @@ class Solr {
 		}
 
 		// show other facets
-		if (isset($this->config['facets'])) {
+		if ( isset($config['facets']) ) {
 			$facetSet = $select->getFacetSet();
 
 			// content type facet
-			if (isset($this->config['facets']['type'])) {
-				$facet = $this->config['facets']['type'];
+			if (isset($config['facets']['type'])) {
+				$facet = $config['facets']['type'];
 				// type facet
 				$facetSet->createFacetField($facet['title'])
 				  ->setField($facet['field'])
-				  ->setMinCount(
-					1);
+				  ->setMinCount(1);
 			}
 
 			// year facet
-			if (isset($this->config['facets']['date'])) {
-				$facet = $this->config['facets']['date'];
+			if (isset($config['facets']['date'])) {
+				$facet = $config['facets']['date'];
 				// the date facet
 				// from epoch until now
 				$facetSet->createFacetRange($facet['title'])
@@ -361,21 +369,15 @@ class Solr {
 
 		// build the weight string
 		$weightString = '';
-		foreach ($this->config['search_fields'] as $field => $weight) {
+		foreach ($config['search_fields'] as $field => $weight) {
 			$weightString .= " $field^$weight";
 		}
 
 		$dismax->setQueryFields(substr($weightString, 1));
 
 		// set the default operator
-		$select->setQueryDefaultOperator($this->config['default_query_operator']);
+		$select->setQueryDefaultOperator($config['default_query_operator']);
 
-		$search_results = $this->client->select($select);
-
-		return $search_results;
-	}
-
-	public function showResults($search_page_id, $search_results) {
-
+		return $this->client->select($select);
 	}
 }

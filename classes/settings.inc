@@ -25,7 +25,7 @@ class Settings{
 		?>
 		<h2>Solr Settings</h2>
 		<?php
-		$tabs = array( 'core' => 'Core' , 'advanced' => 'Advanced', 'crons' => 'Crons', 'index' => 'Index');
+		$tabs = array( 'core' => 'Core' , 'index' => 'Index','info' => 'Info',);
 		echo '<h2 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current ) ? ' nav-tab-active' : '';
@@ -80,11 +80,6 @@ class Settings{
 				  	array('key'=>$config::$CORE, 'label' => 'Core'),
 				  	array('key'=>$config::$USERNAME, 'label' => 'Username'),
 				  	array('key'=>$config::$PW, 'label' => 'Password', 'type' => 'password'),
-				);
-			case 'advanced':
-				return array(
-				  array('key'=>$config::$SPELL_CHECK, 'label' => 'Spellcheck enabled', 'type' => 'checkbox'),
-				  array('key'=>$config::$QUERY_LIMIT, 'label' => 'Maximum number of serach results'),
 				);
 		}
 		return array();
