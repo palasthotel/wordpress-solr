@@ -20,6 +20,7 @@ class SolrPlugin
 	 */
 	public $dir;
 	public $url;
+	public $theme_path;
 	public $prefix;
 
 	/**
@@ -53,6 +54,12 @@ class SolrPlugin
 		*/
 		$this->dir = plugin_dir_path(__FILE__);
 		$this->url = plugin_dir_url(__FILE__);
+		/**
+		 * solr templates folder in theme
+		 */
+		$theme = wp_get_theme();
+		$theme_dir = $theme->get_theme_root() . '/' . $theme->get_stylesheet();
+		$this->theme_path = "$theme_dir/solr/";
 
 		/**
 		 * database prefix
@@ -72,10 +79,10 @@ class SolrPlugin
 		$this->posts = new \SolrPlugin\Posts($this);
 
 		/**
-		 * shortcodes class
+		 * searchpage class
 		 */
-		require('classes/shortcode.inc');
-		$this->shortcode = new \SolrPlugin\Shortcode($this);
+		require('classes/search-page.inc');
+		$this->search_page = new \SolrPlugin\SearchPage($this);
 
 	}
 
