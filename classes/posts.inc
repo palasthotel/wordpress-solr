@@ -22,20 +22,42 @@ class Posts
 	 */
 	public function __construct(\SolrPlugin $plugin){
 		$this->plugin = $plugin;
-		$this->meta_indexed = $this->plugin->prefix."_indexed";
-		$this->meta_ignored = $this->plugin->prefix."_ignored";
+		$this->meta_indexed = $this->plugin->prefix."indexed";
+		$this->meta_ignored = $this->plugin->prefix."ignored";
+		add_action( 'save_post', array($this,'save_post') );
+		add_action( 'delete_post', array($this, 'delete_post') );
+		add_action( 'wp_trash_post', array($this, 'delete_post'));
 	}
 
 	/**
-	 * get modified posts
+	 * delete indexes on changing
+	 * @param $post_id
+	 */
+	public function save_post($post_id){
+		$this->reset_indexed($post_id);
+		$this->reset_ignored($post_id);
+	}
+
+	/**
+	 * @param $post_id
+	 */
+	public function delete_post($post_id){
+		$post = get_post($post_id);
+		$this->reset_ignored($post_id);
+		$this->reset_indexed($post_id);
+		$this->plugin->get_solr()->deletePostIndex(array($post));
+	}
+
+	/**
+	 * get modified posts for solr indexing
+	 * @param $number
 	 * @return array
 	 */
-	public function getModifiedPosts( $number = 10) {
-		// not manipulated posts
+	public function getModified($number) {
 		$query = new \WP_Query(
 			array(
 				'post_type' => 'any',
-				'post_status' => 'any',
+				'post_status' => 'publish',
 				'orderby' => array('modified', 'date', 'ID'),
 				'order' => 'ASC',
 				'posts_per_page' => $number,
@@ -54,19 +76,24 @@ class Posts
 			)
 		);
 		$posts = array();
-		// when posts have been found
 		if ($query->have_posts()) {
-			// filter posts
 			$posts = array();
 			foreach ($query->posts as $post) {
-
+				/**
+				 * @var $post \WP_Post
+				 */
 				// function in config
-				$post_filtered = true;
-				$post_filtered = apply_filters('solr_post_filter',$post_filtered);
+				$post_ignored = false;
+				$post_ignored = apply_filters('solr_post_ignore',$post_ignored);
 
-				if ($post_filtered)
+				/**
+				 * if not ignored ad to
+				 */
+				if (!$post_ignored)
 				{
 					$posts[] = $post;
+				} else {
+					$this->set_ignored($post->ID);
 				}
 			}
 			return $posts;
@@ -74,15 +101,47 @@ class Posts
 		return $posts;
 	}
 
+	/**
+	 * set post as indexed by solr
+	 * @param $post_id
+	 */
 	public function set_indexed($post_id){
 		update_post_meta($post_id, $this->meta_indexed, true);
 	}
+
+	/**
+	 * reset post is index by solr
+	 * @param $post_id
+	 */
+	public function reset_indexed($post_id){
+		delete_post_meta($post_id, $this->meta_indexed);
+	}
+
+	/**
+	 * set post ignored by solr
+	 * @param $post_id
+	 */
 	public function set_ignored($post_id){
 		update_post_meta($post_id, $this->meta_ignored, true);
 	}
-//	public function increase_index_count($add = 1){
-//		$count = get_option('phsolr_post_indexed_count',0);
-//		$count = $count+$add;
-//		update_option('phsolr_post_indexed_count', $count);
-//	}
+
+	/**
+	 * reset post ignored by solr
+	 * @param $post_id
+	 */
+	public function reset_ignored($post_id){
+		delete_post_meta($post_id, $this->meta_ignored);
+	}
+
+	/**
+	 * reset ignored and indexed meta for all posts
+	 */
+	public function reset_meta(){
+		/**
+		 * @var \wpdb
+		 */
+		global $wpdb;
+		$wpdb->delete($wpdb->prefix.'postmeta',array('meta_key'=>$this->meta_indexed),array('%s'));
+		$wpdb->delete($wpdb->prefix.'postmeta',array('meta_key'=>$this->meta_ignored),array('%s'));
+	}
 }

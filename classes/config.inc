@@ -17,14 +17,19 @@ class Config {
 	public static $HOST = "host";
 	public static $PORT = "port";
 	public static $PATH = "path";
+	public static $CORE = "core";
+	public static $USERNAME = "username";
+	public static $PW = "password";
 	public static $SPELL_CHECK = "spellcheck";
 	public static $QUERY_LIMIT = "query_limit";
 	public static $SEARCH_PAGE_ID = "search_page_id";
+
 	/**
 	 * some other vars
 	 */
 	private $plugin;
 	private $defaults;
+
 	public function __construct(\SolrPlugin $plugin){
 		$this->plugin = $plugin;
 		$this->defaults = array(
@@ -56,8 +61,54 @@ class Config {
 	 * save option for key
 	 * @param $key
 	 * @param $value
+	 * @return bool
 	 */
 	public function set_option($key, $value){
-		$this->set_option($this->plugin->prefix.$key, $value);
+		return update_option($this->plugin->prefix.$key, $value);
+	}
+
+	/**
+	 *	get the solr configuration
+	 * @return mixed|void
+	 */
+	public function get_solr_config(){
+		$config =array(
+			// 'AND' or 'OR'
+			'default_query_operator' => 'AND',
+			// list of fields to search and their corresponding weight
+			'search_fields' => array(
+				'title' => 4.0,
+				'date' => 0.5,
+				'author' => 0.5,
+				'content' => 1.0
+			),
+			// list of additional boost functions
+			'boost_functions' => array(
+				'recip(abs(ms(NOW,date)),3.16e-11,1,1)^5'
+			),
+			// list of fields to return
+			'result_fields' => array(
+				'title',
+				'date',
+				'author'
+			),
+			// list of fields that are intended to be highlighted
+			'highlight_fields' => array(
+				'title',
+				'content'
+			),
+			// facet definitions
+			'facets' => array(
+				'type' => array(
+					'field' => 'type',
+					'title' => 'Type'
+				),
+				'date' => array(
+					'field' => 'date',
+					'title' => 'Date'
+				),
+			),
+		);
+		return apply_filters('solr_config',$config);
 	}
 }
