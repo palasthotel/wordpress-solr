@@ -30,14 +30,12 @@ class Config {
 	private $plugin;
 	private $defaults;
 
-	public function __construct(\SolrPlugin $plugin){
+	public function __construct(\SolrPlugin $plugin) {
 		$this->plugin = $plugin;
 		$this->defaults = array(
-			self::$HOST => '127.0.0.1',
-			self::$PORT => '8983',
-		  	self::$PATH => '/solr/',
-		  	self::$SPELL_CHECK => TRUE,
-		  	self::$QUERY_LIMIT => 100,
+		  self::$HOST => '127.0.0.1',
+		  self::$PORT => '8983',
+		  self::$PATH => '/solr/',
 		);
 	}
 
@@ -46,15 +44,15 @@ class Config {
 	 * @param $key
 	 * @return mixed
 	 */
-	public function get_default($key){
-		return (!empty($this->defaults[$key]))? $this->defaults[$key]: FALSE;
+	public function get_default($key) {
+		return (!empty($this->defaults[$key])) ? $this->defaults[$key] : FALSE;
 	}
 
 	/**
 	 * get option by config key
 	 */
-	public function get_option($key){
-		return get_option($this->plugin->prefix.$key,$this->get_default($key));
+	public function get_option($key) {
+		return get_option($this->plugin->prefix . $key, $this->get_default($key));
 	}
 
 	/**
@@ -63,52 +61,73 @@ class Config {
 	 * @param $value
 	 * @return bool
 	 */
-	public function set_option($key, $value){
-		return update_option($this->plugin->prefix.$key, $value);
+	public function set_option($key, $value) {
+		return update_option($this->plugin->prefix . $key, $value);
 	}
 
 	/**
-	 *	get the solr configuration
+	 *    get the solr configuration
 	 * @return mixed|void
 	 */
-	public function get_solr_config(){
-		$config =array(
+	public function get_solr_config() {
+		/**
+		 * default configuration
+		 */
+		$config = array(
 			// 'AND' or 'OR'
-			'default_query_operator' => 'AND',
+		  'default_query_operator' => 'AND',
+			// enable spellchecker
+		  'spellcheck' => TRUE,
+			// maximum number of search results
+		  'query_limit' => 15,
 			// list of fields to search and their corresponding weight
-			'search_fields' => array(
-				'title' => 4.0,
-				'date' => 0.5,
-				'author' => 0.5,
-				'content' => 1.0
-			),
+		  'search_fields' => array(
+			'title' => 4.0,
+			'date' => 0.5,
+			'author' => 0.5,
+			'content' => 1.0
+		  ),
 			// list of additional boost functions
-			'boost_functions' => array(
-				'recip(abs(ms(NOW,date)),3.16e-11,1,1)^5'
-			),
+		  'boost_functions' => array(
+			'recip(abs(ms(NOW,date)),3.16e-11,1,1)^5'
+		  ),
 			// list of fields to return
-			'result_fields' => array(
-				'title',
-				'date',
-				'author'
-			),
+		  'result_fields' => array(
+			'id',
+			'title',
+			'date',
+			'author',
+			'type',
+			'content',
+			'url',
+		  ),
 			// list of fields that are intended to be highlighted
-			'highlight_fields' => array(
-				'title',
-				'content'
-			),
+		  'highlight_fields' => array(
+			'title',
+			'content'
+		  ),
 			// facet definitions
-			'facets' => array(
-				'type' => array(
-					'field' => 'type',
-					'title' => 'Type'
-				),
-				'date' => array(
-					'field' => 'date',
-					'title' => 'Date'
-				),
+		  'facets' => array(
+			'type' => array(
+			  'field' => 'type',
+			  'title' => 'Type'
 			),
+			'date' => array(
+			  'field' => 'date',
+			  'title' => 'Date'
+			),
+		  ),
 		);
-		return apply_filters('solr_config',$config);
+
+		/**
+		 * apply filter for every config key
+		 */
+		foreach($config as $key => $value){
+			$config[$key] = apply_filters('solr_config_'.$key, $value);
+		}
+		/**
+		 * apply filter for complete config and return it
+		 */
+		return apply_filters('solr_config', $config);
 	}
 }

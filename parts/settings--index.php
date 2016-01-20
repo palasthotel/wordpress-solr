@@ -14,7 +14,7 @@
 
 		switch($_GET['action']){
 			case 'update':
-				$result = $this->plugin->index_posts(2);
+				$result = $this->plugin->index_posts(20);
 				echo '<p>Index updated '.count($result->posts).'</p>';
 				break;
 			case 'delete':
