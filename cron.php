@@ -14,4 +14,4 @@ require_once( $paths[0] . 'wp-load.php' );
  */
 
 $solr_plugin = solr_get_plugin();
-$solr_plugin->index_posts();
+$solr_plugin->index_posts(-1);
