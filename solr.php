@@ -209,10 +209,39 @@ class SolrPlugin
 		 */
 		$posts = $this->posts->getModified($number);
 		/**
-		 * update index
+		 * update index with a number of posts because thats faster
 		 * @var  \Solarium\QueryType\Update\Result $result
 		 */
-		$result = $this->get_solr()->updatePostIndex($posts);
+		try{
+			$result = $this->get_solr()->updatePostIndex($posts);
+		} catch (Solarium\Exception\HTTPException $e) {
+			var_dump($e->getMessage());
+			/**
+			 * on error try every single one and log error
+			 */
+			foreach ($posts as $post) {
+				try{
+					$result = $this->get_solr()->updatePostIndex(array($post));
+				} catch (Solarium\Exception\HTTPException $e) {
+					$this->posts->set_ignored($post->ID);
+					$this->posts->set_error($post->ID);
+					var_dump($e);
+					var_dump("Cound not index post: ".$post->ID);
+				}
+			}
+	      
+	    }
+		return $this->_verify_result($result, $posts);
+		
+	}
+
+	/**
+	 * return result of indexing
+	 * @param  \Solarium\QueryType\Update\Result $result
+	 * @param  array $posts
+	 * @return object $result
+	 */
+	private function _verify_result($result, $posts){
 		/**
 		 * Success response is 0
 		 * http://solarium.readthedocs.org/en/stable/queries/update-query/the-result-of-an-update-query/

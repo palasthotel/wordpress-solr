@@ -24,6 +24,7 @@ class Posts
 		$this->plugin = $plugin;
 		$this->meta_indexed = $this->plugin->prefix."indexed";
 		$this->meta_ignored = $this->plugin->prefix."ignored";
+		$this->meta_error = $this->plugin->prefix."error";
 		add_action( 'save_post', array($this,'save_post') );
 		add_action( 'delete_post', array($this, 'delete_post') );
 		add_action( 'wp_trash_post', array($this, 'delete_post'));
@@ -36,6 +37,7 @@ class Posts
 	public function save_post($post_id){
 		$this->reset_indexed($post_id);
 		$this->reset_ignored($post_id);
+		$this->reset_error($post_id);
 	}
 
 	/**
@@ -45,6 +47,7 @@ class Posts
 		$post = get_post($post_id);
 		$this->reset_ignored($post_id);
 		$this->reset_indexed($post_id);
+		$this->reset_error($post_id);
 		$this->plugin->get_solr()->deletePostIndex(array($post));
 	}
 
@@ -59,7 +62,7 @@ class Posts
 				'post_type' => 'any',
 				'post_status' => 'publish',
 				'orderby' => array('modified', 'date', 'ID'),
-				'order' => 'ASC',
+				'order' => 'DESC',
 				'posts_per_page' => $number,
 				'ignore_sticky_posts' => TRUE,
 				'meta_query' => array(
@@ -134,6 +137,22 @@ class Posts
 	}
 
 	/**
+	 * set post error by solr
+	 * @param $post_id
+	 */
+	public function set_error($post_id){
+		update_post_meta($post_id, $this->meta_error, true);
+	}
+
+	/**
+	 * reset post error by solr
+	 * @param $post_id
+	 */
+	public function reset_error($post_id){
+		delete_post_meta($post_id, $this->meta_error);
+	}
+
+	/**
 	 * reset ignored and indexed meta for all posts
 	 */
 	public function reset_meta(){
@@ -143,5 +162,6 @@ class Posts
 		global $wpdb;
 		$wpdb->delete($wpdb->prefix.'postmeta',array('meta_key'=>$this->meta_indexed),array('%s'));
 		$wpdb->delete($wpdb->prefix.'postmeta',array('meta_key'=>$this->meta_ignored),array('%s'));
+		$wpdb->delete($wpdb->prefix.'postmeta',array('meta_key'=>$this->meta_error),array('%s'));
 	}
 }

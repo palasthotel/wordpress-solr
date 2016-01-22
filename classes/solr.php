@@ -125,6 +125,7 @@ class Solr {
 	 * @param string $type type of solr content (post or comment)
 	 * @return \Solarium\QueryType\Update\Result
 	 * @throws \SolrPlugin\Exception
+	 * @throws \Solarium\Exception\HTTPException
 	 */
 	private function updateItemIndex(array $changedItems, $type) {
 
@@ -168,6 +169,7 @@ class Solr {
 	 * @param string $type
 	 * @return \Solarium\QueryType\Update\Result
 	 * @throws \SolrPlugin\Exception
+	 * @throws \Solarium\Exception\HTTPException
 	 */
 	private function deleteItemIndex(array $deleted, $type){
 		$update = $this->createUpdate($type);
@@ -183,6 +185,7 @@ class Solr {
 	/**
 	 * @param $update \Solarium\QueryType\Update\Query\Query
 	 * @return \Solarium\QueryType\Update\Result
+	 * @throws \Solarium\Exception\HTTPException
 	 */
 	private function doUpdate(\Solarium\QueryType\Update\Query\Query $update){
 		/**
@@ -193,18 +196,14 @@ class Solr {
 		/**
 		 * execute the update or throw exception if it fails
 		 */
-		try {
-			$result = $this->client->update($update);
-			return $result;
-		} catch (\Solarium\Exception\HTTPException $e) {
-			die($e->getMessage());
-		}
+		return $this->client->update($update);
 	}
 
 	/**
 	 * Update posts to solr
 	 * @param array $modified
 	 * @return \Solarium\QueryType\Update\Result
+	 * @throws \Solarium\Exception\HTTPException
 	 */
 	public function updatePostIndex(array $modified) {
 		return $this->updateItemIndex($modified,'post');
@@ -214,6 +213,7 @@ class Solr {
 	 * delete index of items
 	 * @param array $deleted
 	 * @return \Solarium\QueryType\Update\Result
+	 * @throws \Solarium\Exception\HTTPException
 	 */
 	public function deletePostIndex(array $deleted){
 		return $this->deleteItemIndex($deleted, 'post');
@@ -224,6 +224,7 @@ class Solr {
 	 * @param array $modified
 	 * @return \Solarium\QueryType\Update\Result
 	 * @throws \SolrPlugin\Exception
+	 * @throws \Solarium\Exception\HTTPException
 	 */
 	public function updateCommentIndex( $modified ) {
 		return $this->updateItemIndex($modified,'comment');
@@ -254,6 +255,7 @@ class Solr {
 	/**
 	 * delete solr index completely
 	 * @return \Solarium\QueryType\Update\Result
+	 * @throws \Solarium\Exception\HTTPException
 	 */
 	public function deleteIndex() {
 		// get an update query instance
@@ -263,12 +265,7 @@ class Solr {
 		$update->addDeleteQuery('*:*');
 
 		// this executes the query and returns the result
-		try {
-			$result = $this->client->update($update);
-			return $result;
-		} catch (\Solarium\Exception\HTTPException $e) {
-			die($e->getMessage());
-		}
+		return $this->client->update($update);
 	}
 
 	/**

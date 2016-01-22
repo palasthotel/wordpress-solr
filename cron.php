@@ -20,10 +20,13 @@ do{
 	/**
 	 * index posts to solr
 	 */
-	$results = $solr_plugin->index_posts(200);
+	$results = $solr_plugin->index_posts(100);
 	if($results->error === true){
 		print "Error while indexing: \n";
 		var_dump($results);
+		break;
+	}
+	if(count($results->posts)< 1){
 		break;
 	}
 	/**

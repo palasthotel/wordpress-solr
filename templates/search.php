@@ -19,6 +19,7 @@ get_header();
 	$solr_search_args = $plugin->get_search_args();
 	$solr_search_results = $plugin->get_search_results();
 	if($solr_search_results != null){
+		// TODO: per page ist falsch, weil die letzte seite ärger macht
 		$per_page = count($solr_search_results);
 		$pages = ceil($solr_search_results->getNumFound()/$per_page);
 	}
