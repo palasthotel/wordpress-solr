@@ -22,6 +22,7 @@ class Solr {
 	public function __construct(\SolrPlugin $plugin) {
 		$this->plugin = $plugin;
 		$this->client = $this->plugin->get_solarium();
+
 		add_filter('solr_add_post_fields', array($this, 'add_post_fields'),10,2);
 		add_filter('solr_add_comment_fields', array($this, 'add_comment_fields'),10,2);
 		add_filter('solr_is_supported_type', array($this, 'is_supported_type'),10,2);

@@ -6,15 +6,19 @@
  */
 
 /**
- * render search form on top with advanced filter
+ * render search form template
  */
-echo $this->get_search_form("",$solr_search_results);
+do_action('solr_search_form','',$solr_search_results);
 
+/**
+ * render spellcheck template
+ */
+do_action('solr_search_spellcheck', $solr_search_results);
 
 ?>
-<div id="search-results">
-<?php
 
+<div id="solr-search-results">
+<?php
 if (!$solr_search_results){
 	?>
 	<h1><em>No results found for
@@ -28,25 +32,6 @@ if (!$solr_search_results){
 	</h1>
 	<?php
 
-	/**
-	 * @var \Solarium\QueryType\Select\Result\Spellcheck\Result
-	 */
-	$spellcheck_result = $solr_search_results->getSpellcheck();
-	if ($spellcheck_result != NULL && !$spellcheck_result->getCorrectlySpelled()) {
-		$collations = $spellcheck_result->getCollations();
-		if (count($collations) > 0) {
-			$corrections = $spellcheck_result->getCollation(0)
-			  ->getCorrections();
-			?>
-			<p>Did you mean “<a href="?query=<?php
-				echo implode('+', $corrections);
-				?>"><?php
-					echo implode(' ', $corrections);
-					?></a>”?</p>
-			<?php
-		}
-	}
-
 	// TODO: handle search results other than POSTs like comments
 	/**
 	 * get ids from solr result documents
@@ -57,7 +42,6 @@ if (!$solr_search_results){
 		/**
 		 * @var \Solarium\QueryType\Select\Result\DocumentInterface $document
 		 */
-
 		/**
 		 * matches for posts
 		 */
@@ -67,7 +51,6 @@ if (!$solr_search_results){
 		}
 		// TODO: matches for other types like comments
 	}
-
 	if (count($ids) > 0) {
 		/**
 		 * do the loop with result ids
@@ -76,14 +59,16 @@ if (!$solr_search_results){
 		  'post__in' => $ids,
 		  'order_by' => 'post__in',
 		  'post_type' => 'any',
+		  'post_per_page' => -1,
 		));
 		$i = 0;
-		while ($query->have_posts()) {
+		global $post;
+		while( $query->have_posts() ){
 			$query->the_post();
 			/**
 			 * render the result
 			 */
-			do_action('solr_render_search_results_item', $documents[$i]);
+			do_action('solr_search_results_item', $post, $documents[$i]);
 			$i++;
 		}
 		wp_reset_postdata();

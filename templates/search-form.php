@@ -3,19 +3,19 @@
  * Search form template
  * @var SolrPlugin\SearchPage $this
  * @var $form
- * @var array $search_args
- * @var null|\Solarium\QueryType\Select\Result\Result $search_results
+ * @var array $solr_search_args
+ * @var null|\Solarium\QueryType\Select\Result\Result $solr_search_results
  */
 ?>
-<form role="search" method="get" class="search-form" action="<?php echo home_url('/') ?>">
+<form role="search" method="get" class="solr-search-form" action="<?php echo home_url('/') ?>">
 	<div>
-		<label> <span class="screen-reader-text">Search for:</span> <input
+		<label> <span class="screen-reader-text"><?php echo __('Search for:'); ?></span> <input
 			  type="search" class="search-field"
-			  placeholder="<?php echo __('Search …') ?>"
-			  value="<?php echo $search_args['s']; ?>" name="s"
-			  title="Search for:" />
+			  placeholder="<?php echo __('Search …'); ?>"
+			  value="<?php echo $solr_search_args['s']; ?>" name="s"
+			  title="<?php echo __('Search for:'); ?>" />
 		</label>
-		<input type="submit" class="search-submit" value="Search" />
+		<input type="submit" class="search-submit" value="<?php echo __('Search'); ?>" />
 	</div>
 
 	<?php

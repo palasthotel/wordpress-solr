@@ -2,7 +2,7 @@
 /*
 Plugin Name: Solr
 Description: Use the Apache Solr search engine.
-Version: 0.1.1
+Version: 0.2
 Author: Palasthotel by Edward Bock
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
@@ -20,7 +20,6 @@ class SolrPlugin
 	 */
 	public $dir;
 	public $url;
-	public $theme_path;
 	public $prefix;
 
 	/**
@@ -54,12 +53,6 @@ class SolrPlugin
 		*/
 		$this->dir = plugin_dir_path(__FILE__);
 		$this->url = plugin_dir_url(__FILE__);
-		/**
-		 * solr templates folder in theme
-		 */
-		$theme = wp_get_theme();
-		$theme_dir = $theme->get_theme_root() . '/' . $theme->get_stylesheet();
-		$this->theme_path = "$theme_dir/solr/";
 
 		/**
 		 * database prefix
@@ -84,7 +77,47 @@ class SolrPlugin
 		require('classes/search-page.inc');
 		$this->search_page = new \SolrPlugin\SearchPage($this);
 
+		/**
+		 * sniff incoming requests
+		 */
+		add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
+		add_filter('template_include', array($this, 'search_template'), 99 );
 	}
+
+	/**
+	 * disable_search_query
+	 * @param array $request
+	 * @param $query WP_Query
+	 * @return array|bool
+	 */
+	function disable_search_query($request, $query){
+		/**
+		 * if it is the main query and there is a search param
+		 */
+		if($query->is_main_query() && !empty($_GET['s'])){
+			return false;
+		}
+		return $request;
+	}
+
+	/**
+	 * Add a new template when solr search is triggered
+	 * @param $template
+	 * @return string
+	 */
+	function search_template( $template ) {
+		/**
+		 * guess that solr search is triggered when GET s isset
+		 */
+		if ( isset($_GET['s']) && !empty($_GET['s']) ) {
+			$search_template = locate_template( array( 'solr/search.php' ) );
+			if ( '' != $search_template ) {
+				return $search_template ;
+			}
+		}
+		return $this->dir.'/templates/search.php';
+	}
+
 
 	/**
 	 * @return \SolrPlugin\Solr
@@ -210,6 +243,20 @@ class SolrPlugin
 	 */
 	public static function on_deactivate(){
 		// TODO: delete default search results page?
+	}
+
+	/**
+	 * returns path to theme template if exists
+	 * else plugin template
+	 * @param string $file filename of template
+	 * @return string
+	 */
+	public function get_template_file($file){
+		$solr_template = locate_template( array( 'solr/'.$file ) );
+		if ( '' != $solr_template ) {
+			return $solr_template;
+		}
+		return $this->dir."/templates/$file";
 	}
 }
 

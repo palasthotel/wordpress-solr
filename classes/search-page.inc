@@ -19,12 +19,47 @@ class SearchPage
 	 */
 	public function __construct(\SolrPlugin $plugin){
 		$this->plugin = $plugin;
-		add_shortcode('solr_search_results', array($this, 'render_search_results') );
-		add_shortcode('solr_search_form', array($this,'get_search_form') );
-		add_filter('get_search_form', array($this, 'get_search_form') );
-		add_action('solr_render_search_results_item', array($this,'render_search_results_item'));
+
+		/**
+		 * change search form
+		 */
+		add_filter('get_search_form', array($this, 'get_search_form_html') );
+
+		/**
+		 * render search forms
+		 */
+		add_shortcode('solr_search_form', array($this,'get_search_form_html') );
+		add_action('solr_search_form', array($this, 'render_search_form'),10,2);
+
+		/**
+		 * render results
+		 */
+		add_shortcode('solr_search_results', array($this, 'get_search_results_html') );
+		add_action('solr_search_results', array($this, 'render_search_results'));
+
+		/**
+		 * render a single search item
+		 */
+		add_action('solr_search_results_item', array($this,'render_search_results_item'),10,2);
+
+		/**
+		 * spell checking display
+		 */
+		add_action('solr_search_spellcheck', array($this, 'render_search_spellcheck'));
+
 	}
 
+	/**
+	 * search results for shortcode
+	 * @return string
+	 */
+	function get_search_results_html(){
+		ob_start();
+		$this->render_search_results();
+		$output = ob_get_contents();
+		ob_end_clean();
+		return $output;
+	}
 	/**
 	 * render search results shortcode
 	 */
@@ -34,18 +69,26 @@ class SearchPage
 		 */
 		$solr_search_args = $this->get_search_args();
 		$solr_search_results = $this->plugin->get_solr()->search($solr_search_args);
-
-		include $this->get_template_file('search-results.php');
+		include $this->plugin->get_template_file('search-results.php');
 	}
 
 	/**
 	 * render a single item of search results
 	 * you can use global post function because we are in context of a loop
+	 * @param \WP_Post
 	 * @param \Solarium\QueryType\Select\Result\DocumentInterface $document
 	 * @return string
 	 */
-	function render_search_results_item($document){
-		include $this->get_template_file("search-results-item.php");
+	function render_search_results_item(\WP_Post $post, \Solarium\QueryType\Select\Result\DocumentInterface $document){
+		include $this->plugin->get_template_file("search-results-item.php");
+	}
+
+	/**
+	 * render spellcheck display
+	 * @param $solr_search_results
+	 */
+	function render_search_spellcheck($solr_search_results){
+		include $this->plugin->get_template_file("search-spellcheck.php");
 	}
 
 	/**
@@ -53,12 +96,21 @@ class SearchPage
 	 * @param $form
 	 * @return string
 	 */
-	function get_search_form($form, $solr_search_results = null) {
-		$search_args = $this->get_search_args();
+	function get_search_form_html($form, $solr_search_results = null) {
 		ob_start();
-		include $this->get_template_file("search-form.php");
+		$this->render_search_form($form, $solr_search_results);
 		$form = ob_get_clean();
 		return $form;
+	}
+
+	/**
+	 * render search form
+	 * @param $form
+	 * @return string
+	 */
+	function render_search_form($form, $solr_search_results = null) {
+		$solr_search_args = $this->get_search_args();
+		include $this->plugin->get_template_file("search-form.php");
 	}
 
 	/**
@@ -95,18 +147,4 @@ class SearchPage
 
 		return $args;
 	}
-
-	/**
-	 * returns path to theme template if exists
-	 * else default template
-	 * @param string $file filename of template
-	 * @return string
-	 */
-	private function get_template_file($file){
-		if(is_file($this->plugin->theme_path."/".$file)){
-			return $this->plugin->theme_path."/".$file;
-		}
-		return $this->plugin->dir."/templates/$file";
-	}
-
 }
