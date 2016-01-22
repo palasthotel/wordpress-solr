@@ -2,7 +2,7 @@
 /*
 Plugin Name: Solr
 Description: Use the Apache Solr search engine.
-Version: 0.2
+Version: 0.3
 Author: Palasthotel by Edward Bock
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
@@ -170,6 +170,9 @@ class SolrPlugin
 		return $this->solarium;
 	}
 
+	/**
+	 * save latest run to options
+	 */
 	public function save_latest_run(){
 		update_option( $this->prefix.'post_index_run', date("Y-m-d h:i:s"));
 	}
@@ -189,10 +192,16 @@ class SolrPlugin
 		return $this->config;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function get_search_args(){
 		return $this->search_page->get_search_args();
 	}
 
+	/**
+	 * @return null|array
+	 */
 	public function get_search_results(){
 		if($this->solr == null) return null;
 		return $this->get_solr()->get_search_results();
@@ -263,38 +272,11 @@ class SolrPlugin
 	 * on activation
 	 */
 	public static function on_activate(){
-		// search for a page titled 'Search Results'
-		$page = get_page_by_title('Search Results', 'OBJECT', 'page');
-
-		if (!$page) {
-			// if it doesn't exist, create a new page
-			$page = array(
-			  'post_type' => 'page',
-			  'post_name' => 'search',
-			  'post_title' => 'Search Results',
-			  'post_content' => '[phsolr_search_results]',
-			  'post_status' => 'publish',
-			  'post_author' => 1,
-			  'post_name' => 'Search Results',
-			  'comment_status' => 'closed'
-			);
-
-			$page_id = wp_insert_post($page);
-		} else if ($page->post_status != 'publish') {
-			// if the page is unpublished, publish it
-			$page->post_status = 'publish';
-
-			wp_update_post($page);
-		} else {
-			// otherwise remember its ID
-			$page_id = $page->ID;
-		}
 	}
 	/**
 	 * on deactivation
 	 */
 	public static function on_deactivate(){
-		// TODO: delete default search results page?
 	}
 
 	/**
