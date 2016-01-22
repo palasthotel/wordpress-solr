@@ -219,10 +219,13 @@ class SolrPlugin
 			/**
 			 * on error try every single one and log error
 			 */
-			foreach ($posts as $post) {
+			for($i = 0; $i < count($posts); $i++) {
+				var_dump("index: ".$i);
+				$post = $posts[$i];
 				try{
 					$result = $this->get_solr()->updatePostIndex(array($post));
 				} catch (Solarium\Exception\HTTPException $e) {
+					array_splice($posts, $i, 1);
 					$this->posts->set_ignored($post->ID);
 					$this->posts->set_error($post->ID);
 					var_dump($e);

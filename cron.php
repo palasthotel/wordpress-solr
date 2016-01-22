@@ -33,8 +33,7 @@ do{
 	 * break if too many rounds
 	 */
 	$indexed+= count($results->posts);
-	print "Indexed: $indexed\n";
-
+	print "indexed: $indexed\n";
 	$i++;
 	if($i > 999){
 		echo "\n --- security break --- \n";
