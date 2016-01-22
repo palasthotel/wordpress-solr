@@ -59,7 +59,7 @@ if (!$solr_search_results){
 		  'post__in' => $ids,
 		  'order_by' => 'post__in',
 		  'post_type' => 'any',
-		  'post_per_page' => -1,
+		  'posts_per_page' => $solr_search_results->getNumFound(),
 		));
 		$i = 0;
 		global $post;
