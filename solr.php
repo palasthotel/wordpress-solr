@@ -191,20 +191,24 @@ class SolrPlugin
 		$posts = $this->posts->getModified($number);
 		/**
 		 * update index
+		 * @var  \Solarium\QueryType\Update\Result $results
 		 */
-		$result = $this->get_solr()->updatePostIndex($posts);
+		$results = $this->get_solr()->updatePostIndex($posts);
 		/**
 		 * set index
 		 */
-		foreach ($posts as $counter => $post) {
-			/* @var $post WP_Post */
-			print "<p>".$post->post_title."<p>";
-			/**
-			 * set indexed
-			 */
-			$this->posts->set_indexed($post->ID);
+		foreach($results as $result){
+			var_dump($result);
 		}
-		return (object) array("posts" => $posts, "result" => $result);
+//		foreach ($posts as $counter => $post) {
+//			/* @var $post WP_Post */
+//			print "<p>".$post->post_title."<p>";
+//			/**
+//			 * set indexed
+//			 */
+//			$this->posts->set_indexed($post->ID);
+//		}
+//		return (object) array("posts" => $posts, "result" => $result);
 	}
 
 	/**
