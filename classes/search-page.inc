@@ -126,8 +126,8 @@ class SearchPage
 		}
 
 		// sanitize page param
-		if (isset($_GET['page_num'])) {
-			$args['page'] = (int) $_GET['page_num'];
+		if (isset($_GET['page'])) {
+			$args['page'] = (int) $_GET['page'];
 
 			if ($args['page'] < 1) {
 				$args['page'] = 1;

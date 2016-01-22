@@ -15,6 +15,12 @@
 		switch($_GET['action']){
 			case 'update':
 				$result = $this->plugin->index_posts(20);
+				foreach ($result->posts as $post) {
+					/**
+					 * @var WP_Post $post
+					 */
+					print "<p>".$post->post_title."<p>";
+				}
 				echo '<p>Index updated '.count($result->posts).'</p>';
 				break;
 			case 'delete':

@@ -27,7 +27,7 @@ if (!$solr_search_results){
 } else {
 	?>
 	<h1>
-		<em><?php echo $solr_search_results->getNumFound() ?></em> Result(s)
+		<em><?php echo $solr_search_results->getNumFound(); ?></em> Result(s)
 		found for <em>“<?php echo $solr_search_args['s'] ?>”</em>
 	</h1>
 	<?php

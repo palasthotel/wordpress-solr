@@ -14,6 +14,10 @@ class Solr {
 	 * @var \Solarium\Client
 	 */
 	private $client;
+	/**
+	 * @var 
+	 */
+	private $search_results;
 
 	/**
 	 * Solr constructor.
@@ -289,7 +293,7 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_query($select,$search_args, $config){
-		if(!empty($search_args)){
+		if(!empty($search_args) && !empty($search_args['s'])){
 			$query = $search_args['s'];
 			$select->setQuery($query);
 		}
@@ -346,7 +350,7 @@ class Solr {
 	public function search_select_spellchecker($select,$search_args, $config){
 		if (!empty($config['spellcheck']) && $config['spellcheck']) {
 			$spellcheck = $select->getSpellcheck();
-			$spellcheck->setQuery($query);
+			$spellcheck->setQuery($search_args['s']);
 			$spellcheck->setCount(10);
 			$spellcheck->setBuild(TRUE);
 			$spellcheck->setCollate(TRUE);
@@ -471,7 +475,11 @@ class Solr {
 		 * set result fields
 		 */
 		$select->setFields($config['result_fields']);
+		$this->search_results = $this->client->select($select);
+		return $this->search_results;
+	}
 
-		return $this->client->select($select);
+	public function get_search_results(){
+		return $this->search_results;
 	}
 }

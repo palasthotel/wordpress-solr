@@ -1,22 +1,48 @@
 <?php
-/**
- * @var \SolrPlugin\SearchPage $this
- * @var array $solr_search_args
- * @var \Solarium\QueryType\Select\Result\Result $solr_search_results;
- */
-
 get_header();
 ?>
 
 <div class="solr-search">
 
-	<h1 class="solr-search-header">Solr Suche</h1>
+	<h1 class="solr-search-header"><?php __('Solr Search'); ?></h1>
 
 	<?php
 	/**
 	 * render search form on top with advanced filter
 	 */
 	do_action('solr_search_results');
+
+	/**
+	 * calculate pages
+	 */
+	$plugin = solr_get_plugin();
+	$solr_search_args = $plugin->get_search_args();
+	$solr_search_results = $plugin->get_search_results();
+	if($solr_search_results != null){
+		$per_page = count($solr_search_results);
+		$pages = ceil($solr_search_results->getNumFound()/$per_page);
+	}
+
+	/**
+	 * render pagination
+	 */
+	echo paginate_links( array(
+		'base'               => '%_%',
+		'format'             => '?page=%#%',
+		'total'              => $pages,
+		'current'            => $solr_search_args['page'],
+		'show_all'           => False,
+		'end_size'           => 1,
+		'mid_size'           => 2,
+		'prev_next'          => True,
+		'prev_text'          => __('« Previous'),
+		'next_text'          => __('Next »'),
+		'type'               => 'list',
+		'add_args'           => False,
+		'add_fragment'       => '',
+		'before_page_number' => '',
+		'after_page_number'  => ''
+	) );
 	?>
 
 </div><!-- .solr-search -->

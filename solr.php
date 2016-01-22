@@ -110,12 +110,22 @@ class SolrPlugin
 		 * guess that solr search is triggered when GET s isset
 		 */
 		if ( isset($_GET['s']) && !empty($_GET['s']) ) {
+			/**
+			 * return theme search template if exists
+			 */
 			$search_template = locate_template( array( 'solr/search.php' ) );
 			if ( '' != $search_template ) {
 				return $search_template ;
 			}
+			/**
+			 * return solr plugin search template
+			 */
+			return $this->dir.'/templates/search.php';
 		}
-		return $this->dir.'/templates/search.php';
+		/**
+		 * return wordpress template
+		 */
+		return $template;
 	}
 
 
@@ -123,7 +133,7 @@ class SolrPlugin
 	 * @return \SolrPlugin\Solr
 	 */
 	public function get_solr(){
-		if ($this->solr === NULL) {
+		if ($this->solr == NULL) {
 			require_once dirname(__FILE__) . '/classes/solr.php';
 			$this->solr = new SolrPlugin\Solr($this);
 		}
@@ -179,10 +189,19 @@ class SolrPlugin
 		return $this->config;
 	}
 
+	public function get_search_args(){
+		return $this->search_page->get_search_args();
+	}
+
+	public function get_search_results(){
+		if($this->solr == null) return null;
+		return $this->get_solr()->get_search_results();
+	}
+
 	/**
 	 * update index by number of posts
 	 * @param int $number number of posts to be updated
-	 * @return object
+	 * @return boolean|object
 	 */
 	public function index_posts($number = 100){
 		/**
@@ -191,24 +210,21 @@ class SolrPlugin
 		$posts = $this->posts->getModified($number);
 		/**
 		 * update index
-		 * @var  \Solarium\QueryType\Update\Result $results
+		 * @var  \Solarium\QueryType\Update\Result $result
 		 */
-		$results = $this->get_solr()->updatePostIndex($posts);
+		$result = $this->get_solr()->updatePostIndex($posts);
 		/**
-		 * set index
+		 * Success response is 0
+		 * http://solarium.readthedocs.org/en/stable/queries/update-query/the-result-of-an-update-query/
 		 */
-		foreach($results as $result){
-			var_dump($result);
+		if($result->getStatus() === 0){
+			foreach ($posts as $counter => $post) {
+				/* @var $post WP_Post */
+				$this->posts->set_indexed($post->ID);
+			}
+			return (object) array("posts" => $posts, "result" => $result, "error" => false);
 		}
-//		foreach ($posts as $counter => $post) {
-//			/* @var $post WP_Post */
-//			print "<p>".$post->post_title."<p>";
-//			/**
-//			 * set indexed
-//			 */
-//			$this->posts->set_indexed($post->ID);
-//		}
-//		return (object) array("posts" => $posts, "result" => $result);
+		return (object)array("error" => true);
 	}
 
 	/**

@@ -14,4 +14,29 @@ require_once( $paths[0] . 'wp-load.php' );
  */
 
 $solr_plugin = solr_get_plugin();
-$solr_plugin->index_posts(-1);
+$i = 0;
+$indexed = 0;
+do{
+	/**
+	 * index posts to solr
+	 */
+	$results = $solr_plugin->index_posts(200);
+	if($results->error === true){
+		print "Error while indexing: \n";
+		var_dump($results);
+		break;
+	}
+	/**
+	 * break if too many rounds
+	 */
+	$indexed+= count($results->posts);
+	print "Indexed: $indexed\n";
+
+	$i++;
+	if($i > 999){
+		echo "\n --- security break --- \n";
+		break;
+	} 
+} while( true );
+
+$solr_plugin->save_latest_run();
