@@ -14,6 +14,7 @@ class Config {
 	/**
 	 * config keys
 	 */
+	public static $ENABLED = "enabled";
 	public static $HOST = "host";
 	public static $PORT = "port";
 	public static $PATH = "path";
@@ -33,6 +34,7 @@ class Config {
 	public function __construct(\SolrPlugin $plugin) {
 		$this->plugin = $plugin;
 		$this->defaults = array(
+			self::$ENABLED => false,
 		  self::$HOST => '127.0.0.1',
 		  self::$PORT => '8983',
 		  self::$PATH => '/solr/',

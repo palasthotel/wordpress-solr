@@ -77,11 +77,18 @@ class SolrPlugin
 		require('classes/search-page.inc');
 		$this->search_page = new \SolrPlugin\SearchPage($this);
 
+
 		/**
-		 * sniff incoming requests
+		 * if enabled activate template suggestions
+		 * and overwrite default search
 		 */
-		add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
-		add_filter('template_include', array($this, 'search_template'), 99 );
+		if($this->get_config()->get_option(\SolrPlugin\Config::$ENABLED)){
+			/**
+			 * template paths for solr
+			 */
+			add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
+			add_filter('template_include', array($this, 'search_template'), 99 );
+		}
 	}
 
 	/**

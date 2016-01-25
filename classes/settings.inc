@@ -74,7 +74,8 @@ class Settings{
 		switch($page){
 			case 'core':
 				return array(
-					array('key'=>$config::$HOST, 'label' => 'Host'),
+				  	array('key'=>$config::$ENABLED, 'label' => 'Enable Solr Search', "type" => "checkbox"),
+				  	array('key'=>$config::$HOST, 'label' => 'Host'),
 					array('key'=>$config::$PORT, 'label' => 'Port'),
 					array('key'=>$config::$PATH, 'label' => 'Path'),
 				  	array('key'=>$config::$CORE, 'label' => 'Core'),
