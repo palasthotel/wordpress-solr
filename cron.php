@@ -2,15 +2,18 @@
 /**
  * load core
  */
-//define( 'WP_MEMORY_LIMIT','2G' );
+define( 'WP_MEMORY_LIMIT','2G' );
 define('WP_USE_THEMES', false);
 $paths = explode( 'wp-content',__FILE__ );
 require_once( $paths[0] . 'wp-load.php' );
 
-//ini_set( 'memory_limit', '-1' );
+ini_set( 'memory_limit', '-1' );
 
+// output to shell
+while( 0 != ob_get_level() ) {
+	ob_end_clean();
+}
 
-var_dump("go solr index");
 /**
  * do the cron stuff
  */
