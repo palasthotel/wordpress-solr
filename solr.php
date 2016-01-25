@@ -233,7 +233,7 @@ class SolrPlugin
 			$post = $modified_posts[$i];
 			// function in config
 			$post_ignored = false;
-			$post_ignored = apply_filters('solr_post_ignore',$post_ignored);
+			$post_ignored = apply_filters('solr_post_ignore',$post, $post_ignored);
 			/**
 			 * if not ignored ad to
 			 */
