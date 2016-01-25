@@ -216,21 +216,56 @@ class SolrPlugin
 		/**
 		 * get modified
 		 */
-		$posts = $this->posts->getModified($number);
+		$modified_posts = $this->posts->getModified($number);
+
+		/**
+		 * if there are no modified return
+		 */
+		if(count($modified_posts) < 1){
+			return (object) array("posts" => $modified_posts, "error" => false);
+		}
+
+		/**
+		 * check if goes through ignore filter
+		 */
+		$index_posts = array();
+		for($i = 0; $i < count($modified_posts); $i++){
+			$post = $modified_posts[$i];
+			// function in config
+			$post_ignored = false;
+			$post_ignored = apply_filters('solr_post_ignore',$post_ignored);
+			/**
+			 * if not ignored ad to
+			 */
+			if (!$post_ignored)
+			{
+				$index_posts[] = $post;
+			} else {
+				$this->posts->set_ignored($post->ID);
+			}
+		}
+
+		/**
+		 * if no posts left after filter rerun method
+		 */
+		if(count($index_posts) < 1){
+			return $this->index_posts($number);
+		}
+
 		/**
 		 * update index with a number of posts because thats faster
 		 * @var  \Solarium\QueryType\Update\Result $result
 		 */
 		try{
-			$result = $this->get_solr()->updatePostIndex($posts);
+			$result = $this->get_solr()->updatePostIndex($index_posts);
 		} catch (Solarium\Exception\HTTPException $e) {
 			var_dump($e->getMessage());
 			/**
 			 * on error try every single one and log error
 			 */
-			for($i = 0; $i < count($posts); $i++) {
+			for($i = 0; $i < count($index_posts); $i++) {
 				var_dump("index: ".$i);
-				$post = $posts[$i];
+				$post = $index_posts[$i];
 				try{
 					$result = $this->get_solr()->updatePostIndex(array($post));
 				} catch (Solarium\Exception\HTTPException $e) {
@@ -243,7 +278,7 @@ class SolrPlugin
 			}
 	      
 	    }
-		return $this->_verify_result($result, $posts);
+		return $this->_verify_result($result, $index_posts);
 		
 	}
 

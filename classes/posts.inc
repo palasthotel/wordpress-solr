@@ -80,26 +80,12 @@ class Posts
 		);
 		$posts = array();
 		if ($query->have_posts()) {
-			$posts = array();
 			foreach ($query->posts as $post) {
 				/**
 				 * @var $post \WP_Post
 				 */
-				// function in config
-				$post_ignored = false;
-				$post_ignored = apply_filters('solr_post_ignore',$post_ignored);
-
-				/**
-				 * if not ignored ad to
-				 */
-				if (!$post_ignored)
-				{
-					$posts[] = $post;
-				} else {
-					$this->set_ignored($post->ID);
-				}
+				$posts[] = $post;
 			}
-			return $posts;
 		}
 		return $posts;
 	}
