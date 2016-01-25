@@ -149,7 +149,7 @@ class SolrPlugin
 			/**
 			 * autoload dependencies
 			 */
-			require_once $this->dir . '/vendor/autoload.php';
+			require_once $this->dir . '/lib/autoload.php';
 			$config = $this->get_config();
 			/**
 			 * init solarium configuration
