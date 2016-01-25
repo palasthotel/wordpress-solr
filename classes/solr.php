@@ -475,8 +475,4 @@ class Solr {
 		$this->search_results = $this->client->select($select);
 		return $this->search_results;
 	}
-
-	public function get_search_results(){
-		return $this->search_results;
-	}
 }

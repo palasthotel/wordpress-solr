@@ -193,8 +193,6 @@ class SolrPlugin
 		return $this->search_args;
 	}
 
-
-
 	/**
 	 * disable_search_query
 	 * @param array $request
