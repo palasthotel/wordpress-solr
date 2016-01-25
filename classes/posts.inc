@@ -87,6 +87,7 @@ class Posts
 				$posts[] = $post;
 			}
 		}
+		wp_reset_postdata();
 		return $posts;
 	}
 
