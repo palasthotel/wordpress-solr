@@ -68,7 +68,12 @@ class SearchPage
 		 * global use of search results
 		 */
 		$solr_search_args = $this->get_search_args();
-		$solr_search_results = $this->plugin->get_solr()->search($solr_search_args);
+		try{
+			$solr_search_results = $this->plugin->get_solr()->search($solr_search_args);
+		} catch (\Solarium\Exception\HttpException $e){
+			include $this->plugin->get_template_file('search-error.php');
+		}
+
 		include $this->plugin->get_template_file('search-results.php');
 	}
 
