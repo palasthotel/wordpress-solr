@@ -74,7 +74,13 @@ class Settings{
 		switch($page){
 			case 'core':
 				return array(
-				  	array('key'=>$config::$ENABLED, 'label' => 'Enable Solr Search', "type" => "checkbox"),
+				  	array(
+					  'key'=>$config::$ENABLED,
+					  'label' => 'Enable Solr Search',
+					  "type" => "checkbox",
+					  "description" => "default theme/search.php template will be ignored ".
+						"and theme/solr/search.php or this_plugin/template/search.php template will be used",
+					),
 				  	array('key'=>$config::$HOST, 'label' => 'Host'),
 					array('key'=>$config::$PORT, 'label' => 'Port'),
 					array('key'=>$config::$PATH, 'label' => 'Path'),
@@ -123,6 +129,10 @@ class Settings{
 					?><input type="<?php echo $type; ?>" id="<?php echo $key; ?>"
 							 name="<?php echo $key; ?>" value="<?php echo $value; ?>"
 							 class="regular-text"><?php
+				}
+
+				if(!empty($setting["description"])){
+					echo "<p class='description'>".$setting["description"]."</p>";
 				}
 
 
