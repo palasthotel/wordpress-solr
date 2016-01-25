@@ -37,13 +37,14 @@ do{
 	/**
 	 * break if too many rounds
 	 */
-	$indexed+= count($results->posts);
-	print "indexed: $indexed\n";
+//	$indexed+= count($results->posts);
+//	print "indexed: $indexed\n";
 	$i++;
 	if($i > 999){
 		echo "\n --- security break --- \n";
 		break;
 	} 
 } while( true );
+
 
 $solr_plugin->save_latest_run();

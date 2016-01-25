@@ -264,7 +264,6 @@ class SolrPlugin
 			 * on error try every single one and log error
 			 */
 			for($i = 0; $i < count($index_posts); $i++) {
-				var_dump("index: ".$i);
 				$post = $index_posts[$i];
 				try{
 					$result = $this->get_solr()->updatePostIndex(array($post));
