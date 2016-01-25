@@ -15,7 +15,7 @@ class Solr {
 	 */
 	private $client;
 	/**
-	 * @var 
+	 * @var
 	 */
 	private $search_results;
 
@@ -273,6 +273,7 @@ class Solr {
 	 */
 	private function add_search_filters(){
 		add_filter('solr_search_select',array($this,'search_select_query'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_order'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_state'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_page'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_boost'),10,3);
@@ -294,6 +295,17 @@ class Solr {
 			$query = $search_args['s'];
 			$select->setQuery($query);
 		}
+		return $select;
+	}
+
+	/** search order
+	 * @param \Solarium\QueryType\Select\Query\Query $select
+	 * @param $search_args
+	 * @param $config
+	 * @return \Solarium\QueryType\Select\Query\Query
+	 */
+	public function search_select_order($select,$search_args, $config){
+		$select->addSort('date',$select::SORT_DESC);
 		return $select;
 	}
 
