@@ -9,6 +9,8 @@ require_once( $paths[0] . 'wp-load.php' );
 
 //ini_set( 'memory_limit', '-1' );
 
+
+var_dump("go solr index");
 /**
  * do the cron stuff
  */
