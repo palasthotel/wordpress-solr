@@ -47,6 +47,11 @@ class SearchPage
 		 */
 		add_action('solr_search_spellcheck', array($this, 'render_search_spellcheck'));
 
+		/**
+		 * body class filter
+		 */
+		add_filter('body_class', array($this, 'body_class'));
+
 	}
 
 	/**
@@ -67,14 +72,13 @@ class SearchPage
 		/**
 		 * global use of search results
 		 */
+		$solr_search_results = $this->plugin->get_search_results();
 		$solr_search_args = $this->get_search_args();
-		try{
-			$solr_search_results = $this->plugin->get_solr()->search($solr_search_args);
-		} catch (\Solarium\Exception\HttpException $e){
+		if($this->plugin->search_error){
 			include $this->plugin->get_template_file('search-error.php');
+		} else {
+			include $this->plugin->get_template_file('search-results.php');
 		}
-
-		include $this->plugin->get_template_file('search-results.php');
 	}
 
 	/**
@@ -111,9 +115,10 @@ class SearchPage
 	/**
 	 * render search form
 	 * @param $form
+	 * @param null|\Solarium\QueryType\Select\Result\Result  $solr_search_results
 	 * @return string
 	 */
-	function render_search_form($form, $solr_search_results = null) {
+	function render_search_form($form, \Solarium\QueryType\Select\Result\Result $solr_search_results = null) {
 		$solr_search_args = $this->get_search_args();
 		include $this->plugin->get_template_file("search-form.php");
 	}
@@ -125,31 +130,26 @@ class SearchPage
 	 * @return array
 	 */
 	function get_search_args() {
-		$args = array();
-		if (isset($_GET['s'])) {
-			$args['s'] = $_GET['s'];
-		}
+		return $this->plugin->get_search_args();
+	}
 
-		// sanitize page param
-		if (isset($_GET['page'])) {
-			$args['page'] = (int) $_GET['page'];
-
-			if ($args['page'] < 1) {
-				$args['page'] = 1;
+	/**
+	 * add body classes depending on search results
+	 * @param array $classes
+	 * @return array
+	 */
+	function body_class( array $classes ) {
+		$found = ($this->plugin->get_search_results()->getNumFound() > 0);
+		if($found){
+			$classes[] = "search-results";
+			for($i = 0; $i < count($classes); $i++){
+				if($classes[$i] == "search-no-results" && $found){
+					array_splice($classes,$i,1);
+				}
 			}
 		} else {
-			$args['page'] = 1;
+			$classes[] = "search-no-results";
 		}
-
-		$facet_args = array();
-		foreach ($_GET as $key => $value) {
-			if (strpos($key, 'facet-') === 0) {
-				$facet_args[substr($key, 6)] = $value === 'on';
-			}
-		}
-
-		$args['facets'] = $facet_args;
-
-		return $args;
+		return $classes;
 	}
 }

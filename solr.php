@@ -44,10 +44,32 @@ class SolrPlugin
 	public $posts;
 
 	/**
+	 * @var array|null
+	 */
+	public $search_args;
+
+	/**
+	 * @var \Solarium\QueryType\Select\Result\Result|null
+	 */
+	public $search_results;
+
+	/**
+	 * @var boolean
+	 */
+	public $search_error;
+
+	/**
 	* construct grid plugin
 	*/
 	function __construct()
 	{
+		/**
+		 * search cache
+		 */
+		$this->search_error = false;
+		$this->search_args = null;
+		$this->search_results = null;
+
 		/**
 		* base paths
 		*/
@@ -81,6 +103,7 @@ class SolrPlugin
 		/**
 		 * if enabled activate template suggestions
 		 * and overwrite default search
+		 * and do the search if needed
 		 */
 		if($this->get_config()->get_option(\SolrPlugin\Config::$ENABLED)){
 			/**
@@ -88,8 +111,89 @@ class SolrPlugin
 			 */
 			add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
 			add_filter('template_include', array($this, 'search_template'), 99 );
+			/**
+			 * do the search on init
+			 */
+			add_action('init', array($this, 'do_search'));
 		}
 	}
+
+	/**
+	 * is search if there is a search query
+	 * @return bool
+	 */
+	function is_search(){
+		$args = $this->get_search_args();
+		return (empty($args['s']));
+	}
+
+	/**
+	 * do the search in init action
+	 */
+	function do_search(){
+		if($this->is_search()){
+			$this->get_search_results();
+		}
+	}
+
+	/**
+	 * get the search results
+	 * @return null|\Solarium\QueryType\Select\Result\Result
+	 */
+	function get_search_results(){
+		if($this->search_results == null
+		  && $this->search_error == false){
+			try{
+				/**
+				 * @var \Solarium\QueryType\Select\Result\Result
+				 */
+				$this->search_results = $this->get_solr()->search($this->get_search_args());
+				$this->search_error =  false;
+			} catch (\Solarium\Exception\HttpException $e){
+				$this->search_error = true;
+			}
+		}
+		return $this->search_results;
+	}
+
+	/**
+	 * Returns the search arguments as an associative array or FALSE if there was no
+	 * search.
+	 *
+	 * @return array
+	 */
+	function get_search_args() {
+		if($this->search_args == null){
+			$args = array();
+			if (isset($_GET['s'])) {
+				$args['s'] = $_GET['s'];
+			}
+
+			// sanitize page param
+			if (isset($_GET['page'])) {
+				$args['page'] = (int) $_GET['page'];
+
+				if ($args['page'] < 1) {
+					$args['page'] = 1;
+				}
+			} else {
+				$args['page'] = 1;
+			}
+
+			$facet_args = array();
+			foreach ($_GET as $key => $value) {
+				if (strpos($key, 'facet-') === 0) {
+					$facet_args[substr($key, 6)] = $value === 'on';
+				}
+			}
+
+			$args['facets'] = $facet_args;
+			$this->search_args = $args;
+		}
+		return $this->search_args;
+	}
+
+
 
 	/**
 	 * disable_search_query
@@ -197,21 +301,6 @@ class SolrPlugin
 			$this->config = new \SolrPlugin\Config($this);
 		}
 		return $this->config;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function get_search_args(){
-		return $this->search_page->get_search_args();
-	}
-
-	/**
-	 * @return null|array
-	 */
-	public function get_search_results(){
-		if($this->solr == null) return null;
-		return $this->get_solr()->get_search_results();
 	}
 
 	/**
