@@ -277,11 +277,11 @@ class SolrPlugin
 			);
 
 			/**
-			 * autoload dependencies
+			 * solarium class
 			 */
-			$solarium_autoloader = $this->dir . '/lib/autoload.php';
-			$solarium_autoloader = apply_filters('solr_solarium_autoloader',$solarium_autoloader);
-			require_once $solarium_autoloader;
+			$solarium_path = $this->dir . '/lib/autoload.php';
+			$solarium_path = apply_filters('solr_solarium_path',$solarium_path);
+			require_once $solarium_path;
 
 			/**
 			 * construct solarium
