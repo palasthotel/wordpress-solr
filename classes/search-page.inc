@@ -103,9 +103,11 @@ class SearchPage
 	/**
 	 * render search form
 	 * @param $form
+	 * @param null|\Solarium\QueryType\Select\Result\Result $solr_search_results
 	 * @return string
 	 */
 	function get_search_form_html($form, $solr_search_results = null) {
+		if($this->plugin->search_error) return $form;
 		ob_start();
 		$this->render_search_form($form, $solr_search_results);
 		$form = ob_get_clean();
@@ -139,16 +141,19 @@ class SearchPage
 	 * @return array
 	 */
 	function body_class( array $classes ) {
-		$found = ($this->plugin->get_search_results()->getNumFound() > 0);
-		if($found){
-			$classes[] = "search-results";
-			for($i = 0; $i < count($classes); $i++){
-				if($classes[$i] == "search-no-results" && $found){
-					array_splice($classes,$i,1);
+		if(!$this->plugin->search_error && $this->plugin->get_search_results()!= null){
+			$found = ($this->plugin->get_search_results()->getNumFound() > 0);
+			$classes[] = "solr-search";
+			if($found){
+				$classes[] = "search-results";
+				for($i = 0; $i < count($classes); $i++){
+					if($classes[$i] == "search-no-results" && $found){
+						array_splice($classes,$i,1);
+					}
 				}
+			} else {
+				$classes[] = "search-no-results";
 			}
-		} else {
-			$classes[] = "search-no-results";
 		}
 		return $classes;
 	}

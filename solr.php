@@ -2,7 +2,7 @@
 /*
 Plugin Name: Solr
 Description: Use the Apache Solr search engine.
-Version: 0.3
+Version: 0.3.1
 Author: Palasthotel by Edward Bock
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
@@ -107,14 +107,15 @@ class SolrPlugin
 		 */
 		if($this->get_config()->get_option(\SolrPlugin\Config::$ENABLED)){
 			/**
+			 * do the search on init
+			 */
+			add_action('init', array($this, 'do_search'));
+			/**
 			 * template paths for solr
 			 */
 			add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
 			add_filter('template_include', array($this, 'search_template'), 99 );
-			/**
-			 * do the search on init
-			 */
-			add_action('init', array($this, 'do_search'));
+
 		}
 	}
 
@@ -124,7 +125,7 @@ class SolrPlugin
 	 */
 	function is_search(){
 		$args = $this->get_search_args();
-		return (empty($args['s']));
+		return (!empty($args['s']));
 	}
 
 	/**
@@ -203,7 +204,10 @@ class SolrPlugin
 		/**
 		 * if it is the main query and there is a search param
 		 */
-		if($query->is_main_query() && !empty($_GET['s'])){
+		if($query->is_main_query() &&
+		  !empty($_GET['s']) &&
+		  !is_admin() &&
+		  !$this->search_error ){
 			return false;
 		}
 		return $request;
@@ -218,7 +222,7 @@ class SolrPlugin
 		/**
 		 * guess that solr search is triggered when GET s isset
 		 */
-		if ( isset($_GET['s']) && !empty($_GET['s']) ) {
+		if ( !$this->search_error && isset($_GET['s']) && !empty($_GET['s']) ) {
 			/**
 			 * return theme search template if exists
 			 */
@@ -359,15 +363,17 @@ class SolrPlugin
 			 */
 			for($i = 0; $i < count($index_posts); $i++) {
 				$post = $index_posts[$i];
-				try{
-					$result = $this->get_solr()->updatePostIndex(array($post));
-				} catch (Solarium\Exception\HTTPException $e) {
-					array_splice($posts, $i, 1);
-					$this->posts->set_ignored($post->ID);
-					$this->posts->set_error($post->ID);
-					var_dump($e);
-					var_dump("Cound not index post: ".$post->ID);
-				}
+				$this->posts->set_ignored($post->ID);
+				$this->posts->set_error($post->ID);
+//				try{
+//					$result = $this->get_solr()->updatePostIndex(array($post));
+//				} catch (Solarium\Exception\HTTPException $e) {
+//					array_splice($posts, $i, 1);
+//					$this->posts->set_ignored($post->ID);
+//					$this->posts->set_error($post->ID);
+//					var_dump($e);
+//					var_dump("Cound not index post: ".$post->ID);
+//				}
 			}
 	      
 	    }
