@@ -206,8 +206,7 @@ class SolrPlugin
 		 */
 		if($query->is_main_query() &&
 		  !empty($_GET['s']) &&
-		  !is_admin() &&
-		  !$this->search_error ){
+		  !is_admin() ){
 			return false;
 		}
 		return $request;
@@ -222,7 +221,7 @@ class SolrPlugin
 		/**
 		 * guess that solr search is triggered when GET s isset
 		 */
-		if ( !$this->search_error && isset($_GET['s']) && !empty($_GET['s']) ) {
+		if ( isset($_GET['s']) && !empty($_GET['s']) ) {
 			/**
 			 * return theme search template if exists
 			 */
@@ -259,11 +258,12 @@ class SolrPlugin
 	 */
 	public function get_solarium(){
 		if($this->solarium === null){
+
 			/**
-			 * autoload dependencies
+			 * get config
 			 */
-			require_once $this->dir . '/lib/autoload.php';
 			$config = $this->get_config();
+
 			/**
 			 * init solarium configuration
 			 */
@@ -275,6 +275,14 @@ class SolrPlugin
 			  'username' => $config->get_option($config::$USERNAME),
 			  'password' => $config->get_option($config::$PW),
 			);
+
+			/**
+			 * autoload dependencies
+			 */
+			$solarium_autoloader = $this->dir . '/lib/autoload.php';
+			$solarium_autoloader = apply_filters('solr_solarium_autoloader',$solarium_autoloader);
+			require_once $solarium_autoloader;
+
 			/**
 			 * construct solarium
 			 */
