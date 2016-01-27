@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name: Solr
-Description: Use the Apache Solr search engine.
+Plugin Name: Search integration for Solr
+Description: Replaces Wordpress search engine by Solr search engine.
 Version: 0.3.1
 Author: Palasthotel by Edward Bock
 URI: http://palasthotel.de/

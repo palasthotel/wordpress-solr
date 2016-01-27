@@ -1,4 +1,4 @@
-=== Solr ===
+=== Search integration for Solr ===
 Contributors: edwardbock
 Tags: search, solr
 Requires at least: 4.0
