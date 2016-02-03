@@ -88,6 +88,10 @@ class Settings{
 				  	array('key'=>$config::$USERNAME, 'label' => 'Username'),
 				  	array('key'=>$config::$PW, 'label' => 'Password', 'type' => 'password'),
 				);
+			case 'advanced':
+				return array(
+				  array('key'=>$config::$TIMEOUT, 'label' => 'Timeout in seconds', 'type' => 'number'),
+				);
 		}
 		return array();
 	}

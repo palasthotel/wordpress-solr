@@ -279,6 +279,7 @@ class SolrPlugin
 			  'core' => $config->get_option($config::$CORE),
 			  'username' => $config->get_option($config::$USERNAME),
 			  'password' => $config->get_option($config::$PW),
+			  'timeout' => $config->get_option($config::$TIMEOUT),
 			);
 
 			/**
@@ -292,6 +293,7 @@ class SolrPlugin
 			 * construct solarium
 			 */
 			$this->solarium = new Solarium\Client(array('endpoint' => array( $endpoint )));
+
 		}
 		return $this->solarium;
 	}

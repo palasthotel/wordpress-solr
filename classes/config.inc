@@ -21,9 +21,10 @@ class Config {
 	public static $CORE = "core";
 	public static $USERNAME = "username";
 	public static $PW = "password";
+	public static $TIMEOUT = "timeout";
+
 	public static $SPELL_CHECK = "spellcheck";
 	public static $QUERY_LIMIT = "query_limit";
-	public static $SEARCH_PAGE_ID = "search_page_id";
 
 	/**
 	 * some other vars
@@ -38,6 +39,7 @@ class Config {
 		  self::$HOST => '127.0.0.1',
 		  self::$PORT => '8983',
 		  self::$PATH => '/solr/',
+		  self::$TIMEOUT => 10,
 		);
 	}
 
