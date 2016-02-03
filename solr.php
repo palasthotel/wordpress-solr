@@ -57,6 +57,10 @@ class SolrPlugin
 	 * @var boolean
 	 */
 	public $search_error;
+	/**
+	 * @var \Solarium\Exception\HttpException $e
+	 */
+	public $search_error_object;
 
 	/**
 	* construct grid plugin
@@ -152,6 +156,7 @@ class SolrPlugin
 				$this->search_error =  false;
 			} catch (\Solarium\Exception\HttpException $e){
 				$this->search_error = true;
+				$this->serach_error_object = $e;
 			}
 		}
 		return $this->search_results;

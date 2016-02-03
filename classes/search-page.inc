@@ -75,6 +75,7 @@ class SearchPage
 		$solr_search_results = $this->plugin->get_search_results();
 		$solr_search_args = $this->get_search_args();
 		if($this->plugin->search_error){
+			$e = $this->plugin->search_error_object;
 			include $this->plugin->get_template_file('search-error.php');
 		} else {
 			include $this->plugin->get_template_file('search-results.php');
