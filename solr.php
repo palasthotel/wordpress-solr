@@ -156,7 +156,7 @@ class SolrPlugin
 				$this->search_error =  false;
 			} catch (\Solarium\Exception\HttpException $e){
 				$this->search_error = true;
-				$this->serach_error_object = $e;
+				$this->search_error_object = $e;
 			}
 		}
 		return $this->search_results;
