@@ -27,9 +27,9 @@ class Solr {
 		$this->plugin = $plugin;
 		$this->client = $this->plugin->get_solarium();
 
-		add_filter('solr_add_post_fields', array($this, 'add_post_fields'),10,2);
-		add_filter('solr_add_comment_fields', array($this, 'add_comment_fields'),10,2);
-		add_filter('solr_is_supported_type', array($this, 'is_supported_type'),10,2);
+		add_filter('solr_add_post_fields', array($this, 'add_post_fields'),10,3);
+		add_filter('solr_add_comment_fields', array($this, 'add_comment_fields'),10,3);
+		add_filter('solr_is_supported_type', array($this, 'is_supported_type'),10,3);
 
 		$this->add_search_filters();
 	}
@@ -48,16 +48,17 @@ class Solr {
 	 *
 	 * @param \Solarium\QueryType\Update\Query\Document\DocumentInterface $document
 	 * @param \WP_Post $post
+	 * @param \Solarium\QueryType\Update\Query\Query $update
 	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
 	 */
-	public function add_post_fields(\Solarium\QueryType\Update\Query\Document\DocumentInterface $document, \WP_Post $post) {
+	public function add_post_fields(\Solarium\QueryType\Update\Query\Document\DocumentInterface $document, \WP_Post $post, \Solarium\QueryType\Update\Query\Query $update) {
 		// get the authors name
 		$author_name = get_user_by('id', $post->post_author)->display_name;
-		$document->title = $post->post_title;
+		$document->title = $update->getHelper()->filterControlCharacters($post->post_title);
 		$document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
 		$document->modified = date('Y-m-d\TH:i:s\Z', strtotime($post->post_modified_gmt));
 		$document->author = $author_name;
-		$document->content = strip_tags($post->post_content);
+		$document->content = $update->getHelper()->filterControlCharacters(strip_tags($post->post_content));
 		$document->url = $post->guid;
 		// set categories
 		$categories = get_the_category($post->ID);
@@ -76,10 +77,11 @@ class Solr {
 	 *
 	 * @param \Solarium\QueryType\Update\Query\Document\DocumentInterface $document
 	 * @param \WP_Comment $comment
+	 * @param \Solarium\QueryType\Update\Query\Query $update
 	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
 	 */
-	public function add_comment_fields( \Solarium\QueryType\Update\Query\Document\DocumentInterface $document,  \WP_Comment $comment) {
-		$document->content = $comment['comment_content'];
+	public function add_comment_fields( \Solarium\QueryType\Update\Query\Document\DocumentInterface $document,  \WP_Comment $comment, \Solarium\QueryType\Update\Query\Query $update) {
+		$document->content = $update->getHelper()->filterControlCharacters($comment['comment_content']);
 		$document->author = $comment['comment_author'];
 		$document->date = date('Y-m-d\TH:i:s\Z', strtotime($comment['comment_date_gmt']));
 		$document->type = 'comment';
@@ -131,6 +133,7 @@ class Solr {
 
 		/**
 		 * so create new update
+		 * @var \Solarium\QueryType\Update\Query\Query $update
 		 */
 		$update = $this->createUpdate($type);
 
@@ -147,7 +150,7 @@ class Solr {
 			 * add type specific fields
 			 * filters are dynamically extensible
 			 */
-			$doc = apply_filters('solr_add_'.$type.'_fields',$doc,$item);
+			$doc = apply_filters('solr_add_'.$type.'_fields',$doc,$item, $update);
 
 			/**
 			 * set the ID
