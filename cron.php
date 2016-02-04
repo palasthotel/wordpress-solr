@@ -21,7 +21,12 @@ while( 0 != ob_get_level() ) {
 $solr_plugin = solr_get_plugin();
 $i = 0;
 $indexed = 0;
+$error = 0;
 do{
+	if($error > 5){
+		print "Too many errors: ".$error."\n";
+		break;
+	}
 	/**
 	 * index posts to solr
 	 */
@@ -29,8 +34,10 @@ do{
 	if($results->error === true){
 		print "Error while indexing: \n";
 		var_dump($results);
-		break;
+		$error++;
+		continue;
 	}
+	$error = 0;
 	if(count($results->posts)< 1){
 		break;
 	}

@@ -407,7 +407,7 @@ class SolrPlugin
 		 * Success response is 0
 		 * http://solarium.readthedocs.org/en/stable/queries/update-query/the-result-of-an-update-query/
 		 */
-		if($result->getStatus() === 0){
+		if(is_object($result) && !empty($result) && $result->getStatus() === 0){
 			foreach ($posts as $counter => $post) {
 				/* @var $post WP_Post */
 				$this->posts->set_indexed($post->ID);
