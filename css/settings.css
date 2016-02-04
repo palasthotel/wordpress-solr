@@ -1,0 +1,24 @@
+.button-primary.solr-delete{
+	color:white;
+	background-color: rgb(254,100,100);
+	border-color: rgb(254,100,100);
+	box-shadow: 0 1px 0 #871738;
+	text-shadow: 0 -1px 1px #871738,
+	1px 0 1px #871738,
+	0 1px 1px #871738,
+	-1px 0 1px #871738;
+}
+.button-primary.solr-delete:hover,
+.button-primary.solr-delete:active,
+.button-primary.solr-delete:focus{
+	border-color: #871738;
+	background: rgb(222,76,76);
+}
+.solr-operation-result:empty{
+	display: none;
+}
+.solr-operation-result{
+	padding: 20px;
+	border: 1px solid #333;
+	background-color: white;
+}

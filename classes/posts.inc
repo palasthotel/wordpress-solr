@@ -75,6 +75,10 @@ class Posts
 						'key' => $this->meta_ignored,
 						'compare' => 'NOT EXISTS',
 					),
+					array(
+						'key' => $this->meta_error,
+						'compare' => 'NOT EXISTS',
+					),
 				)
 			)
 		);

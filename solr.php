@@ -378,17 +378,7 @@ class SolrPlugin
 			 */
 			for($i = 0; $i < count($index_posts); $i++) {
 				$post = $index_posts[$i];
-				$this->posts->set_ignored($post->ID);
 				$this->posts->set_error($post->ID);
-//				try{
-//					$result = $this->get_solr()->updatePostIndex(array($post));
-//				} catch (Solarium\Exception\HTTPException $e) {
-//					array_splice($posts, $i, 1);
-//					$this->posts->set_ignored($post->ID);
-//					$this->posts->set_error($post->ID);
-//					var_dump($e);
-//					var_dump("Cound not index post: ".$post->ID);
-//				}
 			}
 	      
 	    }

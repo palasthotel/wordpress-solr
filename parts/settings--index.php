@@ -1,13 +1,23 @@
 <?php
 /**
  * @var  $this \SolrPlugin\Settings
+ * @var \wpdb
  */
+global $wpdb;
+$base_url =  admin_url('options-general.php?page=solr&tab='.$current);
+
 ?>
 <div class="wrap">
-	<h3>Advanced index operations</h3>
-	<?php
 
-	$base_url =  admin_url('options-general.php?page=solr&tab='.$current);
+
+	<h2 class="title">Advanced index operations</h2>
+	<p>
+		<a class="button-primary" href="<?php echo $base_url.'&action=update'; ?>"><?php esc_attr_e('Update index'); ?></a>
+		<a class="button-primary" href="<?php echo $base_url.'&action=optimize'; ?>"><?php esc_attr_e('Optimize index'); ?></a></li>
+		<a id="solr-delete" class="button-primary solr-delete" href="<?php echo $base_url.'&action=delete'; ?>"><?php esc_attr_e('Delete index'); ?></a>
+	</p>
+	<div class="solr-operation-result"><?php
+
 
 	if (isset($_GET['action'])) {
 		$solr = $this->plugin->get_solr();
@@ -27,7 +37,6 @@
 				$solr->deleteIndex();
 				$this->plugin->posts->reset_meta();
 				echo '<p>Index deleted</p>';
-				break;
 			case 'optimize':
 				$result = $solr->optimizeIndex();
 				echo '<p>Index optimized</p>';
@@ -36,10 +45,90 @@
 				echo '<p>Unknown action "'.$_GET['action'].'"</p>';
 		}
 	}
+	?></div>
+
+	<h2 class="title">Index info</h2>
+
+	<table class="form-table">
+		<tr>
+			<th>Documents in Solr</th>
+			<td>
+				<p><?php echo $this->plugin->get_solr()->getNumberOfDocuments(); ?></p>
+				<p class="description">Number of documents in solr</p>
+			</td>
+		</tr>
+		<tr>
+			<?php
+			$indexed = $wpdb->get_var(
+			  $wpdb->prepare(
+				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
+				$this->plugin->posts->meta_indexed
+			  )
+			);
+			?>
+			<th>Contents indexed</th>
+			<td>
+				<p><?php echo ($indexed>0)? $indexed: "0"; ?></p>
+				<p class="description">Number of contents mark as indexed in wordpress</p>
+			</td>
+		</tr>
+		<tr>
+			<?php
+			$ignored = $wpdb->get_var(
+			  $wpdb->prepare(
+				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
+				$this->plugin->posts->meta_ignored
+			  )
+			);
+			?>
+			<th>Contents ignored</th>
+			<td>
+				<p><?php echo ($ignored>0)? $ignored: "0"; ?></p>
+				<p class="description">Number of contents marked as ignored</p>
+			</td>
+		</tr>
+		<tr>
+			<?php
+			$error = $wpdb->get_var(
+			  $wpdb->prepare(
+				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
+				$this->plugin->posts->meta_error
+			  )
+			);
+			?>
+			<th>Contents with error</th>
+			<td>
+				<p><?php echo ($error>0)? $error: "0"; ?></p>
+				<p class="descrition">Number of contents with error while indexing to solr</p>
+			</td>
+		</tr>
+	</table>
+
+	<?php
+	$query = new \WP_Query(
+	  array(
+		'post_type' => 'any',
+		'orderby' => array('modified', 'date', 'ID'),
+		'order' => 'DESC',
+		'posts_per_page' => 10,
+		'ignore_sticky_posts' => TRUE,
+		'meta_query' => array(
+		  array(
+			'key' => $this->plugin->posts->meta_error,
+			'compare' => 'EXISTS',
+		  ),
+		)
+	  )
+	);
+	if($query->have_posts()){
+		?>
+		<h3>Newest Posts with error</h3>
+		<?php
+	}
+	while($query->have_posts()) {
+		$query->the_post();
+		echo "<p><a href='".get_the_permalink()."'>".get_the_title()."</a></p>";
+	}
+	wp_reset_postdata();
 	?>
-	<ul>
-		<li><a href="<?php echo $base_url.'&action=update'; ?>"><?php esc_attr_e('Update index'); ?></a></li>
-		<li><a href="<?php echo $base_url.'&action=optimize'; ?>"><?php esc_attr_e('Optimize index'); ?></a></li>
-		<li><a href="<?php echo $base_url.'&action=delete'; ?>"><?php esc_attr_e('Delete index'); ?></a></li>
-	</ul>
 </div>

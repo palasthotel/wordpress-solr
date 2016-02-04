@@ -7,6 +7,10 @@ namespace SolrPlugin;
  */
 class Solr {
 	/**
+	 * general vars
+	 */
+	private $number_of_documents;
+	/**
 	 * @var \SolrPlugin
 	 */
 	private $plugin;
@@ -26,6 +30,8 @@ class Solr {
 	public function __construct(\SolrPlugin $plugin) {
 		$this->plugin = $plugin;
 		$this->client = $this->plugin->get_solarium();
+
+		$this->number_of_documents = -1;
 
 		add_filter('solr_add_post_fields', array($this, 'add_post_fields'),10,3);
 		add_filter('solr_add_comment_fields', array($this, 'add_comment_fields'),10,3);
@@ -489,5 +495,26 @@ class Solr {
 		$select->setFields($config['result_fields']);
 		$this->search_results = $this->client->select($select);
 		return $this->search_results;
+	}
+
+	/**
+	 * get number of documents in index
+	 * @return integer
+	 */
+	public function getNumberOfDocuments(){
+		if($this->number_of_documents != -1) return $this->number_of_documents;
+		try{
+			/**
+			 * @var \Solarium\QueryType\Select\Result\Result
+			 */
+			$query = $this->client->createQuery(\Solarium\Client::QUERY_SELECT);
+			$result = $this->client->execute($query);
+			if(is_object($result)){
+				$this->number_of_documents = $result->getNumFound();
+			}
+		} catch (\Solarium\Exception\HttpException $e){
+			var_dump($e);
+		}
+		return $this->number_of_documents;
 	}
 }

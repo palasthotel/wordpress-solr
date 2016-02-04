@@ -21,11 +21,19 @@ class Settings{
 	*  renders settings page
 	*/
 	public function render_solr_settings(){
+		/**
+		 * add styles and scripts
+		 */
+		wp_enqueue_style('solr-settings-css',$this->plugin->url."css/settings.css",array(),"1",'all');
+		wp_enqueue_script('solr-settings-js', $this->plugin->url."js/settings.js",array('jquery'),"1",true);
+		/**
+		 * render contents
+		 */
 		$current = (isset($_GET["tab"]))? $_GET["tab"]:"core";
 		?>
 		<h2>Solr Settings</h2>
 		<?php
-		$tabs = array( 'core' => 'Core' , 'advanced'=> 'Advanced', 'index' => 'Index','info' => 'Info',);
+		$tabs = array( 'core' => 'Core' , 'advanced'=> 'Advanced', 'index' => 'Index',);
 		echo '<h2 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current ) ? ' nav-tab-active' : '';
