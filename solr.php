@@ -306,6 +306,14 @@ class SolrPlugin
 	}
 
 	/**
+	 * get last run
+	 * @return string
+	 */
+	public function get_latest_run(){
+		return get_option( $this->prefix.'post_index_run');
+	}
+
+	/**
 	 * get config object
 	 * @return \SolrPlugin\Config
 	 */
@@ -380,9 +388,13 @@ class SolrPlugin
 				$post = $index_posts[$i];
 				$this->posts->set_error($post->ID);
 			}
-	      
 	    }
-		return $this->_verify_result($result, $index_posts);
+
+		$verify = $this->_verify_result($result, $index_posts);
+		if(!$verify->error){
+			$this->save_latest_run();
+		}
+		return $verify;
 		
 	}
 

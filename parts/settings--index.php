@@ -51,6 +51,12 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 
 	<table class="form-table">
 		<tr>
+			<th>Last index run</th>
+			<td>
+				<p><?php echo $this->plugin->get_latest_run(); ?></p>
+			</td>
+		</tr>
+		<tr>
 			<th>Documents in Solr</th>
 			<td>
 				<p><?php echo $this->plugin->get_solr()->getNumberOfDocuments(); ?></p>
