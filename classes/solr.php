@@ -370,7 +370,8 @@ class Solr {
 			$spellcheck = $select->getSpellcheck();
 			$spellcheck->setQuery($search_args['s']);
 			$spellcheck->setCount(10);
-			$spellcheck->setBuild(TRUE);
+			// TODO: build spellcheck index elsewehere. makes search sooooo slow!
+			$spellcheck->setBuild(FALSE);
 			$spellcheck->setCollate(TRUE);
 			$spellcheck->setExtendedResults(TRUE);
 			$spellcheck->setCollateExtendedResults(TRUE);
