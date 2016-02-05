@@ -6,8 +6,9 @@
 				" and all contents unmarked." +
 				" This cannot be undone." +
 				" Go on with \""+go_on+"\" ";
-
-			if (go_on != !prompt(text))
+			var result =  prompt(text);
+			console.log(result);
+			if (go_on != result)
 			{
 				e.preventDefault();
 			}
