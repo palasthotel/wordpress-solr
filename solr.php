@@ -44,6 +44,11 @@ class SolrPlugin
 	public $posts;
 
 	/**
+	 * @var \SolrPlugin\Schedule
+	 */
+	public $schedule;
+
+	/**
 	 * @var array|null
 	 */
 	public $search_args;
@@ -103,6 +108,12 @@ class SolrPlugin
 		require('classes/search-page.inc');
 		$this->search_page = new \SolrPlugin\SearchPage($this);
 
+		/**
+		 * schedule class
+		 */
+		require('classes/schedule.inc');
+		$this->schedule = new \SolrPlugin\Schedule($this);
+
 
 		/**
 		 * if enabled activate template suggestions
@@ -119,7 +130,6 @@ class SolrPlugin
 			 */
 			add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
 			add_filter('template_include', array($this, 'search_template'), 99 );
-
 		}
 	}
 
@@ -423,11 +433,20 @@ class SolrPlugin
 	 * on activation
 	 */
 	public static function on_activate(){
+		$self = solr_get_plugin();
+		/**
+		 * first unregister to prevent double events
+		 * than register schedules
+		 */
+		$self->schedule->unregister_all();
+		$self->schedule->register();
 	}
 	/**
 	 * on deactivation
 	 */
 	public static function on_deactivate(){
+		$self = solr_get_plugin();
+		$self->schedule->unregister_all();
 	}
 
 	/**

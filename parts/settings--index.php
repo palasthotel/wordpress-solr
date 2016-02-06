@@ -9,12 +9,10 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 ?>
 <div class="wrap">
 
-
-	<h2 class="title">Advanced index operations</h2>
 	<p>
 		<a class="button-primary" href="<?php echo $base_url.'&action=update'; ?>"><?php esc_attr_e('Update index'); ?></a>
-		<a class="button-primary" href="<?php echo $base_url.'&action=optimize'; ?>"><?php esc_attr_e('Optimize index'); ?></a></li>
-		<a id="solr-delete" class="button-primary solr-delete" href="<?php echo $base_url.'&action=delete'; ?>"><?php esc_attr_e('Delete index'); ?></a>
+		<a class="button-primary" href="<?php echo $base_url.'&action=optimize'; ?>"><?php esc_attr_e('Optimize index'); ?></a>
+		<a id="solr-delete" class="button-primary solr-delete do-solr-delete" href="<?php echo $base_url.'&action=delete'; ?>"><?php esc_attr_e('Delete index'); ?></a>
 	</p>
 	<div class="solr-operation-result"><?php
 

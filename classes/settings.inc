@@ -33,7 +33,7 @@ class Settings{
 		?>
 		<h2>Solr Settings</h2>
 		<?php
-		$tabs = array( 'core' => 'Core' , 'advanced'=> 'Advanced', 'index' => 'Index',);
+		$tabs = array( 'core' => 'Core' , 'automatics' => 'Automatics', 'advanced'=> 'Advanced', 'index' => 'Index',);
 		echo '<h2 class="nav-tab-wrapper">';
 		foreach( $tabs as $tab => $name ){
 			$class = ( $tab == $current ) ? ' nav-tab-active' : '';
@@ -98,7 +98,12 @@ class Settings{
 				);
 			case 'advanced':
 				return array(
-				  array('key'=>$config::$TIMEOUT, 'label' => 'Timeout in seconds', 'type' => 'number'),
+				  array(
+					'key'=>$config::$TIMEOUT,
+					'label' => 'Timeout',
+					'type' => 'number',
+					'description' => 'Timeout in seconds for solariums http connection to solr server',
+				  ),
 				);
 		}
 		return array();
