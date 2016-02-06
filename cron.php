@@ -52,6 +52,3 @@ do{
 		break;
 	} 
 } while( true );
-
-
-$solr_plugin->save_latest_run();
