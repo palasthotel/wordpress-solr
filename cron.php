@@ -22,6 +22,7 @@ $solr_plugin = solr_get_plugin();
 $i = 0;
 $indexed = 0;
 $error = 0;
+$number = $this->plugin->get_config()->get_option(\SolrPlugin\Config::$DOCUMENTS_PER_CALL);
 do{
 	if($error > 5){
 		print "Too many errors: ".$error."\n";
@@ -30,7 +31,7 @@ do{
 	/**
 	 * index posts to solr
 	 */
-	$results = $solr_plugin->index_posts(100);
+	$results = $solr_plugin->index_posts($number);
 	if($results->error === true){
 		print "Error while indexing: \n";
 		var_dump($results);
@@ -44,8 +45,6 @@ do{
 	/**
 	 * break if too many rounds
 	 */
-//	$indexed+= count($results->posts);
-//	print "indexed: $indexed\n";
 	$i++;
 	if($i > 999){
 		echo "\n --- security break --- \n";

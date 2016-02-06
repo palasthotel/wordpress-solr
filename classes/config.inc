@@ -21,6 +21,7 @@ class Config {
 	public static $CORE = "core";
 	public static $USERNAME = "username";
 	public static $PW = "password";
+	public static $DOCUMENTS_PER_CALL = "documents_per_call";
 	public static $TIMEOUT = "timeout";
 
 	public static $SPELL_CHECK = "spellcheck";
@@ -39,6 +40,7 @@ class Config {
 		  self::$HOST => '127.0.0.1',
 		  self::$PORT => '8983',
 		  self::$PATH => '/solr/',
+		  self::$DOCUMENTS_PER_CALL => 30,
 		  self::$TIMEOUT => 10,
 		);
 	}

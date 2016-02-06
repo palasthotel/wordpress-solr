@@ -22,7 +22,6 @@ Markdown parsed.
 1. Activate the plugin through the 'Plugins' screen in WordPress
 1. Use the Settings->Solr screen to configure the plugin
 1. Copy the `/wp-content/plugins/solr/templates/*` files to your '/wp-content/themes/theme/solr/*' directory to overwrite the templates
-1. Use `/wp-content/plugins/solr/cron.php` to update the solr index
 
 
 == Frequently Asked Questions ==
@@ -35,6 +34,9 @@ You can use our config examples in the plugins 'solr-config' folder.
 
 
 == Changelog ==
+
+= 0.3.3 =
+* added scheduled events for indexing
 
 = 0.3.2 =
 * Name changed

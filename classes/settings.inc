@@ -99,6 +99,12 @@ class Settings{
 			case 'advanced':
 				return array(
 				  array(
+					'key'=>$config::$DOCUMENTS_PER_CALL,
+					'label' => 'Documents per index update',
+					'type' => 'number',
+					'description' => 'How many items should be send to solr per update call?',
+				  ),
+				  array(
 					'key'=>$config::$TIMEOUT,
 					'label' => 'Timeout',
 					'type' => 'number',

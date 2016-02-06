@@ -57,7 +57,8 @@ class Schedule {
 	 * do the indexing
 	 */
 	function update_index(){
-		$this->plugin->index_posts(30);
+		$number = $this->plugin->get_config()->get_option(Config::$DOCUMENTS_PER_CALL);
+		$this->plugin->index_posts($number);
 	}
 
 	/**
