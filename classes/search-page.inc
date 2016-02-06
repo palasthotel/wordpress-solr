@@ -142,6 +142,7 @@ class SearchPage
 	 * @return array
 	 */
 	function body_class( array $classes ) {
+		if(!$this->plugin->is_search()) return $classes;
 		if(!$this->plugin->search_error && $this->plugin->get_search_results()!= null){
 			$found = ($this->plugin->get_search_results()->getNumFound() > 0);
 			$classes[] = "solr-search";

@@ -7,12 +7,13 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 
 function get_solr_crons(){
 	$wp_crons = _get_cron_array();
+//	var_dump($wp_crons);
 	$solr_crons = array();
-	foreach($wp_crons as $wp_cron_arr){
+	foreach($wp_crons as $timestamp => $wp_cron_arr){
 		foreach($wp_cron_arr as $key => $wp_cron){
 			if(strpos($key, "solr") === false) continue;
 			if(!key_exists($key, $solr_crons)) $solr_crons[$key] = array();
-			$solr_crons[$key][] = array_values($wp_cron)[0]['schedule'];
+			$solr_crons[$key][] = array_values($wp_cron)[0]['schedule']." last: ".date("H:i:s d.m.Y", $timestamp);
 		}
 	}
 	return $solr_crons;
@@ -41,10 +42,9 @@ if( !empty($_GET["action"]) ){
 ?>
 <div class="wrap">
 	<p>
+		<a class="button-primary" href="<?php echo $base_url.'&action=save'; ?>">Schedule solr events</a>
 		<?php
-		if(count($solr_crons) == 0){
-			?><a class="button-primary" href="<?php echo $base_url.'&action=save'; ?>">Schedule solr events</a><?php
-		} else{
+		if(count($solr_crons) > 0){
 			?><a class="button-primary solr-delete" href="<?php echo $base_url.'&action=delete'; ?>">Unschedule all solr events</a><?php
 		}
 		?>
@@ -61,8 +61,9 @@ if( !empty($_GET["action"]) ){
 				<tr>
 					<th><?php echo $key; ?></th>
 					<td>
-						<p><?php echo implode(" + ", $solr_cron);	?>
+						<p>
 							<a class="button-primary solr-delete" href="<?php echo $base_url.'&action=delete_single&schedule_event='.$key; ?>">Unschedule event</a>
+							<?php echo implode(" + ", $solr_cron);	?>
 						</p>
 					</td>
 				</tr>

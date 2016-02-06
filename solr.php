@@ -438,7 +438,6 @@ class SolrPlugin
 		 * first unregister to prevent double events
 		 * than register schedules
 		 */
-		$self->schedule->unregister_all();
 		$self->schedule->register();
 	}
 	/**

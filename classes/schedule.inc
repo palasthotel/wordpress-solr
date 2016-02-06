@@ -30,6 +30,7 @@ class Schedule {
 	 * register all events to an hourly execution
 	 */
 	function register(){
+		$this->unregister_all();
 		foreach($this->events as $event){
 			wp_schedule_event(time(), "hourly", $event);
 		}

@@ -6,13 +6,14 @@
  * @var array $solr_search_args
  * @var null|\Solarium\QueryType\Select\Result\Result $solr_search_results
  */
+$query = (!empty($solr_search_args['s']))? $solr_search_args['s']: "";
 ?>
 <form role="search" method="get" class="solr-search-form" action="<?php echo home_url('/') ?>">
 	<div>
 		<label> <span class="screen-reader-text"><?php echo __('Search for:'); ?></span> <input
 			  type="search" class="search-field"
 			  placeholder="<?php echo __('Search …'); ?>"
-			  value="<?php echo $solr_search_args['s']; ?>" name="s"
+			  value="<?php echo $query; ?>" name="s"
 			  title="<?php echo __('Search for:'); ?>" />
 		</label>
 		<input type="submit" class="search-submit" value="<?php echo __('Search'); ?>" />
