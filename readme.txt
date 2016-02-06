@@ -2,8 +2,8 @@
 Contributors: edwardbock
 Tags: search, solr
 Requires at least: 4.0
-Tested up to: 4.4.1
-Stable tag: 0.3.2
+Tested up to: 4.4.2
+Stable tag: 0.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,10 @@ Markdown parsed.
 = How do I configure my Solr Core? =
 
 You can use our config examples in the plugins 'solr-config' folder.
+
+= How can I overwrite search templates? =
+
+Create a 'solr' folder in your theme to overwrite templates. You can copy the templates in the plugin directory in 'templates'.
 
 == Screenshots ==
 

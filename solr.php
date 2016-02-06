@@ -2,7 +2,7 @@
 /*
 Plugin Name: Fast Search powered by Solr
 Description: Replaces Wordpress search engine by Solr search engine.
-Version: 0.3.2
+Version: 0.3.3
 Author: Palasthotel by Edward Bock
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
