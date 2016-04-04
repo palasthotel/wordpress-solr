@@ -13,7 +13,8 @@ function get_solr_crons(){
 		foreach($wp_cron_arr as $key => $wp_cron){
 			if(strpos($key, "solr") === false) continue;
 			if(!key_exists($key, $solr_crons)) $solr_crons[$key] = array();
-			$solr_crons[$key][] = array_values($wp_cron)[0]['schedule']." last: ".date("H:i:s d.m.Y", $timestamp);
+			$values  = array_values($wp_cron);
+			$solr_crons[$key][] = $values[0]['schedule']." last: ".date("H:i:s d.m.Y", $timestamp);
 		}
 	}
 	return $solr_crons;

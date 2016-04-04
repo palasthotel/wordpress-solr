@@ -366,7 +366,9 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_spellchecker($select,$search_args, $config){
-		if (!empty($config['spellcheck']) && $config['spellcheck']) {
+		if ( !empty($search_args['s']) &&
+		  !empty($config['spellcheck']) &&
+		  $config['spellcheck'] ) {
 			$spellcheck = $select->getSpellcheck();
 			$spellcheck->setQuery($search_args['s']);
 			$spellcheck->setCount(10);
