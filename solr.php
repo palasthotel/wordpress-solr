@@ -218,9 +218,10 @@ class SolrPlugin
 	function disable_search_query($request, $query){
 		/**
 		 * if it is the main query and there is a search param
+		 * important: empty search string is valid too
 		 */
 		if($query->is_main_query() &&
-		  !empty($_GET['s']) &&
+		  isset($_GET['s']) &&
 		  !is_admin() ){
 			return false;
 		}
