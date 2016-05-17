@@ -138,8 +138,7 @@ class SolrPlugin
 	 * @return bool
 	 */
 	function is_search(){
-		$args = $this->get_search_args();
-		return (!empty($args['s']));
+		return isset($args['s']);
 	}
 
 	/**
@@ -185,17 +184,28 @@ class SolrPlugin
 				$args['s'] = $_GET['s'];
 			}
 
-			// sanitize page param
+			/**
+			 * wild guess paged variable
+			 */
 			if (isset($_GET['page'])) {
 				$args['page'] = (int) $_GET['page'];
-
-				if ($args['page'] < 1) {
+			} else if(isset($args["paged"])) {
+				$args['page'] = (int) $_GET['paged'];
+			} else {
+				global $paged;
+				if(isset($paged) && is_int($paged)){
+					$args['page'] = $paged;
+				} else {
 					$args['page'] = 1;
 				}
-			} else {
+			}
+			if ($args['page'] < 1) {
 				$args['page'] = 1;
 			}
 
+			/**
+			 * get facets
+			 */
 			$facet_args = array();
 			foreach ($_GET as $key => $value) {
 				if (strpos($key, 'facet-') === 0) {
