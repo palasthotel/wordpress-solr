@@ -55,24 +55,56 @@ class Solr {
 	 * @param \Solarium\QueryType\Update\Query\Document\DocumentInterface $document
 	 * @param \WP_Post $post
 	 * @param \Solarium\QueryType\Update\Query\Query $update
-	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
+	 * @return \Solarium\QueryType\Update\Query\Document\Document
 	 */
 
-	public function add_post_fields(\Solarium\QueryType\Update\Query\Document\DocumentInterface $document, \WP_Post $post, \Solarium\QueryType\Update\Query\Query $update) {
-		// get the authors name
-		$author_name = get_user_by('id', $post->post_author)->display_name;
+	public function add_post_fields(\Solarium\QueryType\Update\Query\Document\Document $document, \WP_Post $post, \Solarium\QueryType\Update\Query\Query $update) {
+		
+		/**
+		 * document field prefixes
+		 * t._ for text (with filters and tokenizer or so?)
+		 * s._ for string (no tokenizer or so?)
+		 * d._ for date
+		 * b._ for boolean
+		 * .s_ for single value
+		 * .m_ for multivalue (array)
+		 */
+		
 		$document->ts_title = $update->getHelper()->filterControlCharacters($post->post_title);
 		$document->item_id = $post->ID;
 		$document->ds_published = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
 		$document->ds_changed = date('Y-m-d\TH:i:s\Z', strtotime($post->post_modified_gmt));
-		$document->ts_author = $author_name;
+		
+		
+		$author_ids = array($post->post_author);
+		$author_ids = apply_filters('solr_index_update_author_ids', $author_ids, $post->ID);
+		foreach ($author_ids as $author_id){
+			$document->addField('tm_author', get_user_by('id', $author_id)->display_name);
+		}
+		
 		$document->content = $update->getHelper()->filterControlCharacters(strip_tags($post->post_content));
 		$document->url = $post->guid;
+		
 		// set categories
 		$categories = get_the_category($post->ID);
-		foreach ($categories as $category) {
-			$document->sm_category = $category->cat_name;
+		if(false != $categories){
+			foreach ($categories as $category) {
+				$document->addField('sm_category', $category->cat_name);
+			}
 		}
+		
+		
+		// set tags
+		$tags = get_the_tags($post->ID);
+		if(false != $tags){
+			foreach ($tags as $tag) {
+				$document->addField('sm_tag', $tag->name);
+			}
+		}
+		
+		
+		do_action('solr_add_post_fields_to_document', $document, $post);
+		
 		// set published field (string)
 		$poststatus = get_post_status ( $post->ID );
 		$document->ss_status = $poststatus;
@@ -91,10 +123,12 @@ class Solr {
 	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
 	 */
 	public function add_comment_fields( \Solarium\QueryType\Update\Query\Document\DocumentInterface $document,  \WP_Comment $comment, \Solarium\QueryType\Update\Query\Query $update) {
+		
 		$document->content = $update->getHelper()->filterControlCharacters($comment['comment_content']);
 		$document->ts_author = $comment['comment_author'];
 		$document->ds_published = date('Y-m-d\TH:i:s\Z', strtotime($comment['comment_date_gmt']));
 		$document->ss_type = 'comment';
+		
 		return $document;
 	}
 
@@ -136,7 +170,6 @@ class Solr {
 	 * @param array $changedItems
 	 * @param string $type type of solr content (post or comment)
 	 * @return \Solarium\QueryType\Update\Result
-	 * @throws \SolrPlugin\Exception
 	 * @throws \Solarium\Exception\HTTPException
 	 */
 	private function updateItemIndex(array $changedItems, $type) {
@@ -181,7 +214,6 @@ class Solr {
 	 * @param array $deleted
 	 * @param string $type
 	 * @return \Solarium\QueryType\Update\Result
-	 * @throws \SolrPlugin\Exception
 	 * @throws \Solarium\Exception\HTTPException
 	 */
 	private function deleteItemIndex(array $deleted, $type){
@@ -309,10 +341,8 @@ class Solr {
 		if(!empty($search_args) && !empty($search_args['s'])){
 			$query = $search_args['s'];
 			$select->setQuery($query);
-
 		}
 		else {
-
 			$select->setQuery('*:*');
 		}
 		return $select;
@@ -405,7 +435,9 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_facets($select,$search_args, $config){
-		$facetSet->createFacetField('sm_category')->setField('logistik');
+		$facet_set = $select->getFacetSet();
+//		$facet_set->createFacetField('sm_category')->setField();
+		
 		/*if(!empty($search_args['facets']) && $search_args['facets'] ) {
 			foreach ($search_args['facets'] as $facet_key_val => $enabled) {
 				if ($enabled) {
@@ -418,7 +450,7 @@ class Solr {
 			}
 		}*/
 
-		if ( isset($config['facets']) ) {
+		if ( isset($config['facets']) && false ) {
 			$facetSet = $select->getFacetSet();
 
 			// content type facet
@@ -503,7 +535,8 @@ class Solr {
 	 * Runs the search.
 	 *
 	 * @param array|null $search_args
-	 * @return \Solarium\QueryType\Select\Result\Result search results
+	 *
+	 * @return array|\Solarium\QueryType\Select\Result\Result
 	 */
 	public function search(array $search_args = null) {
 		/**
@@ -520,15 +553,11 @@ class Solr {
 		 * @var \Solarium\QueryType\Select\Query\Query $select
 		 */
 		$select = $this->client->createSelect();
-		//$select = setQuery('*:*');
 
-		echo '--- der select----</br>';
-		var_dump($search_args);
-		echo '--- dem select sein ende---- </br>';
 		/**
 		 * build select with filters
 		 */
-		$select = apply_filters('solr_search_select',$select,$search_args,$config);
+		$select = apply_filters('solr_search_select', $select, $search_args, $config );
 
 		/**
 		 * set result fields
@@ -536,12 +565,7 @@ class Solr {
 		$select->setFields($config['result_fields']);
 
 		$this->search_results = $this->client->select($select);
-
-		echo '--- das kommt raus----</br>';
-
-		echo '<pre>' .var_dump($this->search_results) . '</pre>';
-
-		echo '--- das kam raus </br>';
+		
 		return $this->search_results;
 	}
 

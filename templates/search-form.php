@@ -8,7 +8,7 @@
  */
 $query = (!empty($solr_search_args['s']))? $solr_search_args['s']: "";
 ?>
-<form role="search" method="get" class="solr-search-form" action="<?php echo home_url('/') ?>">
+<form style="background-color: black" role="search" method="get" class="solr-search-form" action="<?php echo home_url('/') ?>">
 	<div>
 		<label> <span class="screen-reader-text"><?php echo __('Search for:'); ?></span> <input
 			  type="search" class="search-field"

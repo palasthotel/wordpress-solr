@@ -16,7 +16,6 @@ do_action('solr_search_form','',$solr_search_results);
 do_action('solr_search_spellcheck', $solr_search_results);
 
 ?>
-
 <div id="solr-search-results">
 <?php
 if (!$solr_search_results){
@@ -30,9 +29,6 @@ if (!$solr_search_results){
 		<em><?php echo $solr_search_results->getNumFound(); ?></em> Result(s)
 		found for <em>“<?php echo $solr_search_args['s'] ?>”</em>
 	</h1>
-
-
-
 
 	<?php
 
@@ -83,6 +79,7 @@ if (!$solr_search_results){
 		$highlightedDoc = $highlighting->getResult($document->id);
 		if ($highlightedDoc) {
 			foreach ($highlightedDoc as $field => $highlight) {
+				
 			    echo $document->ts_title .'<br/>';
 				echo $document->ts_author. '<br/>';
 				echo implode(' (...) ', $highlight) . '<br/>';

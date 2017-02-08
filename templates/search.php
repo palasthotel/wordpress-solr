@@ -2,8 +2,8 @@
 get_header();
 ?>
 
-<div class="solr-search">
-
+<div class="solr-search" style="margin-top: 180px;">
+	
 	<h1 class="solr-search-header"><?php __('Solr Search'); ?></h1>
 
 	<?php
@@ -20,9 +20,6 @@ get_header();
 	$solr_search_args = $plugin->get_search_args();
 
 	$solr_search_results = $plugin->get_search_results();
-
-
-
 
 
 	if($solr_search_results != null){

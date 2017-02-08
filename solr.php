@@ -431,13 +431,12 @@ class SolrPlugin
 		}
 
 		/**
-		 * update index with a number of posts because thats faster
+		 * update index with a number of posts because that's faster
 		 * @var  \Solarium\QueryType\Update\Result $result
 		 */
 		try{
 			$result = $this->get_solr()->updatePostIndex($index_posts);
 		} catch (Solarium\Exception\HTTPException $e) {
-			var_dump($e->getMessage());
 			/**
 			 * on error try every single one and log error
 			 */
