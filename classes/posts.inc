@@ -60,7 +60,7 @@ class Posts
 		$query = new \WP_Query(
 			array(
 				'post_type' => 'any',
-				'post_status' => 'publish',
+				'post_status' => array('publish', 'draft', 'trash'),
 				'orderby' => array('modified', 'date', 'ID'),
 				'order' => 'DESC',
 				'posts_per_page' => $number,

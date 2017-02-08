@@ -57,23 +57,27 @@ class Solr {
 	 * @param \Solarium\QueryType\Update\Query\Query $update
 	 * @return \Solarium\QueryType\Update\Query\Document\DocumentInterface
 	 */
+
 	public function add_post_fields(\Solarium\QueryType\Update\Query\Document\DocumentInterface $document, \WP_Post $post, \Solarium\QueryType\Update\Query\Query $update) {
 		// get the authors name
 		$author_name = get_user_by('id', $post->post_author)->display_name;
-		$document->title = $update->getHelper()->filterControlCharacters($post->post_title);
-		$document->date = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
-		$document->modified = date('Y-m-d\TH:i:s\Z', strtotime($post->post_modified_gmt));
-		$document->author = $author_name;
+		$document->ts_title = $update->getHelper()->filterControlCharacters($post->post_title);
+		$document->item_id = $post->ID;
+		$document->ds_published = date('Y-m-d\TH:i:s\Z', strtotime($post->post_date_gmt));
+		$document->ds_changed = date('Y-m-d\TH:i:s\Z', strtotime($post->post_modified_gmt));
+		$document->ts_author = $author_name;
 		$document->content = $update->getHelper()->filterControlCharacters(strip_tags($post->post_content));
 		$document->url = $post->guid;
 		// set categories
 		$categories = get_the_category($post->ID);
 		foreach ($categories as $category) {
-			$document->addField('category', $category->cat_name);
+			$document->sm_category = $category->cat_name;
 		}
-		// set published field (boolean value)
-		$document->published = $post->post_status === 'publish';
-		$document->type = $post->post_type;
+		// set published field (string)
+		$poststatus = get_post_status ( $post->ID );
+		$document->ss_status = $poststatus;
+		$document->ss_type = $post->post_type;
+
 		return $document;
 	}
 
@@ -88,9 +92,9 @@ class Solr {
 	 */
 	public function add_comment_fields( \Solarium\QueryType\Update\Query\Document\DocumentInterface $document,  \WP_Comment $comment, \Solarium\QueryType\Update\Query\Query $update) {
 		$document->content = $update->getHelper()->filterControlCharacters($comment['comment_content']);
-		$document->author = $comment['comment_author'];
-		$document->date = date('Y-m-d\TH:i:s\Z', strtotime($comment['comment_date_gmt']));
-		$document->type = 'comment';
+		$document->ts_author = $comment['comment_author'];
+		$document->ds_published = date('Y-m-d\TH:i:s\Z', strtotime($comment['comment_date_gmt']));
+		$document->ss_type = 'comment';
 		return $document;
 	}
 
@@ -287,9 +291,11 @@ class Solr {
 		add_filter('solr_search_select',array($this,'search_select_page'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_boost'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_spellchecker'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_posts'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_facets'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_weight'),10,3);
 		add_filter('solr_search_select',array($this,'search_select_query_operator'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_highlight_fields'),10,3);
 	}
 
 	/**
@@ -303,6 +309,11 @@ class Solr {
 		if(!empty($search_args) && !empty($search_args['s'])){
 			$query = $search_args['s'];
 			$select->setQuery($query);
+
+		}
+		else {
+
+			$select->setQuery('*:*');
 		}
 		return $select;
 	}
@@ -314,7 +325,7 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_order($select,$search_args, $config){
-		$select->addSort('date',$select::SORT_DESC);
+		$select->addSort('ds_published',$select::SORT_DESC);
 		return $select;
 	}
 
@@ -326,7 +337,7 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_state($select,$search_args, $config){
-		$select->createFilterQuery('published')->setQuery('published:true');
+		$select->createFilterQuery('ss_status')->setQuery('ss_status:publish');
 		return $select;
 	}
 
@@ -338,7 +349,7 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_page($select,$search_args, $config){
-		$select->setStart(($search_args['page'] - 1) * $config['query_limit']);
+		//$select->setStart(($search_args['page'] - 1) * $config['query_limit']);
 		$select->setRows($config['query_limit']);
 		return $select;
 	}
@@ -381,6 +392,11 @@ class Solr {
 		return $select;
 	}
 
+	public function search_select_posts($select,$search_args, $config){
+		$select->createFilterQuery('ss_type')->setQuery('ss_type:post');
+		return $select;
+	}
+
 	/**
 	 * search for facets
 	 * @param \Solarium\QueryType\Select\Query\Query $select
@@ -389,34 +405,43 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_facets($select,$search_args, $config){
-
-		if(!empty($search_args['facets']) && $search_args['facets'] ) {
+		$facetSet->createFacetField('sm_category')->setField('logistik');
+		/*if(!empty($search_args['facets']) && $search_args['facets'] ) {
 			foreach ($search_args['facets'] as $facet_key_val => $enabled) {
 				if ($enabled) {
 					$kv = explode('-', $facet_key_val);
-					$filter_query = new \Solarium\QueryType\Select\Query\FilterQuery();
-					$filter_query->setKey(strtolower($kv[0]));
-					$filter_query->setQuery($kv[1]);
-					$select->addFilterQuery($filter_query);
+					//$facet_query = new \Solarium\QueryType\Select\Query\Component\Facet\Facet.php();
+					$facet_query->setKey(strtolower($kv[0]));
+					$facet_query->setQuery($kv[1]);
+					$select->addFilterQuery($facet_query);
 				}
 			}
-		}
+		}*/
 
 		if ( isset($config['facets']) ) {
 			$facetSet = $select->getFacetSet();
 
 			// content type facet
-			if (isset($config['facets']['type'])) {
-				$facet = $config['facets']['type'];
+			if (isset($config['facets']['ss_type'])) {
+				$facet = $config['facets']['ss_type'];
 				// type facet
 				$facetSet->createFacetField($facet['title'])
 				  ->setField($facet['field'])
 				  ->setMinCount(1);
 			}
 
+
+			if (isset($config['facets']['sm_category'])) {
+				$facet = $config['facets']['sm_category'];
+				// type facet
+				$facetSet->createFacetField($facet['title'])
+				         ->setField($facet['field'])
+				         ->setMinCount(1);
+			}
+
 			// year facet
-			if (isset($config['facets']['date'])) {
-				$facet = $config['facets']['date'];
+			if (isset($config['facets']['ds_published'])) {
+				$facet = $config['facets']['ds_published'];
 				// the date facet
 				// from epoch until now
 				$facetSet->createFacetRange($facet['title'])
@@ -464,7 +489,16 @@ class Solr {
 		return $select;
 	}
 
+	public function search_select_highlight_fields($select,$search_args, $config){
+		if(!empty($search_args) && !empty($search_args['s'])){
 
+			$select->getHighlighting()->setFields( 'content, ts_author, ts_title');
+			$select->getHighlighting()->setSimplePrefix( '<b>' );
+			$select->getHighlighting()->setSimplePostfix( '</b>' );
+			$select->getHighlighting()->setHighlightMultiTerm( true );
+		}
+		return $select;
+	}
 	/**
 	 * Runs the search.
 	 *
@@ -486,7 +520,11 @@ class Solr {
 		 * @var \Solarium\QueryType\Select\Query\Query $select
 		 */
 		$select = $this->client->createSelect();
+		//$select = setQuery('*:*');
 
+		echo '--- der select----</br>';
+		var_dump($search_args);
+		echo '--- dem select sein ende---- </br>';
 		/**
 		 * build select with filters
 		 */
@@ -496,7 +534,14 @@ class Solr {
 		 * set result fields
 		 */
 		$select->setFields($config['result_fields']);
+
 		$this->search_results = $this->client->select($select);
+
+		echo '--- das kommt raus----</br>';
+
+		echo '<pre>' .var_dump($this->search_results) . '</pre>';
+
+		echo '--- das kam raus </br>';
 		return $this->search_results;
 	}
 

@@ -2,8 +2,8 @@
 /*
 Plugin Name: Fast Search powered by Solr
 Description: Replaces Wordpress search engine by Solr search engine.
-Version: 0.3.3
-Author: Palasthotel by Edward Bock
+Version: 0.4.0
+Author: Palasthotel by Edward Bock, Katharina Rompf
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
 */
@@ -78,6 +78,7 @@ class SolrPlugin
 		$this->search_error = false;
 		$this->search_args = null;
 		$this->search_results = null;
+		$this->is_disabled_backend = false;
 
 		/**
 		* base paths
@@ -130,6 +131,7 @@ class SolrPlugin
 			 */
 			add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
 			add_filter('template_include', array($this, 'search_template'), 99 );
+			add_action('pre_get_posts', array($this, 'backend_search_query'), 99 );
 		}
 	}
 
@@ -214,6 +216,13 @@ class SolrPlugin
 			}
 
 			$args['facets'] = $facet_args;
+
+			/**
+			 * filter args
+			 */
+
+			$filter_args = array();
+
 			$this->search_args = $args;
 		}
 		return $this->search_args;
@@ -237,6 +246,33 @@ class SolrPlugin
 		}
 		return $request;
 	}
+
+	function backend_search_query($query){
+		global $pagenow;
+		if ( is_admin() && $query->is_main_query() ) {
+			if ($query->is_search) {
+
+				if($pagenow == 'edit.php'){
+					//echo '<pre>' . var_dump($query) . '</pre>';
+					// echo("hallo suche");
+					$this->is_disabled_backend = true;
+
+					echo ('hallo backendsuche');
+					//var_dump($query);
+					//$this->search_args['s'] = '*:*';
+					//$query->setQuery('*:*');
+				//	$this->search_args['filter']['bs_status'] = true;
+				//	$this->search_args['filter']['ss_type'] = 'post';
+					$my_backend_search = $this->get_search_results();
+					var_dump($my_backend_search);
+					die();
+
+				}
+			}
+		}
+
+	}
+
 
 	/**
 	 * Add a new template when solr search is triggered

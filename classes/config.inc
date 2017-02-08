@@ -80,6 +80,7 @@ class Config {
 		 * default configuration
 		 */
 		$config = array(
+			'empty_query' => '*:*',
 			// 'AND' or 'OR'
 		  'default_query_operator' => 'AND',
 			// enable spellchecker
@@ -88,39 +89,59 @@ class Config {
 		  'query_limit' => 15,
 			// list of fields to search and their corresponding weight
 		  'search_fields' => array(
-			'title' => 4.0,
-			'date' => 0.5,
-			'author' => 0.5,
-			'content' => 1.0
+			'ts_title' => 4.0,
+			'ds_published' => 0.5,
+			'ts_author' => 1.0,
+			'content' => 3.0,
+		    'sm_category'=> 2.0,
 		  ),
 			// list of additional boost functions
 		  'boost_functions' => array(
-			'recip(abs(ms(NOW,date)),3.16e-11,1,1)^5'
+			'recip(abs(ms(NOW,ds_published)),3.16e-11,1,1)^5'
 		  ),
 			// list of fields to return
 		  'result_fields' => array(
 			'id',
-			'title',
-			'date',
-			'author',
-			'type',
+			'ts_title',
+			'ds_published',
+			'ts_author',
+			'ss_type',
 			'content',
 			'url',
+			  'sm_category',
 		  ),
 			// list of fields that are intended to be highlighted
 		  'highlight_fields' => array(
-			'title',
-			'content'
+			'ts_title',
+			'content',
+			  'ts_author',
+			  'sm_category'
+
 		  ),
+	// list of fields that are intended to be highlighted
+			'filter_fields' => array (
+				'ss_type' => array(
+					'field' => 'ss_type',
+					'title' => 'Type',
+				),
+				'ss_status' => array(
+					'field' => 'bs_status',
+					'title' => 'status'
+			),
+			),
 			// facet definitions
 		  'facets' => array(
-			'type' => array(
-			  'field' => 'type',
+			'ss_type' => array(
+			  'field' => 'ss_type',
 			  'title' => 'Type'
 			),
-			'date' => array(
-			  'field' => 'date',
-			  'title' => 'Date'
+			'ds_published' => array(
+				  'field' => 'ds_published',
+				  'title' => 'Date'
+			  ),
+			'sm_category' => array(
+				'field' => 'sm_category',
+				'title' => 'Category'
 			),
 		  ),
 		);

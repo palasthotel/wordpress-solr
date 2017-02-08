@@ -124,6 +124,7 @@ class SearchPage
 	function render_search_form($form, \Solarium\QueryType\Select\Result\Result $solr_search_results = null) {
 		$solr_search_args = $this->get_search_args();
 		include $this->plugin->get_template_file("search-form.php");
+
 	}
 
 	/**

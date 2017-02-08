@@ -22,7 +22,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 
 		switch($_GET['action']){
 			case 'update':
-				$result = $this->plugin->index_posts(20);
+				$result = $this->plugin->index_posts(500);
 				foreach ($result->posts as $post) {
 					/**
 					 * @var WP_Post $post
