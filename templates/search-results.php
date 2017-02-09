@@ -75,8 +75,8 @@ if (!$solr_search_results){
 		echo '</table><br/><b>Highlighting results:</b><br/>';*/
 
 		// highlighting results can be fetched by document id (the field defined as uniquekey in this schema)
-
-		$highlightedDoc = $highlighting->getResult($document->id);
+		$highlightedDoc = null;
+		if($highlighting != null) $highlightedDoc = $highlighting->getResult($document->id);
 		if ($highlightedDoc) {
 			foreach ($highlightedDoc as $field => $highlight) {
 				
@@ -88,6 +88,12 @@ if (!$solr_search_results){
 				echo '<br/>';
 			}
 
+		} else {
+			echo $document->ts_title .'<br/>';
+			echo $document->ts_author. '<br/>';
+			echo $document->url. '<br/>';
+			
+			echo '<br/>';
 		}
 
 	}

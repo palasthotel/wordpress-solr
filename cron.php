@@ -16,13 +16,13 @@ while( 0 != ob_get_level() ) {
 
 /**
  * do the cron stuff
- * @var \SolrPlugin $solr_plugin
+ * @var SolrPlugin\Plugin $solr_plugin
  */
 $solr_plugin = solr_get_plugin();
 $i = 0;
 $indexed = 0;
 $error = 0;
-$number = $solr_plugin->get_config()->get_option(\SolrPlugin\Config::$DOCUMENTS_PER_CALL);
+$number = $solr_plugin->get_config()->get_option(\SolrPlugin\Plugin::OPTION_DOCUMENTS_PER_CALL);
 do{
 	if($error > 5){
 		print "Too many errors: ".$error."\n";

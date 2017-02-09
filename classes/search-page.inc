@@ -1,23 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: edward
- * Date: 23.11.15
- * Time: 14:17
- */
 
 namespace SolrPlugin;
 
 
 class SearchPage
 {
-	public $plugin;
 
 	/**
 	 * Posts constructor.
-	 * @param \SolrPlugin $plugin
+	 * @param Plugin $plugin
 	 */
-	public function __construct(\SolrPlugin $plugin){
+	public function __construct( $plugin ){
 		$this->plugin = $plugin;
 
 		/**
@@ -29,7 +22,7 @@ class SearchPage
 		 * render search forms
 		 */
 		add_shortcode('solr_search_form', array($this,'get_search_form_html') );
-		add_action('solr_search_form', array($this, 'render_search_form'),10,2);
+		add_action('solr_search_form', array($this, 'render_search_form'));
 
 		/**
 		 * render results
@@ -72,13 +65,11 @@ class SearchPage
 		/**
 		 * global use of search results
 		 */
-		$solr_search_results = $this->plugin->get_search_results();
-		$solr_search_args = $this->get_search_args();
-		if($this->plugin->search_error){
-			$e = $this->plugin->search_error_object;
-			include $this->plugin->get_template_file('search-error.php');
+		if($this->plugin->request->search_error){
+			$e = $this->plugin->request->search_error_object;
+			$this->plugin->render->render(Plugin::TEMPLATE_ERROR);
 		} else {
-			include $this->plugin->get_template_file('search-results.php');
+			$this->plugin->render->render(Plugin::TEMPLATE_RESULTS);
 		}
 	}
 
@@ -90,51 +81,39 @@ class SearchPage
 	 * @return string
 	 */
 	function render_search_results_item(\WP_Post $post, \Solarium\QueryType\Select\Result\DocumentInterface $document){
-		include $this->plugin->get_template_file("search-results-item.php");
+		include $this->plugin->render->get_template_file(Plugin::TEMPLATE_RESULTS_ITEM);
 	}
 
 	/**
 	 * render spellcheck display
 	 * @param $solr_search_results
 	 */
-	function render_search_spellcheck($solr_search_results){
-		include $this->plugin->get_template_file("search-spellcheck.php");
+	function render_search_spellcheck(){
+		$this->plugin->render->render(Plugin::TEMPLATE_SPELLCHECK);
 	}
-
+	
 	/**
 	 * render search form
-	 * @param $form
-	 * @param null|\Solarium\QueryType\Select\Result\Result $solr_search_results
+	 *
+	 * @param String $form
+	 *
 	 * @return string
 	 */
-	function get_search_form_html($form, $solr_search_results = null) {
-		if($this->plugin->search_error) return $form;
+	function get_search_form_html($form) {
+		if($this->plugin->request->search_error) return $form;
 		ob_start();
-		$this->render_search_form($form, $solr_search_results);
+		$this->render_search_form();
 		$form = ob_get_clean();
+		ob_end_clean();
 		return $form;
 	}
 
 	/**
 	 * render search form
 	 * @param $form
-	 * @param null|\Solarium\QueryType\Select\Result\Result  $solr_search_results
-	 * @return string
 	 */
-	function render_search_form($form, \Solarium\QueryType\Select\Result\Result $solr_search_results = null) {
-		$solr_search_args = $this->get_search_args();
-		include $this->plugin->get_template_file("search-form.php");
-
-	}
-
-	/**
-	 * Returns the search arguments as an associative array or FALSE if there was no
-	 * search.
-	 *
-	 * @return array
-	 */
-	function get_search_args() {
-		return $this->plugin->get_search_args();
+	function render_search_form() {
+		$this->plugin->render->render(Plugin::TEMPLATE_FORM);
 	}
 
 	/**
@@ -143,9 +122,9 @@ class SearchPage
 	 * @return array
 	 */
 	function body_class( array $classes ) {
-		if(!$this->plugin->is_search()) return $classes;
-		if(!$this->plugin->search_error && $this->plugin->get_search_results()!= null){
-			$found = ($this->plugin->get_search_results()->getNumFound() > 0);
+		if(!$this->plugin->request->is_search()) return $classes;
+		if(!$this->plugin->search_error && $this->plugin->request->get_search_results()!= null){
+			$found = ($this->plugin->request->get_search_results()->getNumFound() > 0);
 			$classes[] = "solr-search";
 			if($found){
 				$classes[] = "search-results";

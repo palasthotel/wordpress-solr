@@ -5,9 +5,9 @@ namespace SolrPlugin;
 class Settings{
 	/**
 	* construct settings
-	* @param $solr_plugin \SolrPlugin
+	* @param $solr_plugin Plugin
 	*/
-	function __construct( \SolrPlugin $solr_plugin){
+	function __construct( $solr_plugin ){
 		$this->plugin = $solr_plugin;
 		add_action( 'admin_menu', array($this, 'menu_pages') );
 	}
@@ -78,34 +78,34 @@ class Settings{
 
 	private function get_settings_for_page($page){
 		// to include config class
-		$config = $this->plugin->get_config();
+		$config = $this->plugin->config;
 		switch($page){
 			case 'core':
 				return array(
 				  	array(
-					  'key'=>$config::$ENABLED,
+					  'key'=>Plugin::OPTION_ENABLED,
 					  'label' => 'Enable Solr Search',
 					  "type" => "checkbox",
 					  "description" => "default theme/search.php template will be ignored ".
 						"and theme/solr/search.php or this_plugin/template/search.php template will be used",
 					),
-				  	array('key'=>$config::$HOST, 'label' => 'Host'),
-					array('key'=>$config::$PORT, 'label' => 'Port'),
-					array('key'=>$config::$PATH, 'label' => 'Path'),
-				  	array('key'=>$config::$CORE, 'label' => 'Core'),
-				  	array('key'=>$config::$USERNAME, 'label' => 'Username'),
-				  	array('key'=>$config::$PW, 'label' => 'Password', 'type' => 'password'),
+				  	array('key'=>Plugin::OPTION_HOST, 'label' => 'Host'),
+					array('key'=>Plugin::OPTION_PORT, 'label' => 'Port'),
+					array('key'=>Plugin::OPTION_PATH, 'label' => 'Path'),
+				  	array('key'=>Plugin::OPTION_CORE, 'label' => 'Core'),
+				  	array('key'=>Plugin::OPTION_USERNAME, 'label' => 'Username'),
+				  	array('key'=>Plugin::OPTION_PW, 'label' => 'Password', 'type' => 'password'),
 				);
 			case 'advanced':
 				return array(
 				  array(
-					'key'=>$config::$DOCUMENTS_PER_CALL,
+					'key'=>Plugin::OPTION_DOCUMENTS_PER_CALL,
 					'label' => 'Documents per index update',
 					'type' => 'number',
 					'description' => 'How many items should be send to solr per update call?',
 				  ),
 				  array(
-					'key'=>$config::$TIMEOUT,
+					'key'=>Plugin::OPTION_TIMEOUT,
 					'label' => 'Timeout',
 					'type' => 'number',
 					'description' => 'Timeout in seconds for solariums http connection to solr server',
@@ -116,10 +116,10 @@ class Settings{
 	}
 
 	private function render_setting($setting){
-		$config = $this->plugin->get_config();
+		$config = $this->plugin->config;
 		$label = $setting['label'];
 		$value = $config->get_option($setting['key']);
-		$key = $this->plugin->prefix.$setting['key'];
+		$key = $setting['key'];
 		?>
 		<tr>
 			<th scope="row"><label for="<?php echo $key; ?>"><?php echo $label; ?></label></th>
@@ -165,32 +165,28 @@ class Settings{
 	}
 
 	private function try_save() {
-		$config = $this->plugin->get_config();
+		$config = $this->plugin->config;
 		if( isset($_POST) && empty($_POST) ) return;
 		foreach($_POST as $key => $value){
 			/**
 			 * save every post value with plugin prefix
 			 */
-			if( strpos($key, $this->plugin->prefix) === 0 ){
+			if( strpos($key, "solr_") === 0 ){
 				/**
 				 * prevent double prefix
 				 */
-				$config->set_option($this->get_clean_option_key($key),$value);
-			} else if( strpos($key,"checkbox_".$this->plugin->prefix) === 0){
+				$config->set_option($key,$value);
+			} else if( strpos($key,"checkbox_solr") === 0){
 				/**
 				 * save checkbox value
 				 */
 				$_key = str_replace("checkbox_",'',$key);
 				if(!isset($_POST[$_key]) || empty($_POST[$_key])){
-					$config->set_option($this->get_clean_option_key($value),false);
+					$config->set_option($_key,false);
 				}
 			}
 
 		}
-	}
-
-	private function get_clean_option_key($key){
-		return str_replace($this->plugin->prefix,'',$key);;
 	}
 
 

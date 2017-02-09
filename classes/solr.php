@@ -6,46 +6,80 @@ namespace SolrPlugin;
  * @package SolrPlugin
  */
 class Solr {
+	
+	/**
+	 * @var \Solarium\Client $solarium
+	 */
+	private $solarium;
+	
 	/**
 	 * general vars
 	 */
 	private $number_of_documents;
-	/**
-	 * @var \SolrPlugin
-	 */
-	private $plugin;
+	
 	/**
 	 * @var \Solarium\Client
 	 */
 	private $client;
+	
 	/**
-	 * @var
+	 * @var \Solarium\QueryType\Select\Result\Result $search_results
 	 */
 	private $search_results;
 
 	/**
 	 * Solr constructor.
-	 * @param \SolrPlugin $plugin
+	 * @param Plugin $plugin
 	 */
-	public function __construct(\SolrPlugin $plugin) {
+	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
-		$this->client = $this->plugin->get_solarium();
+		$this->client = $this->get_solarium();
 
 		$this->number_of_documents = -1;
 
 		add_filter('solr_add_post_fields', array($this, 'add_post_fields'),10,3);
 		add_filter('solr_add_comment_fields', array($this, 'add_comment_fields'),10,3);
 		add_filter('solr_is_supported_type', array($this, 'is_supported_type'),10,3);
-
-		$this->add_search_filters();
 	}
-
+	
 	/**
-	 * get solr configuration
-	 * @return mixed|void
+	 * get the solarum client
+	 * @return \Solarium\Client
 	 */
-	public function getConfiguration() {
-		return $this->plugin->get_config()->get_solr_config();
+	public function get_solarium(){
+		if($this->solarium === null){
+			
+			/**
+			 * get config
+			 */
+			$config = $this->plugin->config;
+			
+			/**
+			 * init solarium configuration
+			 */
+			$endpoint = array(
+				'host' => $config->get_option(Plugin::OPTION_HOST),
+				'port' => $config->get_option(Plugin::OPTION_PORT),
+				'path' => $config->get_option(Plugin::OPTION_PATH),
+				'core' => $config->get_option(Plugin::OPTION_CORE),
+				'username' => $config->get_option(Plugin::OPTION_USERNAME),
+				'password' => $config->get_option(Plugin::OPTION_PW),
+				'timeout' => $config->get_option(Plugin::OPTION_TIMEOUT),
+			);
+			
+			/**
+			 * solarium class
+			 */
+			$solarium_path = $this->plugin->dir . '/lib/autoload.php';
+			$solarium_path = apply_filters('solr_solarium_path',$solarium_path);
+			require_once $solarium_path;
+			
+			/**
+			 * construct solarium
+			 */
+			$this->solarium = new \Solarium\Client(array('endpoint' => array( $endpoint )));
+		}
+		return $this->solarium;
 	}
 
 	/**
@@ -102,7 +136,6 @@ class Solr {
 			}
 		}
 		
-		
 		do_action('solr_add_post_fields_to_document', $document, $post);
 		
 		// set published field (string)
@@ -150,14 +183,12 @@ class Solr {
 	 * create update
 	 * @param string $type
 	 * @return \Solarium\QueryType\Update\Query\Query
-	 * @throws \SolrPlugin\Exception
 	 */
 	private function createUpdate($type){
 		/**
 		 * check if type is supported else throw exception
 		 */
 		$supported = apply_filters('solr_is_supported_type',false, $type);
-		if(!$supported) throw new Exception('unknown document type');
 
 		/**
 		 * so create new update
@@ -193,7 +224,7 @@ class Solr {
 			 * add type specific fields
 			 * filters are dynamically extensible
 			 */
-			$doc = apply_filters('solr_add_'.$type.'_fields',$doc,$item, $update);
+			$doc = apply_filters('solr_add_'.$type.'_fields', $doc, $item, $update);
 
 			/**
 			 * set the ID
@@ -268,7 +299,6 @@ class Solr {
 	 * Update comments to solr
 	 * @param array $modified
 	 * @return \Solarium\QueryType\Update\Result
-	 * @throws \SolrPlugin\Exception
 	 * @throws \Solarium\Exception\HTTPException
 	 */
 	public function updateCommentIndex( $modified ) {
@@ -314,23 +344,6 @@ class Solr {
 	}
 
 	/**
-	 * add all filters for search select
-	 */
-	private function add_search_filters(){
-		add_filter('solr_search_select',array($this,'search_select_query'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_order'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_state'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_page'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_boost'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_spellchecker'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_posts'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_facets'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_weight'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_query_operator'),10,3);
-		add_filter('solr_search_select',array($this,'search_select_highlight_fields'),10,3);
-	}
-
-	/**
 	 * search for query string
 	 * @param \Solarium\QueryType\Select\Query\Query $select
 	 * @param $search_args
@@ -341,9 +354,6 @@ class Solr {
 		if(!empty($search_args) && !empty($search_args['s'])){
 			$query = $search_args['s'];
 			$select->setQuery($query);
-		}
-		else {
-			$select->setQuery('*:*');
 		}
 		return $select;
 	}
@@ -379,8 +389,10 @@ class Solr {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_page($select,$search_args, $config){
-		//$select->setStart(($search_args['page'] - 1) * $config['query_limit']);
-		$select->setRows($config['query_limit']);
+		if(!empty($search_args["paged"])){
+			$select->setStart(($search_args['paged'] - 1) * $config['query_limit']);
+			$select->setRows($config['query_limit']);
+		}
 		return $select;
 	}
 
@@ -421,7 +433,14 @@ class Solr {
 		}
 		return $select;
 	}
-
+	
+	/**
+	 * search spellchecker
+	 * @param \Solarium\QueryType\Select\Query\Query $select
+	 * @param $search_args
+	 * @param $config
+	 * @return \Solarium\QueryType\Select\Query\Query
+	 */
 	public function search_select_posts($select,$search_args, $config){
 		$select->createFilterQuery('ss_type')->setQuery('ss_type:post');
 		return $select;
@@ -436,23 +455,25 @@ class Solr {
 	 */
 	public function search_select_facets($select,$search_args, $config){
 		$facet_set = $select->getFacetSet();
-//		$facet_set->createFacetField('sm_category')->setField();
 		
-		/*if(!empty($search_args['facets']) && $search_args['facets'] ) {
-			foreach ($search_args['facets'] as $facet_key_val => $enabled) {
-				if ($enabled) {
-					$kv = explode('-', $facet_key_val);
-					//$facet_query = new \Solarium\QueryType\Select\Query\Component\Facet\Facet.php();
-					$facet_query->setKey(strtolower($kv[0]));
-					$facet_query->setQuery($kv[1]);
-					$select->addFilterQuery($facet_query);
+//		$facet_set->createFacetQuery('sm_category')->setQuery('Uncategorized');
+		
+		if(!empty($search_args['facets']) && $search_args['facets'] ) {
+			foreach ($search_args['facets'] as $facet => $values) {
+				// TODO: handle multiple facet values query = facet:value AND facet:value
+				$parts = array();
+				foreach ($values as $value){
+					$parts[] = "{$facet}:{$value}";
 				}
+				$select->addFilterQuery(array('key' => $facet, 'query' => implode(" AND ", $parts)));
 			}
-		}*/
+		}
 
-		if ( isset($config['facets']) && false ) {
+		if ( isset($config['facets']) ) {
 			$facetSet = $select->getFacetSet();
-
+		
+			// TODO: show all facets for displaying in frontend
+			
 			// content type facet
 			if (isset($config['facets']['ss_type'])) {
 				$facet = $config['facets']['ss_type'];
@@ -520,11 +541,18 @@ class Solr {
 		$select->setQueryDefaultOperator($config['default_query_operator']);
 		return $select;
 	}
-
+	
+	/**
+	 * search query operator
+	 * @param \Solarium\QueryType\Select\Query\Query $select
+	 * @param $search_args
+	 * @param $config
+	 * @return \Solarium\QueryType\Select\Query\Query
+	 */
 	public function search_select_highlight_fields($select,$search_args, $config){
 		if(!empty($search_args) && !empty($search_args['s'])){
 
-			$select->getHighlighting()->setFields( 'content, ts_author, ts_title');
+			$select->getHighlighting()->setFields( $config['highlight_fields'] );
 			$select->getHighlighting()->setSimplePrefix( '<b>' );
 			$select->getHighlighting()->setSimplePostfix( '</b>' );
 			$select->getHighlighting()->setHighlightMultiTerm( true );
@@ -538,21 +566,42 @@ class Solr {
 	 *
 	 * @return array|\Solarium\QueryType\Select\Result\Result
 	 */
-	public function search(array $search_args = null) {
+	public function search(array $search_args = null, $frontend = true) {
 		/**
 		 * no search args return empty result
 		 */
 		if (empty($search_args)) {
-			return array();
+//			return array();
 		}
 
-		$config = $this->plugin->get_config()->get_solr_config();
+		$config = $this->plugin->config->get_solr_config();
 
 		/**
 		 * create new select query
 		 * @var \Solarium\QueryType\Select\Query\Query $select
 		 */
 		$select = $this->client->createSelect();
+		
+		add_filter('solr_search_select',array($this,'search_select_query'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_order'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_page'),10,3);
+		
+		//TODO: if empty query boost function and weight gives no output
+		if(!empty($search_args['s'])) {
+			add_filter( 'solr_search_select', array( $this, 'search_select_boost' ), 10, 3 );
+			add_filter( 'solr_search_select', array( $this, 'search_select_weight' ), 10, 3 );
+		}
+		
+		
+		add_filter('solr_search_select',array($this,'search_select_spellchecker'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_posts'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_facets'),10,3);
+		
+		add_filter('solr_search_select',array($this,'search_select_query_operator'),10,3);
+		add_filter('solr_search_select',array($this,'search_select_highlight_fields'),10,3);
+		
+		if($frontend) add_filter('solr_search_select',array($this,'search_select_state'),10,3);
+		
 
 		/**
 		 * build select with filters
@@ -563,7 +612,7 @@ class Solr {
 		 * set result fields
 		 */
 		$select->setFields($config['result_fields']);
-
+		
 		$this->search_results = $this->client->select($select);
 		
 		return $this->search_results;
@@ -576,10 +625,10 @@ class Solr {
 	public function getNumberOfDocuments(){
 		if($this->number_of_documents != -1) return $this->number_of_documents;
 		try{
-			/**
-			 * @var \Solarium\QueryType\Select\Result\Result
-			 */
 			$query = $this->client->createQuery(\Solarium\Client::QUERY_SELECT);
+			/**
+			 * @var \Solarium\QueryType\Select\Result\Result $result
+			 */
 			$result = $this->client->execute($query);
 			if(is_object($result)){
 				$this->number_of_documents = $result->getNumFound();

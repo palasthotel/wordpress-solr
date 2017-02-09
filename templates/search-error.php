@@ -1,6 +1,6 @@
 <?php
 /**
- * @var \SolrPlugin\SearchPage $this
+ * @var \SolrPlugin\Render $this
  * @var array $solr_search_args
  * @var \Solarium\Exception\HttpException $e
  */

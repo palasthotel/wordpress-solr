@@ -8,7 +8,7 @@
  */
 $query = (!empty($solr_search_args['s']))? $solr_search_args['s']: "";
 ?>
-<form style="background-color: black" role="search" method="get" class="solr-search-form" action="<?php echo home_url('/') ?>">
+<form role="search" method="get" class="solr-search-form" action="<?php echo home_url('/') ?>">
 	<div>
 		<label> <span class="screen-reader-text"><?php echo __('Search for:'); ?></span> <input
 			  type="search" class="search-field"
@@ -24,32 +24,36 @@ if ($solr_search_results) {
 	?>
 	<div class="advanced-search-settings">
 		<?php
-		$facets = $solr_search_results->getFacetSet()->getFacets();
-		foreach ($facets as $key => $facet) :
-			?>
-			<div class="facet-type">
-				<span class="facet-type-id"><?php echo $key; ?></span>
-				<?php
-				foreach ($facet as $value => $count) :
-					if ($count > 0) :
-						if ($key === 'Date') {
-							$value = date('Y', strtotime($value));
-						}
-						?>
-						<input type="checkbox"
-							   name="facet-<?php echo $key . '-' . $value ?>"
-							   id="facet-<?php echo $key . '-' . $value ?>"/>
-						<label
-						  for="facet-<?php echo $key . '-' . $value ?>"><?php echo "$value ($count)" ?></label>
-						<br/>
-
-						<?php
-					endif;
-				endforeach;
+		$facets_set = $solr_search_results->getFacetSet();
+		if($facets_set != null){
+			$facets = $facets_set->getFacets();
+			foreach ($facets as $key => $facet) :
 				?>
-			</div>
-			<?php
-		endforeach;
+				<div class="facet-type">
+					<span class="facet-type-id"><?php echo $key; ?></span>
+					<?php
+					foreach ($facet as $value => $count) :
+						if ($count > 0) :
+							if ($key === 'Date') {
+								$value = date('Y', strtotime($value));
+							}
+							?>
+							<input type="checkbox"
+							       name="facet-<?php echo $key . '-' . $value ?>"
+							       id="facet-<?php echo $key . '-' . $value ?>"/>
+							<label
+									for="facet-<?php echo $key . '-' . $value ?>"><?php echo "$value ($count)" ?></label>
+							<br/>
+							
+							<?php
+						endif;
+					endforeach;
+					?>
+				</div>
+				<?php
+			endforeach;
+		}
+		
 
 
 		?>

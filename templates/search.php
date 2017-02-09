@@ -2,7 +2,7 @@
 get_header();
 ?>
 
-<div class="solr-search" style="margin-top: 180px;">
+<div class="solr-search">
 	
 	<h1 class="solr-search-header"><?php __('Solr Search'); ?></h1>
 
@@ -25,18 +25,17 @@ get_header();
 	if($solr_search_results != null){
 		// TODO: per page ist falsch, weil die letzte seite ärger macht
 		$per_page = count($solr_search_results);
+		$pages = 1;
 		if($per_page > 0) $pages = ceil($solr_search_results->getNumFound()/$per_page);
-	}
-
-	if($solr_search_results != null ){
+	
 		/**
 		 * render pagination
 		 */
 		echo paginate_links( array(
 		  'base'               => '%_%',
-		  'format'             => '?page=%#%',
-		 // 'total'              => $pages,
-		  'current'            => $solr_search_args['page'],
+		  'format'             => '?paged=%#%',
+		  'total'              => $pages,
+		  'current'            => $solr_search_args['paged'],
 		  'show_all'           => False,
 		  'end_size'           => 1,
 		  'mid_size'           => 2,

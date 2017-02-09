@@ -10,7 +10,10 @@ namespace SolrPlugin;
 
 
 class Schedule {
-
+	
+	/**
+	 * events of schedule
+	 */
 	private $events = array(
 		"solr_schedule_update_index",
 	  	"solr_schedule_optimize",
@@ -18,7 +21,7 @@ class Schedule {
 
 	/**
 	 * Schedule constructor.
-	 * @param \SolrPlugin $plugin
+	 * @param Plugin $plugin
 	 */
 	function __construct($plugin) {
 		$this->plugin = $plugin;
@@ -57,7 +60,7 @@ class Schedule {
 	 * do the indexing
 	 */
 	function update_index(){
-		$number = $this->plugin->get_config()->get_option(Config::$DOCUMENTS_PER_CALL);
+		$number = $this->plugin->config->get_option(Plugin::OPTION_DOCUMENTS_PER_CALL);
 		$this->plugin->index_posts($number);
 	}
 

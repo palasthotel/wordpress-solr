@@ -11,20 +11,18 @@ namespace SolrPlugin;
 class Comments
 {
 	/**
-	 * @var \SolrPlugins
-	 */
-	public $plugin;
-
-	/**
 	 * Comments constructor.
-	 * @param \SolrPlugin $plugin
+	 * @param Plugin $plugin
 	 */
-	public function __construct(\SolrPlugin $plugin){
+	public function __construct( $plugin ){
 		$this->plugin = $plugin;
 	}
-
+	
 	/**
 	 * get modified
+	 *
+	 * @param int $number
+	 *
 	 * @return array
 	 */
 	public function getModified( $number = 10) {

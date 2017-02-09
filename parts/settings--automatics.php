@@ -7,7 +7,6 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 
 function get_solr_crons(){
 	$wp_crons = _get_cron_array();
-//	var_dump($wp_crons);
 	$solr_crons = array();
 	foreach($wp_crons as $timestamp => $wp_cron_arr){
 		foreach($wp_cron_arr as $key => $wp_cron){

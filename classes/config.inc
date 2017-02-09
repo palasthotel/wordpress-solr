@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: edward
- * Date: 18.01.16
- * Time: 17:28
- */
 
 namespace SolrPlugin;
 
@@ -12,36 +6,19 @@ namespace SolrPlugin;
 class Config {
 	
 	/**
-	 * config keys
+	 * Config constructor.
+	 *
+	 * @param Plugin $plugin
 	 */
-	public static $ENABLED = "enabled";
-	public static $HOST = "host";
-	public static $PORT = "port";
-	public static $PATH = "path";
-	public static $CORE = "core";
-	public static $USERNAME = "username";
-	public static $PW = "password";
-	public static $DOCUMENTS_PER_CALL = "documents_per_call";
-	public static $TIMEOUT = "timeout";
-	
-	public static $SPELL_CHECK = "spellcheck";
-	public static $QUERY_LIMIT = "query_limit";
-	
-	/**
-	 * some other vars
-	 */
-	private $plugin;
-	private $defaults;
-	
-	public function __construct( \SolrPlugin $plugin ) {
+	public function __construct(  $plugin ) {
 		$this->plugin   = $plugin;
 		$this->defaults = array(
-			self::$ENABLED            => FALSE,
-			self::$HOST               => '127.0.0.1',
-			self::$PORT               => '8983',
-			self::$PATH               => '/solr/',
-			self::$DOCUMENTS_PER_CALL => 30,
-			self::$TIMEOUT            => 10,
+			Plugin::OPTION_ENABLED            => FALSE,
+			Plugin::OPTION_HOST                  => '127.0.0.1',
+			Plugin::OPTION_PORT               => '8983',
+			Plugin::OPTION_PATH               => '/solr/',
+			Plugin::OPTION_DOCUMENTS_PER_CALL => 30,
+			Plugin::OPTION_TIMEOUT            => 10,
 		);
 	}
 	
@@ -60,7 +37,7 @@ class Config {
 	 * get option by config key
 	 */
 	public function get_option( $key ) {
-		return get_option( $this->plugin->prefix . $key, $this->get_default( $key ) );
+		return get_option( $key, $this->get_default( $key ) );
 	}
 	
 	/**
@@ -72,7 +49,7 @@ class Config {
 	 * @return bool
 	 */
 	public function set_option( $key, $value ) {
-		return update_option( $this->plugin->prefix . $key, $value );
+		return update_option( $key, $value );
 	}
 	
 	/**
@@ -103,10 +80,12 @@ class Config {
 				'tm_author'    => 1.0,
 				'content'      => 3.0,
 				'sm_category'  => 2.0,
+				'sm_tag'        =>   2.0,
 			),
 			// list of fields to return
 			'result_fields'          => array(
 				'id',
+				'item_id',
 				'ts_title',
 				'ds_published',
 				'tm_author',
@@ -149,6 +128,10 @@ class Config {
 					'field' => 'sm_category',
 					'title' => 'Category',
 				),
+				'tm_author' => array(
+					'field' => 'tm_author',
+					'title' => 'Author',
+				)
 			),
 		);
 		

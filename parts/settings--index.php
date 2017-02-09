@@ -35,6 +35,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 				$solr->deleteIndex();
 				$this->plugin->posts->reset_meta();
 				echo '<p>Index deleted</p>';
+				break;
 			case 'optimize':
 				$result = $solr->optimizeIndex();
 				echo '<p>Index optimized</p>';
@@ -66,7 +67,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 			$indexed = $wpdb->get_var(
 			  $wpdb->prepare(
 				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
-				$this->plugin->posts->meta_indexed
+				\SolrPlugin\Plugin::POST_META_INDEXED
 			  )
 			);
 			?>
@@ -81,7 +82,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 			$ignored = $wpdb->get_var(
 			  $wpdb->prepare(
 				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
-				$this->plugin->posts->meta_ignored
+				  \SolrPlugin\Plugin::POST_META_IGNORED
 			  )
 			);
 			?>
@@ -96,7 +97,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 			$error = $wpdb->get_var(
 			  $wpdb->prepare(
 				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
-				$this->plugin->posts->meta_error
+				  \SolrPlugin\Plugin::POST_META_ERROR
 			  )
 			);
 			?>
