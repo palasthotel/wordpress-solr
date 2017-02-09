@@ -27,7 +27,7 @@ class Plugin {
 	const TEMPLATE_FORM = "search-form.php";
 	const TEMPLATE_SPELLCHECK = "search-spellcheck.php";
 	const TEMPLATE_RESULTS = "search-results.php";
-	const TEMPLATE_RESULTS_ITEM = "search-resuts-item.php";
+	const TEMPLATE_RESULTS_ITEM = "search-results-item.php";
 	
 	/**
 	 * options

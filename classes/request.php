@@ -86,15 +86,7 @@ class Request {
 					$facet_args[ $parts[1] ] = $_GET[ $key ];
 				}
 			}
-			$args[ self::VAR_FACETS ] = $facet_args;
-			
-			/**
-			 * filter args
-			 */
-			
-			$filter_args = array();
-			
-			$this->search_args = $args;
+			$this->search_args[ self::VAR_FACETS ] = $facet_args;
 		}
 		
 		return $this->search_args;

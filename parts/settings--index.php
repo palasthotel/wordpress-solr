@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var  $this \SolrPlugin\Settings
  * @var \wpdb
@@ -119,7 +120,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 		'ignore_sticky_posts' => TRUE,
 		'meta_query' => array(
 		  array(
-			'key' => $this->plugin->posts->meta_error,
+			'key' => \SolrPlugin\Plugin::POST_META_ERROR,
 			'compare' => 'EXISTS',
 		  ),
 		)

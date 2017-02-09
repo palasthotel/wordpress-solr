@@ -123,7 +123,7 @@ class SearchPage
 	 */
 	function body_class( array $classes ) {
 		if(!$this->plugin->request->is_search()) return $classes;
-		if(!$this->plugin->search_error && $this->plugin->request->get_search_results()!= null){
+		if(!$this->plugin->request->search_error && $this->plugin->request->get_search_results()!= null){
 			$found = ($this->plugin->request->get_search_results()->getNumFound() > 0);
 			$classes[] = "solr-search";
 			if($found){

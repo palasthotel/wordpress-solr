@@ -17,9 +17,9 @@ get_header();
 	 */
 	$plugin = solr_get_plugin();
 
-	$solr_search_args = $plugin->get_search_args();
+	$solr_search_args = $plugin->request->get_search_args();
 
-	$solr_search_results = $plugin->get_search_results();
+	$solr_search_results = $plugin->request->get_search_results();
 
 
 	if($solr_search_results != null){
