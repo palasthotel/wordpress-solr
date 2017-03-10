@@ -13,6 +13,7 @@ class Ajax {
 	 * @param \SolrPlugin\Plugin $plugin
 	 */
 	function __construct(Plugin $plugin) {
+		$this->plugin = $plugin;
 		
 		require_once "ajax-endpoint.php";
 		
@@ -28,7 +29,20 @@ class Ajax {
 	}
 	
 	function suggests($param){
-		die("suggesting");
+		
+		$solarium = Solarium::instance($this->plugin);
+		
+		$query = $solarium->createSelect();
+		$query->setQuery($param);
+//		$query->setFields(array('item_id','ts_title'));
+//
+		$results = $solarium->execute($query);
+		
+		$json = array();
+		foreach ($results as $document){
+			$json[] = $document->ts_title;
+		}
+		wp_send_json($json);
 	}
 	
 }

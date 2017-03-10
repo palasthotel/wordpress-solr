@@ -20,6 +20,8 @@ class Plugin {
 	
 	const DOMAIN = "solr-plugin";
 	
+	const HANDLE_JS_API = "solr-js";
+	
 	/**
 	 * plugin actions
 	 */
@@ -165,6 +167,12 @@ class Plugin {
 		 */
 		require( 'inc/frontend-search.php' );
 		$this->frontend_search = new FrontendSearch( $this );
+		
+		/**
+		 * API
+		 */
+		require( 'inc/api.php' );
+		$this->api = new Api( $this );
 		
 		/**
 		 * schedule class
