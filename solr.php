@@ -18,16 +18,33 @@ if ( ! defined( 'WPINC' ) ) {
 
 class Plugin {
 	
+	const DOMAIN = "solr-plugin";
+	
+	/**
+	 * plugin actions
+	 */
+	const ACTION_SEARCH_RESULTS = "solr_search_results";
+	const ACTION_SEARCH_RESULTS_ITEM = "solr_search_results_item";
+	const ACTION_SEARCH_SPELLCHECK = "solr_search_spellcheck";
+	const ACTION_SEARCH_PAGINATION = "solr_search_pagination";
+	
+	/**
+	 * shortcodes
+	 */
+	CONST SHORTCODE_FORM = "solr_search_form";
+	CONST SHORTCODE_SEARCH_RESULTS = "solr_search_results";
+	
 	/**
 	 * all outputs via themes
 	 */
-	const THEME_FOLDER = "solr";
+	const THEME_FOLDER = "plugin-parts";
 	const TEMPLATE_SEARCH = "search.php";
 	const TEMPLATE_ERROR = "search-error.php";
 	const TEMPLATE_FORM = "search-form.php";
 	const TEMPLATE_SPELLCHECK = "search-spellcheck.php";
 	const TEMPLATE_RESULTS = "search-results.php";
 	const TEMPLATE_RESULTS_ITEM = "search-results-item.php";
+	const TEMPLATE_PAGINATION = "search-pagination.php";
 	
 	/**
 	 * options
@@ -75,9 +92,14 @@ class Plugin {
 		$this->url = plugin_dir_url(__FILE__);
 		
 		/**
+		 * class for any needed endpoints
+		 */
+		require_once "inc/ajax-endpoint.php";
+		
+		/**
 		 * init config
 		 */
-		require_once('classes/config.inc');
+		require_once('inc/config.inc');
 		$this->config = new Config($this);
 		
 		/**
@@ -89,44 +111,38 @@ class Plugin {
 		/**
 		 * render templates
 		 */
-		require_once ('classes/render.php');
+		require_once ('inc/render.php');
 		$this->render = new Render($this);
 		
 		/**
 		* settings page
 		*/
-		require('classes/settings.inc');
+		require('inc/settings.inc');
 		$this->settings = new Settings($this);
 
 		/**
-		 * posts class
+		 * post modifications and meta flags
 		 */
-		require('classes/posts.inc');
+		require('inc/posts.inc');
 		$this->posts = new Posts($this);
-
+		
 		/**
-		 * search page
+		 * overwrite frontend search
 		 */
-		require('classes/search-page.inc');
-		$this->search_page = new SearchPage($this);
+		require('inc/frontend-search.php');
+		$this->frontend_search = new FrontendSearch($this);
 		
 		/**
 		 * schedule class
 		 */
-		require('classes/suggester.php');
-		$this->suggester = new Suggester($this);
-
-		/**
-		 * schedule class
-		 */
-		require('classes/schedule.inc');
+		require('inc/schedule.inc');
 		$this->schedule = new Schedule($this);
 		
 		/**
-		 * init
+		 * search page renderer
 		 */
-		require('classes/init.php');
-		$this->init = new Init($this);
+		require('inc/frontend-search-page.php');
+		$this->frontend_search_page = new FrontendSearchPage($this);
 		
 		/**
 		 * activate and deactivate hook

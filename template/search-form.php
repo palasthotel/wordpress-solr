@@ -1,8 +1,7 @@
 <?php
 /**
  * Search form template
- * @var SolrPlugin\SearchPage $this
- * @var $form
+ * @var SolrPlugin\SearchForm $this
  * @var array $solr_search_args
  * @var null|\Solarium\QueryType\Select\Result\Result $solr_search_results
  */

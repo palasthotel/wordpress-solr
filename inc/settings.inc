@@ -11,6 +11,7 @@ class Settings{
 		$this->plugin = $solr_plugin;
 		add_action( 'admin_menu', array($this, 'menu_pages') );
 	}
+	
 	/**
 	 * register menu pages
 	 */

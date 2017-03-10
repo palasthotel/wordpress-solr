@@ -5,16 +5,6 @@
  * @var \Solarium\QueryType\Select\Result\Result $solr_search_results;
  */
 
-/**
- * render search form template
- */
-do_action('solr_search_form','',$solr_search_results);
-
-/**
- * render spellcheck template
- */
-do_action('solr_search_spellcheck', $solr_search_results);
-
 ?>
 <div id="solr-search-results">
 <?php

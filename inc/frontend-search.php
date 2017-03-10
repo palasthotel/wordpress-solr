@@ -1,22 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: edward
- * Date: 08.02.17
- * Time: 19:13
- */
 
 namespace SolrPlugin;
 
 
-class Init {
+class FrontendSearch {
 	
 	/**
-	 * Init constructor.
+	 * FrontendSearch constructor.
 	 *
 	 * @param Plugin $plugin
 	 */
-	function __construct($plugin) {
+	function __construct(Plugin $plugin) {
 		$this->plugin = $plugin;
 		
 		if($this->plugin->is_enabled()){
@@ -26,7 +20,7 @@ class Init {
 			 */
 			add_action('init', array($this, 'do_search'));
 			add_filter('posts_request', array($this, 'disable_search_query'), 10, 2);
-			add_action('pre_get_posts', array($this, 'backend_search_query'), 99 );
+			
 		}
 	}
 	
@@ -57,35 +51,5 @@ class Init {
 		return $request;
 	}
 	
-	/**
-	 * @param \WP_Query $query
-	 */
-	function backend_search_query($query){
-		global $pagenow;
-		if ( is_admin() && $query->is_main_query() ) {
-			if ($query->is_search) {
-				
-				if($pagenow == 'edit.php'){
-					
-					
-					
-					$this->is_disabled_backend = true;
-
-//					$my_backend_search = $this->get_search_results(array());
-
-//					$ids = array();
-//					foreach ($my_backend_search as $document){
-//						$ids[] = $document->item_id;
-//					}
-
-//					$query->query_vars = array(
-//						'post__in' => $ids,
-//						'orderby' => 'post__in',
-//					);
-				}
-			}
-		}
-		
-	}
 	
 }

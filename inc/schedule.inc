@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: edward
- * Date: 06.02.16
- * Time: 16:37
- */
 
 namespace SolrPlugin;
-
 
 class Schedule {
 	

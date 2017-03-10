@@ -54,7 +54,7 @@ class Config {
 	
 	/**
 	 *    get the solr configuration
-	 * @return mixed|void
+	 * @return array
 	 */
 	public function get_solr_config() {
 		/**
@@ -137,6 +137,8 @@ class Config {
 		
 		/**
 		 * apply filter for every config key
+		 *
+		 * @return array
 		 */
 		foreach ( $config as $key => $value ) {
 			$config[ $key ] = apply_filters( 'solr_config_' . $key, $value );

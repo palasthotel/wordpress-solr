@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: edward
- * Date: 23.11.15
- * Time: 14:17
- */
 
 namespace SolrPlugin;
 
@@ -32,6 +26,8 @@ class Posts {
 		$this->reset_indexed( $post_id );
 		$this->reset_ignored( $post_id );
 		$this->reset_error( $post_id );
+		
+		// TODO: update in solr core
 	}
 	
 	/**
@@ -42,7 +38,9 @@ class Posts {
 		$this->reset_ignored( $post_id );
 		$this->reset_indexed( $post_id );
 		$this->reset_error( $post_id );
+		
 		// TODO: update post status to trash or delete it
+		
 		$this->plugin->get_solr()->deletePostIndex( array( $post ) );
 	}
 	
