@@ -1,8 +1,10 @@
 (function($, Solr){
 	
 	Solr.suggest = function(s){
-		$.get(Solr.endpoints.suggests+s).then(function(data){
-			console.log(data);
+		
+		return $.ajax({
+			url: Solr.endpoints.suggests+s,
+			method: "GET",
 		});
 	}
 	

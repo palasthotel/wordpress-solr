@@ -29,6 +29,7 @@ class Plugin {
 	const ACTION_SEARCH_RESULTS_ITEM = "solr_search_results_item";
 	const ACTION_SEARCH_SPELLCHECK = "solr_search_spellcheck";
 	const ACTION_SEARCH_PAGINATION = "solr_search_pagination";
+	const ACTION_AJAX_SUGGEST_RENDER = "solr_search_ajax_suggest_render";
 	
 	/**
 	 * plugin filters
