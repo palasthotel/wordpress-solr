@@ -43,11 +43,16 @@ class Ajax {
 	}
 	
 	/**
+	 * default json rendering
+	 *
 	 * @param \Solarium\Core\Query\Result\ $results
 	 */
 	function suggest_render($results){
 		$json = array();
 		foreach ($results as $document){
+			
+			// TODO: add all indexed fields
+			
 			$json[] = array(
 				"title " => $document->ts_title,
 				"id" => $document->item_id,
