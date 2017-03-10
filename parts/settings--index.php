@@ -2,8 +2,9 @@
 
 /**
  * @var  $this \SolrPlugin\Settings
- * @var \wpdb
+ * @var string $current
  */
+
 global $wpdb;
 $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 
@@ -19,11 +20,10 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 
 
 	if (isset($_GET['action'])) {
-		$solr = $this->plugin->get_solr();
 
 		switch($_GET['action']){
 			case 'update':
-				$result = $this->plugin->index_posts(300);
+				$result = $this->plugin->index_runner->index_posts(300);
 				foreach ($result->posts as $post) {
 					/**
 					 * @var WP_Post $post
@@ -33,12 +33,12 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 				echo '<p>Index updated '.count($result->posts).'</p>';
 				break;
 			case 'delete':
-				$solr->deleteIndex();
+				$this->plugin->solr_index->deleteAll();
 				$this->plugin->posts->reset_meta();
 				echo '<p>Index deleted</p>';
 				break;
 			case 'optimize':
-				$result = $solr->optimizeIndex();
+				$result = $this->plugin->solr_index->optimize();
 				echo '<p>Index optimized</p>';
 				break;
 			default:
@@ -53,13 +53,13 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 		<tr>
 			<th>Last index run</th>
 			<td>
-				<p><?php echo $this->plugin->get_latest_run(); ?></p>
+				<p><?php echo $this->plugin->index_runner->get_latest_run(); ?></p>
 			</td>
 		</tr>
 		<tr>
 			<th>Documents in Solr</th>
 			<td>
-				<p><?php echo $this->plugin->get_solr()->getNumberOfDocuments(); ?></p>
+				<p><?php echo $this->plugin->solr_index->size(); ?></p>
 				<p class="description">Number of documents in solr</p>
 			</td>
 		</tr>

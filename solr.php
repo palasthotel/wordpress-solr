@@ -13,7 +13,7 @@ namespace SolrPlugin;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
-  die;
+	die;
 }
 
 class Plugin {
@@ -27,6 +27,17 @@ class Plugin {
 	const ACTION_SEARCH_RESULTS_ITEM = "solr_search_results_item";
 	const ACTION_SEARCH_SPELLCHECK = "solr_search_spellcheck";
 	const ACTION_SEARCH_PAGINATION = "solr_search_pagination";
+	
+	/**
+	 * plugin filters
+	 */
+	const FILTER_SOLARIUM_PATH = "solr_solarium_path";
+	const FILTER_SOLR_SELECT = "solr_search_select";
+	const FILTER_SOLR_INDEX_FIELDS = "solr_add_fields_%type%";
+	const FILTER_SOLR_INDEX_FIELDS_PLACEHOLDER = "%type%";
+	const FILTER_SOLR_INDEX_FIELDS_POST = "solr_add_fields_post";
+	const FILTER_SOLR_INDEX_FIELDS_COMMENT = "solr_add_fields_comment";
+	const FILTER_SOLR_INDEX_IGNORE_POST = "solr_post_ignore";
 	
 	/**
 	 * shortcodes
@@ -81,74 +92,97 @@ class Plugin {
 	private $solr;
 	
 	/**
-	* construct grid plugin
-	*/
-	function __construct()
-	{
+	 * construct grid plugin
+	 */
+	function __construct() {
 		/**
 		 * base paths
 		 */
-		$this->dir = plugin_dir_path(__FILE__);
-		$this->url = plugin_dir_url(__FILE__);
+		$this->dir = plugin_dir_path( __FILE__ );
+		$this->url = plugin_dir_url( __FILE__ );
 		
 		/**
-		 * class for any needed endpoints
+		 * solarium singlelton
 		 */
-		require_once "inc/ajax-endpoint.php";
+		require_once 'inc/solarium.php';
+		
+		/**
+		 * solar index operations class
+		 */
+		require_once "inc/solr-index.php";
+		$this->solr_index = new SolrIndex( $this );
+		
+		/**
+		 * solar index runner class
+		 */
+		require_once "inc/index-runner.php";
+		$this->index_runner = new IndexRunner( $this );
+		
+		/**
+		 * solar search operations class
+		 */
+		require_once "inc/solr-search.php";
+		$this->solr_search = new SolrSearch( $this );
 		
 		/**
 		 * init config
 		 */
-		require_once('inc/config.inc');
-		$this->config = new Config($this);
+		require_once( 'inc/config.php' );
+		$this->config = new Config( $this );
 		
 		/**
 		 * request
 		 */
-		require_once ('classes/request.php');
-		$this->request = new Request($this);
+		require_once( 'inc/request.php' );
+		$this->request = new Request( $this );
 		
 		/**
 		 * render templates
 		 */
-		require_once ('inc/render.php');
-		$this->render = new Render($this);
+		require_once( 'inc/render.php' );
+		$this->render = new Render( $this );
 		
 		/**
-		* settings page
-		*/
-		require('inc/settings.inc');
-		$this->settings = new Settings($this);
-
+		 * settings page
+		 */
+		require( 'inc/settings.php' );
+		$this->settings = new Settings( $this );
+		
 		/**
 		 * post modifications and meta flags
 		 */
-		require('inc/posts.inc');
-		$this->posts = new Posts($this);
+		require( 'inc/posts.php' );
+		$this->posts = new Posts( $this );
+		
+		/**
+		 * class for any needed endpoints
+		 */
+		require_once "inc/ajax.php";
+		$this->ajax = new Ajax( $this );
 		
 		/**
 		 * overwrite frontend search
 		 */
-		require('inc/frontend-search.php');
-		$this->frontend_search = new FrontendSearch($this);
+		require( 'inc/frontend-search.php' );
+		$this->frontend_search = new FrontendSearch( $this );
 		
 		/**
 		 * schedule class
 		 */
-		require('inc/schedule.inc');
-		$this->schedule = new Schedule($this);
+		require( 'inc/schedule.php' );
+		$this->schedule = new Schedule( $this );
 		
 		/**
 		 * search page renderer
 		 */
-		require('inc/frontend-search-page.php');
-		$this->frontend_search_page = new FrontendSearchPage($this);
+		require( 'inc/frontend-search-page.php' );
+		$this->frontend_search_page = new FrontendSearchPage( $this );
 		
 		/**
 		 * activate and deactivate hook
 		 */
-		register_activation_hook(__FILE__, array($this,'on_activate') );
-		register_deactivation_hook(__FILE__, array($this,'on_deactivate') );
+		register_activation_hook( __FILE__, array( $this, 'on_activate' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'on_deactivate' ) );
 		
 	}
 	
@@ -156,138 +190,25 @@ class Plugin {
 	 * solr search is enabled on settings page
 	 * @return boolean
 	 */
-	function is_enabled(){
-		return $this->config->get_option(Plugin::OPTION_ENABLED);
-	}
-
-	/**
-	 * Get Solr object on demand
-	 * @return Solr
-	 */
-	public function get_solr(){
-		if ($this->solr == NULL) {
-			require_once 'classes/solr.php';
-			$this->solr = new Solr($this);
-		}
-		return $this->solr;
+	function is_enabled() {
+		return $this->config->get_option( Plugin::OPTION_ENABLED );
 	}
 	
 	/**
-	 * save latest run to options
-	 */
-	public function save_latest_run(){
-		update_option( self::OPTION_LAST_INDEX_RUN, date("Y-m-d h:i:s"));
-	}
-
-	/**
-	 * get last run
-	 * @return string
-	 */
-	public function get_latest_run(){
-		return get_option( self::OPTION_LAST_INDEX_RUN);
-	}
-
-	/**
-	 * update index by number of posts
-	 * @param int $number number of posts to be updated
-	 * @return boolean|object
-	 */
-	public function index_posts($number = 100){
-		/**
-		 * get modified
-		 */
-		$modified_posts = $this->posts->getModified($number);
-
-		/**
-		 * if there are no modified return
-		 */
-		if(count($modified_posts) < 1){
-			return (object) array("posts" => $modified_posts, "error" => false);
-		}
-
-		/**
-		 * check if goes through ignore filter
-		 */
-		$index_posts = array();
-		for($i = 0; $i < count($modified_posts); $i++){
-			$post = $modified_posts[$i];
-			// function in config
-			$post_ignored = false;
-			$post_ignored = apply_filters('solr_post_ignore',$post_ignored,$post);
-			/**
-			 * if not ignored ad to
-			 */
-			if (!$post_ignored)
-			{
-				$index_posts[] = $post;
-			} else {
-				$this->posts->set_ignored($post->ID);
-			}
-		}
-
-		/**
-		 * if no posts left after filter rerun method
-		 */
-		if(count($index_posts) < 1){
-			return $this->index_posts($number);
-		}
-
-		/**
-		 * update index with a number of posts because that's faster
-		 * @var  \Solarium\QueryType\Update\Result $result
-		 */
-		try{
-			$result = $this->get_solr()->updatePostIndex($index_posts);
-		} catch (\Solarium\Exception\HTTPException $e) {
-			/**
-			 * on error try every single one and log error
-			 */
-			for($i = 0; $i < count($index_posts); $i++) {
-				$post = $index_posts[$i];
-				$this->posts->set_error($post->ID);
-			}
-	    }
-
-		$verify = $this->_verify_result($result, $index_posts);
-		if(!$verify->error){
-			$this->save_latest_run();
-		}
-		return $verify;
-		
-	}
-
-	/**
-	 * return result of indexing
-	 * @param  \Solarium\QueryType\Update\Result $result
-	 * @param  array $posts
-	 * @return object $result
-	 */
-	private function _verify_result($result, $posts){
-		/**
-		 * Success response is 0
-		 * http://solarium.readthedocs.org/en/stable/queries/update-query/the-result-of-an-update-query/
-		 */
-		if(is_object($result) && !empty($result) && $result->getStatus() === 0){
-			foreach ($posts as $counter => $post) {
-				/* @var $post \WP_Post */
-				$this->posts->set_indexed($post->ID);
-			}
-			return (object) array("posts" => $posts, "result" => $result, "error" => false);
-		}
-		return (object)array("error" => true);
-	}
-
-	/**
 	 * on activation
 	 */
-	function on_activate(){
+	function on_activate() {
+		$this->ajax->add_endpoints();
 		$this->schedule->register();
+		flush_rewrite_rules();
 	}
+	
 	/**
 	 * on deactivation
 	 */
-	function on_deactivate(){
+	function on_deactivate() {
 		$this->schedule->unregister_all();
+		flush_rewrite_rules();
 	}
 }
 

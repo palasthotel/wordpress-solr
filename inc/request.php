@@ -102,10 +102,9 @@ class Request {
 		) {
 			try {
 				if ( $args != NULL ) {
-					$this->search_results = $this->plugin->get_solr()->search( $args );
+					$this->search_results = $this->plugin->solr_search->execute( $args );
 				} else {
-					$this->search_results = $this->plugin->get_solr()
-					                                     ->search( $this->get_search_args() );
+					$this->search_results = $this->plugin->solr_search->execute( $this->get_search_args() );
 				}
 				$this->search_error = FALSE;
 			} catch ( \Solarium\Exception\HttpException $e ) {

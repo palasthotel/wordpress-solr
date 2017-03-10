@@ -32,6 +32,8 @@ class FrontendSearchPage {
 		 */
 		add_filter( 'template_include', array( $this, 'search_template' ), 99 );
 		
+		// TODO: set page title (right now its "not found")
+		
 	}
 	
 	/**

@@ -4,7 +4,7 @@ namespace SolrPlugin;
 
 use Solarium\QueryType\Select\Query\Query;
 
-class Suggester {
+class Suggest {
 	/**
 	 * Suggester constructor.
 	 *
