@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: edward
- * Date: 10.03.17
- * Time: 13:20
- */
 
 namespace SolrPlugin;
 
@@ -32,7 +26,5 @@ class Api {
 				"suggests" => home_url($this->plugin->ajax->suggests->getURL()),
 			),
 		) );
-		
-		wp_enqueue_script(Plugin::HANDLE_JS_API);
 	}
 }
