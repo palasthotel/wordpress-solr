@@ -41,7 +41,7 @@ class Posts {
 		
 		// TODO: update post status to trash or delete it
 		
-		$this->plugin->get_solr()->deletePostIndex( array( $post ) );
+		$this->plugin->solr_index->deletePost( array( $post ) );
 	}
 	
 	/**
