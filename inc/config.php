@@ -10,11 +10,11 @@ class Config {
 	 *
 	 * @param Plugin $plugin
 	 */
-	public function __construct(  $plugin ) {
+	public function __construct( $plugin ) {
 		$this->plugin   = $plugin;
 		$this->defaults = array(
 			Plugin::OPTION_ENABLED            => FALSE,
-			Plugin::OPTION_HOST                  => '127.0.0.1',
+			Plugin::OPTION_HOST               => '127.0.0.1',
 			Plugin::OPTION_PORT               => '8983',
 			Plugin::OPTION_PATH               => '/solr/',
 			Plugin::OPTION_DOCUMENTS_PER_CALL => 30,
@@ -80,7 +80,7 @@ class Config {
 				'tm_author'    => 1.0,
 				'content'      => 3.0,
 				'sm_category'  => 2.0,
-				'sm_tag'        =>   2.0,
+				'sm_tag'       => 2.0,
 			),
 			// list of fields to return
 			'result_fields'          => array(
@@ -128,10 +128,10 @@ class Config {
 					'field' => 'sm_category',
 					'title' => 'Category',
 				),
-				'tm_author' => array(
+				'tm_author'    => array(
 					'field' => 'tm_author',
 					'title' => 'Author',
-				)
+				),
 			),
 		);
 		
@@ -148,6 +148,7 @@ class Config {
 		 * apply filter for complete config and return it
 		 */
 		$config = apply_filters( 'solr_config', $config );
+		
 		return $config;
 	}
 }

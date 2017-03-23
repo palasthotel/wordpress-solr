@@ -43,7 +43,7 @@ class FrontendSearchPage {
 	 */
 	function search_template( $template ) {
 		
-		if ( $this->plugin->request->is_search() ) {
+		if ( $this->plugin->is_enabled() && $this->plugin->request->is_search() ) {
 			/**
 			 * return solr plugin search template
 			 */

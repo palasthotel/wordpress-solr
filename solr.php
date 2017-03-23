@@ -85,16 +85,6 @@ class Plugin {
 	const POST_META_ERROR = "solr_error";
 	
 	/**
-	 * @var Config $config
-	 */
-	public $config;
-	
-	/**
-	 * @var Solr $solr
-	 */
-	private $solr;
-	
-	/**
 	 * construct grid plugin
 	 */
 	function __construct() {
