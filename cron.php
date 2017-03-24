@@ -59,24 +59,27 @@ do{
 	$output = ob_get_contents();
 	ob_end_clean();
 	
-	write_log($output);
-	
+	ob_start();
+	var_dump($results);
+	$output = ob_get_contents();
+	ob_end_clean();
 	
 	
 	if($results->error === true){
+		
+		write_log($output);
+		
 		print " >>> Error while indexing >>> HAVE A LOOK IN LOG\n";
 		write_log(" >>> Error while indexing >>> ");
 		
-		ob_start();
-		var_dump($results);
-		$output = ob_get_contents();
-		ob_end_clean();
+		
 		
 		write_log($output);
 		
 		$error++;
 		continue;
 	}
+	
 	$error = 0;
 	if(count($results->posts)< 1){
 		break;

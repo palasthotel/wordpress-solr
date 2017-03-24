@@ -73,8 +73,6 @@ class IndexRunner {
 			return $this->index_posts( $number );
 		}
 		
-//		var_dump(array("found modified posts",count($index_posts)));
-		
 		/**
 		 * update index with a number of posts because that's faster
 		 * @var  \Solarium\QueryType\Update\Result $result
@@ -82,10 +80,7 @@ class IndexRunner {
 		try {
 			$result = $this->plugin->solr_index->updatePost( $index_posts );
 		} catch ( \Solarium\Exception\HTTPException $e ) {
-			ob_start();
 			var_dump($e);
-			$output = ob_get_contents();
-			ob_end_clean();
 			
 			/**
 			 * on error try every single one and log error
