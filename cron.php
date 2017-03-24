@@ -30,7 +30,7 @@ function write_log($content){
 	
 }
 
-write_log("Start ---->  ".date("Y.m.d H:i"));
+//write_log("Start ---->  ".date("Y.m.d H:i"));
 
 /**
  * do the cron stuff
@@ -45,36 +45,18 @@ $number = $solr_plugin->config->get_option(\SolrPlugin\Plugin::OPTION_DOCUMENTS_
 do{
 	if($error > 5){
 		print "Too many errors: ".$error."\n";
-		write_log("Too many errors: ".$error);
 		break;
 	}
-	
-	write_log("Index {$number} next Posts.");
 	
 	/**
 	 * index posts to solr
 	 */
-	ob_start();
 	$results = $solr_plugin->index_runner->index_posts($number);
-	$output = ob_get_contents();
-	ob_end_clean();
-	
-	ob_start();
-	var_dump($results);
-	$output = ob_get_contents();
-	ob_end_clean();
 	
 	
 	if($results->error === true){
 		
-		write_log($output);
-		
-		print " >>> Error while indexing >>> HAVE A LOOK IN LOG\n";
-		write_log(" >>> Error while indexing >>> ");
-		
-		
-		
-		write_log($output);
+		print " >>> Error while indexing >>>\n";
 		
 		$error++;
 		continue;
