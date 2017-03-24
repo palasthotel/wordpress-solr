@@ -23,8 +23,8 @@ class Api {
 		
 		wp_localize_script( Plugin::HANDLE_JS_API, 'Solr', array(
 			"endpoints" => array(
-				"suggests" => home_url($this->plugin->ajax->suggests->getURL()),
-				"autocomplete" => "coming soon...",
+				"suggest" => home_url($this->plugin->ajax->suggests->getURL()),
+				"search" => home_url($this->plugin->ajax->search->getURL()),
 			),
 		) );
 	}

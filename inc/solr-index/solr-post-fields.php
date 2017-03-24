@@ -44,7 +44,10 @@ class SolrPostFields {
 		$author_ids = array($post->post_author);
 		$author_ids = apply_filters('solr_index_update_author_ids', $author_ids, $post->ID);
 		foreach ($author_ids as $author_id){
-			$document->addField('tm_author', get_user_by('id', $author_id)->display_name);
+			$author = get_user_by('id', $author_id);
+			if($author instanceof \WP_User){
+				$document->addField('tm_author', $author->display_name);
+			}
 		}
 		
 		$document->content = $update->getHelper()->filterControlCharacters(strip_tags($post->post_content));

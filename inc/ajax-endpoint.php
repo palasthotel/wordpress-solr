@@ -82,7 +82,7 @@ class Ajax_Endpoint {
 	public function add_endpoint() {
 		add_rewrite_rule(
 			'^' . self::AJAX_PREFIX . '/' . Plugin::DOMAIN . '/([^/]+)(?:/([^/]+))?/?',
-			'index.php?' . self::AJAX_PREFIX . '=' . self::AJAX_VALUE . '&'.self::VAR_DOMAIN.'='.Plugin::DOMAIN.'&' . self::ACTION() . '=$matches[1]&' . self::PARAM() . '=$matches[2]', 'top'
+			'index.php?' . self::AJAX_PREFIX . '=' . self::AJAX_VALUE . '&' . self::VAR_DOMAIN . '=' . Plugin::DOMAIN . '&' . self::ACTION() . '=$matches[1]&' . self::PARAM() . '=$matches[2]', 'top'
 		);
 	}
 	
@@ -94,7 +94,8 @@ class Ajax_Endpoint {
 	public function sniff_requests() {
 		global $wp;
 		if ( isset( $wp->query_vars[ self::AJAX_PREFIX ] ) && $wp->query_vars[ self::AJAX_PREFIX ] == self::AJAX_VALUE
-		     && isset( $wp->query_vars[ self::VAR_DOMAIN ]) && $wp->query_vars[self::VAR_DOMAIN] == Plugin::DOMAIN ) {
+		     && isset( $wp->query_vars[ self::VAR_DOMAIN ] ) && $wp->query_vars[ self::VAR_DOMAIN ] == Plugin::DOMAIN
+		) {
 			$this->handle_request();
 			exit;
 		}
@@ -109,8 +110,8 @@ class Ajax_Endpoint {
 		global $wp;
 		
 		// $param Equals empty string if not set.
-		$action = (empty($wp->query_vars[ self::ACTION() ]))? "": $wp->query_vars[ self::ACTION() ];
-		$param = (empty($wp->query_vars[ self::PARAM() ]))? "": $wp->query_vars[ self::PARAM() ];
+		$action = ( empty( $wp->query_vars[ self::ACTION() ] ) ) ? "" : $wp->query_vars[ self::ACTION() ];
+		$param  = ( empty( $wp->query_vars[ self::PARAM() ] ) ) ? "" : $wp->query_vars[ self::PARAM() ];
 		
 		if ( ! empty( $action ) && $action === $this->request_key && is_callable( $this->callback_function ) ) {
 			call_user_func( $this->callback_function, $param );

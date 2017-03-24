@@ -22,7 +22,7 @@ $solr_plugin = solr_get_plugin();
 $i = 0;
 $indexed = 0;
 $error = 0;
-$number = $solr_plugin->get_config()->get_option(\SolrPlugin\Plugin::OPTION_DOCUMENTS_PER_CALL);
+$number = $solr_plugin->config->get_option(\SolrPlugin\Plugin::OPTION_DOCUMENTS_PER_CALL);
 do{
 	if($error > 5){
 		print "Too many errors: ".$error."\n";
