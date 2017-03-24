@@ -46,7 +46,7 @@ class SolrPostFields {
 		foreach ($author_ids as $author_id){
 			$author = get_user_by('id', $author_id);
 			if($author instanceof \WP_User){
-				$document->addField('tm_author', $author->display_name);
+				$document->addField('sm_author', $author->display_name);
 			}
 		}
 		

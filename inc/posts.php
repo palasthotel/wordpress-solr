@@ -12,7 +12,7 @@ class Posts {
 	public function __construct( $plugin ) {
 		$this->plugin = $plugin;
 		
-		add_action( 'save_post', array( $this, 'save_post' ) );
+		add_action( 'save_post', array( $this, 'save_post' ), 99, 2 );
 		add_action( 'delete_post', array( $this, 'delete_post' ) );
 		add_action( 'wp_trash_post', array( $this, 'delete_post' ) );
 	}
@@ -20,14 +20,15 @@ class Posts {
 	/**
 	 * delete indexes on changing
 	 *
-	 * @param $post_id
+	 * @param int $post_id
+	 * @param \WP_Post $post
 	 */
-	public function save_post( $post_id ) {
+	public function save_post( $post_id, $post ) {
 		$this->reset_indexed( $post_id );
 		$this->reset_ignored( $post_id );
 		$this->reset_error( $post_id );
 		
-		// TODO: update in solr core
+		$this->plugin->solr_index->updatePost(array($post));
 	}
 	
 	/**
@@ -121,7 +122,7 @@ class Posts {
 	public function getModified( $number ) {
 		return get_posts(array(
 			'post_type'           => 'any',
-			'post_status'         => array( 'publish', 'draft', 'trash' ),
+			'post_status'         => array( 'publish' ),
 			'orderby'             => array( 'modified', 'date', 'ID' ),
 			'order'               => 'DESC',
 			'posts_per_page'      => $number,

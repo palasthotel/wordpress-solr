@@ -41,6 +41,7 @@ class Ajax {
 		$query = $solarium->createSuggester();
 		$query->setQuery( urldecode( $param ) );
 		
+		
 		/**
 		 *
 		 * @var \Solarium\QueryType\Suggester\Result\Result $results

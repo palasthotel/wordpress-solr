@@ -26,7 +26,8 @@ class SolrCommentFields {
 	public function add_comment_fields( \Solarium\QueryType\Update\Query\Document\DocumentInterface $document,  \WP_Comment $comment, \Solarium\QueryType\Update\Query\Query $update) {
 		
 		$document->content = $update->getHelper()->filterControlCharacters($comment['comment_content']);
-		$document->ts_author = $comment['comment_author'];
+		
+		$document->sm_author = array($comment['comment_author']);
 		$document->ds_published = date('Y-m-d\TH:i:s\Z', strtotime($comment['comment_date_gmt']));
 		$document->ss_type = 'comment';
 		

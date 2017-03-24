@@ -23,7 +23,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 
 		switch($_GET['action']){
 			case 'update':
-				$result = $this->plugin->index_runner->index_posts(300);
+				$result = $this->plugin->index_runner->index_posts($this->plugin->config->get_option(\SolrPlugin\Plugin::OPTION_DOCUMENTS_PER_CALL));
 				foreach ($result->posts as $post) {
 					/**
 					 * @var WP_Post $post
@@ -35,6 +35,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 			case 'delete':
 				$this->plugin->solr_index->deleteAll();
 				$this->plugin->posts->reset_meta();
+				$this->plugin->solr_index->optimize();
 				echo '<p>Index deleted</p>';
 				break;
 			case 'optimize':

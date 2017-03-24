@@ -14,6 +14,24 @@ while( 0 != ob_get_level() ) {
 	ob_end_clean();
 }
 
+
+/**
+ * write logs
+ * @param $content
+ */
+function write_log($content){
+	
+	$dir = wp_upload_dir();
+	$log = $dir["basedir"] . "/solr-log.txt";
+	
+	$file = fopen( $log, 'a' );
+	fwrite( $file, $content."\n\n" );
+	fclose( $file );
+	
+}
+
+write_log("Start ---->  ".date("Y.m.d H:i"));
+
 /**
  * do the cron stuff
  * @var SolrPlugin\Plugin $solr_plugin
@@ -23,18 +41,39 @@ $i = 0;
 $indexed = 0;
 $error = 0;
 $number = $solr_plugin->config->get_option(\SolrPlugin\Plugin::OPTION_DOCUMENTS_PER_CALL);
+
 do{
 	if($error > 5){
 		print "Too many errors: ".$error."\n";
+		write_log("Too many errors: ".$error);
 		break;
 	}
+	
+	write_log("Index {$number} next Posts.");
+	
 	/**
 	 * index posts to solr
 	 */
-	$results = $solr_plugin->index_posts($number);
+	ob_start();
+	$results = $solr_plugin->index_runner->index_posts($number);
+	$output = ob_get_contents();
+	ob_end_clean();
+	
+	write_log($output);
+	
+	
+	
 	if($results->error === true){
-		print "Error while indexing: \n";
+		print " >>> Error while indexing >>> HAVE A LOOK IN LOG\n";
+		write_log(" >>> Error while indexing >>> ");
+		
+		ob_start();
 		var_dump($results);
+		$output = ob_get_contents();
+		ob_end_clean();
+		
+		write_log($output);
+		
 		$error++;
 		continue;
 	}

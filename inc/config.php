@@ -74,21 +74,23 @@ class Config {
 				'recip(abs(ms(NOW,ds_published)),3.16e-11,1,1)^5',
 			),
 			// list of fields to search and their corresponding weight
-			'search_fields'          => array(
-				'ts_title'     => 4.0,
-				'ds_published' => 0.5,
-				'tm_author'    => 1.0,
-				'content'      => 3.0,
-				'sm_category'  => 2.0,
-				'sm_tag'       => 2.0,
+			'search_fields' => array(
+				'default_search_field' => 2.0,
+				'ts_title'             => 4.0,
+				'ds_published'         => 0.5,
+				'sm_author'            => 1.0,
+				'content'              => 3.0,
+				'sm_category'          => 2.0,
+				'sm_tag'               => 2.0,
 			),
 			// list of fields to return
-			'result_fields'          => array(
+			'result_fields' => array(
 				'id',
+				'default_search_field',
 				'item_id',
 				'ts_title',
 				'ds_published',
-				'tm_author',
+				'sm_author',
 				'ss_type',
 				'content',
 				'url',
@@ -128,8 +130,8 @@ class Config {
 					'field' => 'sm_category',
 					'title' => 'Category',
 				),
-				'tm_author'    => array(
-					'field' => 'tm_author',
+				'sm_author'    => array(
+					'field' => 'sm_author',
 					'title' => 'Author',
 				),
 			),

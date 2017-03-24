@@ -98,24 +98,24 @@ class Plugin {
 		/**
 		 * solarium singlelton
 		 */
-		require_once 'inc/solarium.php';
+		require_once dirname(__FILE__).'/inc/solarium.php';
 		
 		/**
 		 * solar index operations class
 		 */
-		require_once "inc/solr-index.php";
+		require_once dirname(__FILE__)."/inc/solr-index.php";
 		$this->solr_index = new SolrIndex( $this );
 		
 		/**
 		 * solar index runner class
 		 */
-		require_once "inc/index-runner.php";
+		require_once dirname(__FILE__)."/inc/index-runner.php";
 		$this->index_runner = new IndexRunner( $this );
 		
 		/**
 		 * solar search operations class
 		 */
-		require_once "inc/solr-search.php";
+		require_once dirname(__FILE__)."/inc/solr-search.php";
 		$this->solr_search = new SolrSearch( $this );
 		
 		/**
@@ -139,43 +139,43 @@ class Plugin {
 		/**
 		 * settings page
 		 */
-		require( 'inc/settings.php' );
+		require_once dirname(__FILE__) .'/inc/settings.php' ;
 		$this->settings = new Settings( $this );
 		
 		/**
 		 * post modifications and meta flags
 		 */
-		require( 'inc/posts.php' );
+		require_once dirname(__FILE__) .'/inc/posts.php' ;
 		$this->posts = new Posts( $this );
 		
 		/**
 		 * class for any needed endpoints
 		 */
-		require_once "inc/ajax.php";
+		require_once dirname(__FILE__)."/inc/ajax.php";
 		$this->ajax = new Ajax( $this );
 		
 		/**
 		 * overwrite frontend search
 		 */
-		require( 'inc/frontend-search.php' );
+		require_once dirname(__FILE__) .'/inc/frontend-search.php' ;
 		$this->frontend_search = new FrontendSearch( $this );
 		
 		/**
 		 * API
 		 */
-		require( 'inc/api.php' );
+		require_once dirname(__FILE__) .'/inc/api.php' ;
 		$this->api = new Api( $this );
 		
 		/**
 		 * schedule class
 		 */
-		require( 'inc/schedule.php' );
+		require_once dirname(__FILE__) .'/inc/schedule.php' ;
 		$this->schedule = new Schedule( $this );
 		
 		/**
 		 * search page renderer
 		 */
-		require( 'inc/frontend-search-page.php' );
+		require_once dirname(__FILE__). '/inc/frontend-search-page.php';
 		$this->frontend_search_page = new FrontendSearchPage( $this );
 		
 		/**
@@ -221,5 +221,5 @@ $solr_plugin = new Plugin();
 /**
  * all public functions
  */
-require_once "public-functions.php";
+require_once dirname(__FILE__)."/public-functions.php";
 
