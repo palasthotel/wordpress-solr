@@ -31,9 +31,12 @@ class FrontendSearchPage {
 		 * intercept template suggestion
 		 */
 		add_filter( 'template_include', array( $this, 'search_template' ), 99 );
-		
-		// TODO: set page title (right now its "not found")
-		
+
+		/**
+		 * change page title
+		 */
+		add_filter( 'wpseo_title', array( $this, 'title' ) );
+
 	}
 	
 	/**
@@ -54,6 +57,21 @@ class FrontendSearchPage {
 		 * return WordPress default template
 		 */
 		return $template;
+	}
+
+	/**
+	 * @param $title
+	 *
+	 * @return string
+	 */
+	function title( $title ) {
+		if ( $this->plugin->request->is_search() ) {
+			$s = $this->plugin->request->get_search_args()[ Request::VAR_QUERY ];
+
+			return apply_filters( Plugin::FILTER_SEARCH_PAGE_TITLE, __( "Search: ", Plugin::DOMAIN ) . " {$s}", $s );
+		}
+
+		return $title;
 	}
 	
 }

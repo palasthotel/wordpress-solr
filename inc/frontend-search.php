@@ -4,7 +4,7 @@ namespace SolrPlugin;
 
 
 class FrontendSearch {
-	
+
 	/**
 	 * FrontendSearch constructor.
 	 *
@@ -12,32 +12,17 @@ class FrontendSearch {
 	 */
 	function __construct( Plugin $plugin ) {
 		$this->plugin = $plugin;
-		
+
 		if ( $this->plugin->is_enabled() ) {
 			/**
 			 * if enabled overwrite default search
 			 * and do the search if needed
 			 */
-			add_filter( 'wp_title', array($this, 'title') );
-			add_filter( 'wpseo_title', array($this, 'title') );
 			add_action( 'init', array( $this, 'do_search' ) );
 			add_filter( 'posts_request', array( $this, 'disable_search_query' ), 10, 2 );
 		}
 	}
-	
-	/**
-	 * @param $title
-	 *
-	 * @return string
-	 */
-	function title( $title ) {
-		if ( $this->plugin->request->is_search() ) {
-			$title = "test";
-		}
-		
-		return $title;
-	}
-	
+
 	/**
 	 * do the search in init action
 	 */
@@ -46,9 +31,9 @@ class FrontendSearch {
 			$this->plugin->request->get_search_results();
 			wp_title( 'geiles zeug' );
 		}
-		
+
 	}
-	
+
 	/**
 	 * disable_search_query
 	 *
@@ -65,11 +50,11 @@ class FrontendSearch {
 		     $this->plugin->request->is_search() &&
 		     ! is_admin()
 		) {
-			return FALSE;
+			return false;
 		}
-		
+
 		return $request;
 	}
-	
-	
+
+
 }

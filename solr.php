@@ -35,6 +35,7 @@ class Plugin {
 	/**
 	 * plugin filters
 	 */
+	const FILTER_SEARCH_PAGE_TITLE = "solr_search_page_title";
 	const FILTER_SOLARIUM_PATH = "solr_solarium_path";
 	const FILTER_SOLR_SELECT = "solr_search_select";
 	const FILTER_SOLR_INDEX_FIELDS = "solr_add_fields_%type%";
