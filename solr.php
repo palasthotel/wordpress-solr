@@ -85,6 +85,16 @@ class Plugin {
 	const POST_META_INDEXED = "solr_indexed";
 	const POST_META_IGNORED = "solr_ignored";
 	const POST_META_ERROR = "solr_error";
+
+	/**
+	 * singleton
+	 * @return Plugin
+	 */
+	private static $instance = null;
+	static function instance(){
+		if(self::$instance == null)	self::$instance = new Plugin();
+		return self::$instance;
+	}
 	
 	/**
 	 * construct grid plugin
@@ -213,14 +223,9 @@ class Plugin {
 	}
 }
 
-/**
- * make it global
- */
-global $solr_plugin;
-$solr_plugin = new Plugin();
+// lets get it started
+Plugin::instance();
 
-/**
- * all public functions
- */
+// public API
 require_once dirname(__FILE__)."/public-functions.php";
 

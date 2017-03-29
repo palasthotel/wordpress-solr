@@ -19,7 +19,7 @@ $query = (!empty($solr_search_args['s']))? $solr_search_args['s']: "";
 	</div>
 
 	<?php
-if ($solr_search_results) {
+if ($solr_search_results != null) {
 	?>
 	<div class="advanced-search-settings">
 		<?php

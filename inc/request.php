@@ -57,7 +57,10 @@ class Request {
 			/**
 			 * wild guess paged variable
 			 */
-			if ( isset( $_GET[self::VAR_PAGED ] ) ) {
+			if(get_query_var( 'paged' ) != '') {
+				// WordPress core
+				$this->search_args[ self::VAR_PAGED ] = get_query_var('paged');
+			} else if ( isset( $_GET[self::VAR_PAGED ] ) ) {
 				$this->search_args[ self::VAR_PAGED ] = (int) $_GET[self::VAR_PAGED ];
 			} else {
 				global $paged;
@@ -78,7 +81,6 @@ class Request {
 			/**
 			 * get facets
 			 */
-			// TODO: use facets like in backend
 			$facet_args = array();
 			foreach ( $_GET as $key => $value ) {
 				if ( strpos( $key, 'facet-' ) === 0 ) {

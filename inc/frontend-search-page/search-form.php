@@ -54,11 +54,12 @@ class SearchForm {
 		
 		
 		ob_start();
-		
-		$solr_search_results = $this->plugin->request->get_search_results();
-		$solr_search_args = $this->plugin->request->get_search_args();
-		$e = $this->plugin->request->search_error_object;
-		
+
+		if($this->plugin->request->is_search()){
+			$solr_search_results = $this->plugin->request->get_search_results();
+			$solr_search_args = $this->plugin->request->get_search_args();
+			$e = $this->plugin->request->search_error_object;
+		}
 
 		include $this->plugin->render->get_template_path(Plugin::TEMPLATE_FORM);
 		

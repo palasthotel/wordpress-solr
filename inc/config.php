@@ -67,7 +67,7 @@ class Config {
 			// enable spellchecker
 			'spellcheck'             => TRUE,
 			// maximum number of search results
-			'query_limit'            => 15,
+			'query_limit'            => get_site_option('posts_per_page', 15),
 			// list of additional boost functions
 			'boost_functions'        => array(
 				// magic...

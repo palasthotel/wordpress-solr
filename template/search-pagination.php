@@ -10,8 +10,7 @@ $solr_search_results = $plugin->request->get_search_results();
 
 
 if($solr_search_results != null){
-	// TODO: per page ist falsch, weil die letzte seite ärger macht
-	$per_page = count($solr_search_results);
+	$per_page = $plugin->config->get_solr_config()["query_limit"];
 	$pages = 1;
 	if($per_page > 0) $pages = ceil($solr_search_results->getNumFound()/$per_page);
 	
