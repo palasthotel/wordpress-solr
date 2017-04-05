@@ -3,6 +3,8 @@
 namespace SolrPlugin;
 
 
+use Solarium\Exception\HttpException;
+
 class SolrIndex {
 	
 	/**
