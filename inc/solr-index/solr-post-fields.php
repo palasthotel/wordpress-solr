@@ -49,8 +49,10 @@ class SolrPostFields {
 				$document->addField('sm_author', $author->display_name);
 			}
 		}
-		
-		$document->content = $update->getHelper()->filterControlCharacters(strip_tags($post->post_content));
+
+		$content = apply_filters('the_content', $post->post_content);
+
+		$document->content = $update->getHelper()->filterControlCharacters($content);
 		$document->url = $post->guid;
 		
 		// set categories
