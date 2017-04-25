@@ -3,6 +3,8 @@
 namespace SolrPlugin;
 
 
+use Solarium\Exception\HttpException;
+
 class SolrIndex {
 	
 	/**
@@ -137,15 +139,22 @@ class SolrIndex {
 	 * @throws \Solarium\Exception\HTTPException
 	 */
 	private function doUpdate( \Solarium\QueryType\Update\Query\Query $update ) {
-		/**
-		 * commit the update
-		 */
-		$update->addCommit();
-		
-		/**
-		 * execute the update or throw exception if it fails
-		 */
-		return $this->client()->update( $update );
+        try {
+            /**
+             * commit the update
+             */
+            $update->addCommit();
+
+            /**
+             * execute the update or throw exception if it fails
+             */
+            return $this->client()->update( $update );
+
+        } catch( HttpException $e) {
+            if(defined('SOLR_DEBUG')) {
+                throw $e;
+            }
+        }
 	}
 	
 	/**

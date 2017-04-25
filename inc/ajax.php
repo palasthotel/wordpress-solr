@@ -76,8 +76,10 @@ class Ajax {
 			
 			$items = array();
 			foreach ( $termResults as $termResult ) {
-				$items[]   = $termResult;
-				$suggest[] = $termResult;
+			    if(!in_array($termResult, $suggest)) {
+                    $suggest[] = $termResult;
+                }
+                $items[]   = $termResult;
 			}
 			$terms[ $term ] = $items;
 		}

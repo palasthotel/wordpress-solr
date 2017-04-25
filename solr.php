@@ -132,19 +132,19 @@ class Plugin {
 		/**
 		 * init config
 		 */
-		require_once( 'inc/config.php' );
+		require_once( dirname(__FILE__).'/inc/config.php' );
 		$this->config = new Config( $this );
 		
 		/**
 		 * request
 		 */
-		require_once( 'inc/request.php' );
+		require_once( dirname(__FILE__).'/inc/request.php' );
 		$this->request = new Request( $this );
 		
 		/**
 		 * render templates
 		 */
-		require_once( 'inc/render.php' );
+		require_once( dirname(__FILE__).'/inc/render.php' );
 		$this->render = new Render( $this );
 		
 		/**
