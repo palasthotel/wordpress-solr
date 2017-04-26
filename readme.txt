@@ -2,8 +2,8 @@
 Contributors: edwardbock katharinarompf
 Tags: search, solr
 Requires at least: 4.0
-Tested up to: 4.4.2
-Stable tag: 0.4.0
+Tested up to: 4.7.4
+Stable tag: 0.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ Create a 'solr' folder in your theme to overwrite templates. You can copy the te
 
 
 == Changelog ==
+
+= 0.4.1 =
+* the_content needs global $post context fix
 
 = 0.3.3 =
 * added scheduled events for indexing
