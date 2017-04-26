@@ -50,9 +50,11 @@ class SolrPostFields {
 			}
 		}
 
-		$content = apply_filters('the_content', $post->post_content);
-
+		$content = strip_tags(apply_filters('the_content', $post->post_content));
 		$document->content = $update->getHelper()->filterControlCharacters($content);
+
+//		$document->content = $update->getHelper()->filterControlCharacters(strip_tags($post->post_content));
+
 		$document->url = $post->guid;
 		
 		// set categories

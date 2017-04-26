@@ -54,7 +54,9 @@ class IndexRunner {
 		 */
 		$index_posts = array();
 		for ( $i = 0; $i < count( $modified_posts ); $i ++ ) {
+			global $post;
 			$post = $modified_posts[ $i ];
+			setup_postdata($post);
 			
 			/**
 			 * if not ignored ad to
@@ -65,6 +67,9 @@ class IndexRunner {
 				$this->plugin->posts->set_ignored( $post->ID );
 			}
 		}
+
+		// reset global post
+		wp_reset_postdata();
 		
 		/**
 		 * if no posts left after filter rerun method
