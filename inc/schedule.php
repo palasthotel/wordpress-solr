@@ -54,13 +54,13 @@ class Schedule {
 	 */
 	function update_index(){
 		$number = $this->plugin->config->get_option(Plugin::OPTION_DOCUMENTS_PER_CALL);
-		$this->plugin->index_posts($number);
+		$this->plugin->index_runner->index_posts($number);
 	}
 
 	/**
 	 * do the index optimization
 	 */
 	function optimize_index(){
-		$this->plugin->get_solr()->optimizeIndex();
+		$this->plugin->solr_index->optimize();
 	}
 }
