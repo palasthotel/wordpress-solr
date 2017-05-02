@@ -23,7 +23,6 @@ namespace SolrPlugin;
 class Ajax_Endpoint {
 	
 	const AJAX_PREFIX = "__ajax";
-	const AJAX_VALUE = "1";
 	const VAR_DOMAIN = "ajax-domain";
 	const VAR_ACTION_PREFIX = "ajax-action-";
 	const VAR_PARAM_PREFIX = "ajax-param-";
@@ -52,9 +51,9 @@ class Ajax_Endpoint {
 	public function __construct( $request_key, callable $callback_function ) {
 		$this->request_key       = $request_key;
 		$this->callback_function = $callback_function;
-		
+
 		add_filter( 'query_vars', array( $this, 'add_query_vars' ), 0 );
-		add_action( 'parse_request', array( $this, 'sniff_requests' ), 0 );
+		add_action( 'parse_request', array( $this, 'sniff_requests' ), 0);
 		add_action( 'init', array( $this, 'add_endpoint' ), 0 );
 	}
 	
@@ -81,8 +80,8 @@ class Ajax_Endpoint {
 	 */
 	public function add_endpoint() {
 		add_rewrite_rule(
-			'^' . self::AJAX_PREFIX . '/' . Plugin::DOMAIN . '/([^/]+)(?:/([^/]+))?/?',
-			'index.php?' . self::AJAX_PREFIX . '=' . self::AJAX_VALUE . '&' . self::VAR_DOMAIN . '=' . Plugin::DOMAIN . '&' . self::ACTION() . '=$matches[1]&' . self::PARAM() . '=$matches[2]', 'top'
+			'^' . self::AJAX_PREFIX . '/' . Plugin::DOMAIN . '/'.$this->request_key.'(?:/([^/]+))?/?',
+			'index.php?' . self::AJAX_PREFIX . '=' . $this->request_key . '&' . self::VAR_DOMAIN . '=' . Plugin::DOMAIN . '&' . self::ACTION() . '='.$this->request_key.'&' . self::PARAM() . '=$matches[1]', 'top'
 		);
 	}
 	
@@ -93,7 +92,7 @@ class Ajax_Endpoint {
 	 */
 	public function sniff_requests() {
 		global $wp;
-		if ( isset( $wp->query_vars[ self::AJAX_PREFIX ] ) && $wp->query_vars[ self::AJAX_PREFIX ] == self::AJAX_VALUE
+		if ( isset( $wp->query_vars[ self::AJAX_PREFIX ] ) && $wp->query_vars[ self::AJAX_PREFIX ] == $this->request_key
 		     && isset( $wp->query_vars[ self::VAR_DOMAIN ] ) && $wp->query_vars[ self::VAR_DOMAIN ] == Plugin::DOMAIN
 		) {
 			$this->handle_request();

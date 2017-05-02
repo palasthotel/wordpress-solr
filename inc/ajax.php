@@ -17,9 +17,10 @@ class Ajax {
 		
 		require_once "ajax-endpoint.php";
 		
-		$this->suggests = new Ajax_Endpoint( self::KEY_SUGGESTS, array( $this, "suggests" ) );
+		$this->suggests = new Ajax_Endpoint( self::KEY_SUGGESTS, array( $this, "suggests_handler" ) );
 		add_action( Plugin::ACTION_AJAX_SUGGEST_RENDER, array( $this, "suggest_render" ), 99, 2 );
-		$this->search = new Ajax_Endpoint( self::KEY_SEARCH, array( $this, "search" ) );
+
+		$this->search = new Ajax_Endpoint( self::KEY_SEARCH, array( $this, "search_handler" ) );
 		add_action( Plugin::ACTION_AJAX_SEARCH_RENDER, array( $this, "search_render" ), 99, 2 );
 	}
 	
@@ -34,7 +35,7 @@ class Ajax {
 	/**
 	 * @param $param
 	 */
-	function suggests( $param ) {
+	function suggests_handler( $param ) {
 		
 		$solarium = Solarium::instance( $this->plugin );
 		
@@ -95,7 +96,7 @@ class Ajax {
 	/**
 	 * @param $param
 	 */
-	function search( $param ) {
+	function search_handler( $param ) {
 		
 		$solarium = Solarium::instance( $this->plugin );
 		
@@ -117,7 +118,19 @@ class Ajax {
 	 * @param $param
 	 */
 	function search_render( $results, $param ) {
-		die( "Rendering!?" );
+
+		$json = array();
+		foreach ($results as $document){
+
+			// TODO: add all indexed fields
+
+			$json[] = array(
+				"title " => $document->ts_title,
+				"id" => $document->item_id,
+			);
+		}
+		wp_send_json($json);
+		exit;
 	}
 	
 	
