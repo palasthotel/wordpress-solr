@@ -90,6 +90,7 @@ class Request {
 			}
 			$this->search_args[ self::VAR_FACETS ] = $facet_args;
 		}
+
 		
 		return $this->search_args;
 	}
@@ -114,7 +115,7 @@ class Request {
 				$this->search_error_object = $e;
 			}
 		}
-		
+
 		return $this->search_results;
 	}
 }

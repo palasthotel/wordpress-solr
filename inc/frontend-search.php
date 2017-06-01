@@ -33,7 +33,6 @@ class FrontendSearch {
 	function do_search($request, $query) {
 		if ( $this->plugin->request->is_search() ) {
 			$this->plugin->request->get_search_results();
-			wp_title( 'geiles zeug' );
 		}
 		return $request;
 
