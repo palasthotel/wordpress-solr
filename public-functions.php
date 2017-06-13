@@ -17,7 +17,11 @@ function solr_search($s){
 	$solarium = SolrPlugin\Solarium::instance( solr_get_plugin() );
 
 	$query = $solarium->createSelect();
-	$query->setQuery( $s );
+
+
+
+	$query->setQuery( $query->getHelper()->escapeTerm($s) );
+
 
 	return $solarium->execute( $query );
 }
