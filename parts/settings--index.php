@@ -42,6 +42,10 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 				$result = $this->plugin->solr_index->optimize();
 				echo '<p>Index optimized</p>';
 				break;
+			case 'enqueue-errored':
+				$result = $wpdb->delete( $wpdb->postmeta, array( 'meta_key' => SolrPlugin\Plugin::POST_META_ERROR),	array( '%s' ));
+				echo "<p>Added {$result} documents to queue.</p>";
+				break;
 			default:
 				echo '<p>Unknown action "'.$_GET['action'].'"</p>';
 		}
@@ -107,6 +111,9 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 			<td>
 				<p><?php echo ($error>0)? $error: "0"; ?></p>
 				<p class="descrition">Number of contents with error while indexing to solr</p>
+				<?php if($error > 0): ?>
+					<a class="button-primary" href="<?php echo $base_url.'&action=enqueue-errored'; ?>"><?php esc_attr_e('Enqueue error dokuments'); ?></a>
+				<?php endif; ?>
 			</td>
 		</tr>
 	</table>
