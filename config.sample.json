@@ -1,0 +1,9 @@
+{
+	"solr_enabled": true,
+	"solr_host": "solr",
+	"solr_port": 8983,
+	"solr_path": "/solr/",
+	"solr_core": "core1",
+	"solr_username": "",
+	"solr_password": ""
+}

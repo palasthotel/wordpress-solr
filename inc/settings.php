@@ -62,6 +62,11 @@ class Settings{
 		<div class="wrap">
 			<form method="post" action="<?php echo $_SERVER["PHP_SELF"]; ?>?page=solr&amp;tab=<?php echo $current; ?>">
 				<?php
+
+				if($this->plugin->config->has_file_options()){
+					_e("All locked settings are defined in config.json file.", Plugin::DOMAIN);
+				}
+
 				$settings = $this->get_settings_for_page($current);
 				?>
 				<table class="form-table">
@@ -78,8 +83,6 @@ class Settings{
 	}
 
 	private function get_settings_for_page($page){
-		// to include config class
-		$config = $this->plugin->config;
 		switch($page){
 			case 'core':
 				return array(
@@ -121,6 +124,8 @@ class Settings{
 		$label = $setting['label'];
 		$value = $config->get_option($setting['key']);
 		$key = $setting['key'];
+		$editable = !$this->plugin->config->is_file_option($setting["key"]);
+
 		?>
 		<tr>
 			<th scope="row"><label for="<?php echo $key; ?>"><?php echo $label; ?></label></th>
@@ -130,6 +135,8 @@ class Settings{
 					$type = $setting['type'];
 				}
 
+				$readonly = ($editable)? "": " readonly='readonly' disabled='disabled' ";
+
 				if( $type == 'checkbox' ){
 					/**
 					 * checkbox render
@@ -138,7 +145,7 @@ class Settings{
 					if($value){
 						$checked = 'checked';
 					}
-					?><input type="checkbox" id="<?php echo $key; ?>"
+					?><input <?php echo $readonly; ?> type="checkbox" id="<?php echo $key; ?>"
 							 name="<?php echo $key; ?>" <?php echo $checked; ?>
 							 class="checkbox">
 					<input type="hidden" name="<?php echo "checkbox_".$key; ?>" value="<?php echo $key; ?>" /><?php
@@ -150,7 +157,8 @@ class Settings{
 					if($type != "password" || $type != "number"){
 						$type = "text";
 					}
-					?><input type="<?php echo $type; ?>" id="<?php echo $key; ?>"
+					?><input <?php echo $readonly; ?>
+							type="<?php echo $type; ?>" id="<?php echo $key; ?>"
 							 name="<?php echo $key; ?>" value="<?php echo $value; ?>"
 							 class="regular-text"><?php
 				}

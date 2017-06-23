@@ -24,13 +24,18 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 		switch($_GET['action']){
 			case 'update':
 				$result = $this->plugin->index_runner->index_posts($this->plugin->config->get_option(\SolrPlugin\Plugin::OPTION_DOCUMENTS_PER_CALL));
-				foreach ($result->posts as $post) {
-					/**
-					 * @var WP_Post $post
-					 */
-					print "<p>".$post->post_title."<p>";
+				if(isset($result->error) && $result->error === true ){
+					echo "<p>Sorry, something went wrong.</p>";
+				} else {
+					foreach ($result->posts as $post) {
+						/**
+						 * @var WP_Post $post
+						 */
+						print "<p>".$post->post_title."<p>";
+					}
+					echo '<p>Index updated '.count($result->posts).'</p>';
 				}
-				echo '<p>Index updated '.count($result->posts).'</p>';
+
 				break;
 			case 'delete':
 				$this->plugin->solr_index->deleteAll();

@@ -4,7 +4,9 @@ namespace SolrPlugin;
 
 
 class Config {
-	
+
+	private $json_config = null;
+
 	/**
 	 * Config constructor.
 	 *
@@ -21,7 +23,7 @@ class Config {
 			Plugin::OPTION_TIMEOUT            => 10,
 		);
 	}
-	
+
 	/**
 	 * get default value for key or FALSE
 	 *
@@ -32,11 +34,48 @@ class Config {
 	public function get_default( $key ) {
 		return ( ! empty( $this->defaults[ $key ] ) ) ? $this->defaults[ $key ] : FALSE;
 	}
+
+	/**
+	 * try to load config from json
+	 * @return bool|object
+	 */
+	private function get_file_config(){
+		if($this->json_config == null && is_file($this->plugin->dir."/config.json")){
+			$contents = file_get_contents($this->plugin->dir."/config.json");
+			$this->json_config = json_decode($contents, true);
+		}
+		if(!is_array($this->json_config)) $this->json_config = false;
+		return $this->json_config;
+	}
+
+	/**
+	 * check if there are configurations from file
+	 * @return bool
+	 */
+	public function has_file_options(){
+		return ($this->get_file_config() !== false && count( $this->get_file_config() ) > 0);
+	}
+
+	/**
+	 * check if option is file option
+	 *
+	 * @param $key
+	 *
+	 * @return bool
+	 */
+	public function is_file_option($key){
+		return ($this->get_file_config() !== false && isset($this->get_file_config()[$key]));
+	}
 	
 	/**
 	 * get option by config key
 	 */
 	public function get_option( $key ) {
+
+		if( $this->get_file_config() !== false && isset($this->get_file_config()[$key])){
+			return $this->get_file_config()[$key];
+		}
+
 		return get_option( $key, $this->get_default( $key ) );
 	}
 	
