@@ -24,92 +24,20 @@ class Posts {
 	 * @param \WP_Post $post
 	 */
 	public function save_post( $post_id, $post ) {
-		$this->reset_indexed( $post_id );
-		$this->reset_ignored( $post_id );
-		$this->reset_error( $post_id );
-		
-		$this->plugin->solr_index->updatePost(array($post));
+		// will run with next scheduled indexing
+		if($post->post_status == 'publish'){
+			Flags\set_modified($post_id, 'post');
+		}
 	}
 	
 	/**
 	 * @param $post_id
 	 */
 	public function delete_post( $post_id ) {
-		$post = get_post( $post_id );
-		$this->reset_ignored( $post_id );
-		$this->reset_indexed( $post_id );
-		$this->reset_error( $post_id );
-		
-		// TODO: update post status to trash or delete it
-		
-		$this->plugin->solr_index->deletePost( array( $post ) );
-	}
-	
-	/**
-	 * set post as indexed by solr
-	 *
-	 * @param $post_id
-	 */
-	public function set_indexed( $post_id ) {
-		update_post_meta( $post_id, Plugin::POST_META_INDEXED, TRUE );
-	}
-	
-	/**
-	 * reset post is index by solr
-	 *
-	 * @param $post_id
-	 */
-	public function reset_indexed( $post_id ) {
-		delete_post_meta( $post_id, Plugin::POST_META_INDEXED );
-	}
-	
-	/**
-	 * set post ignored by solr
-	 *
-	 * @param $post_id
-	 */
-	public function set_ignored( $post_id ) {
-		update_post_meta( $post_id, Plugin::POST_META_IGNORED, TRUE );
-	}
-	
-	/**
-	 * reset post ignored by solr
-	 *
-	 * @param $post_id
-	 */
-	public function reset_ignored( $post_id ) {
-		delete_post_meta( $post_id, Plugin::POST_META_IGNORED );
-	}
-	
-	/**
-	 * set post error by solr
-	 *
-	 * @param $post_id
-	 */
-	public function set_error( $post_id ) {
-		update_post_meta( $post_id, Plugin::POST_META_ERROR, TRUE );
-	}
-	
-	/**
-	 * reset post error by solr
-	 *
-	 * @param $post_id
-	 */
-	public function reset_error( $post_id ) {
-		delete_post_meta( $post_id, Plugin::POST_META_ERROR );
-	}
-	
-	/**
-	 * reset ignored and indexed meta for all posts
-	 */
-	public function reset_meta() {
-		/**
-		 * @var \wpdb
-		 */
-		global $wpdb;
-		$wpdb->delete( $wpdb->prefix . 'postmeta', array( 'meta_key' => Plugin::POST_META_INDEXED ), array( '%s' ) );
-		$wpdb->delete( $wpdb->prefix . 'postmeta', array( 'meta_key' => Plugin::POST_META_IGNORED ), array( '%s' ) );
-		$wpdb->delete( $wpdb->prefix . 'postmeta', array( 'meta_key' => Plugin::POST_META_ERROR ), array( '%s' ) );
+		// will be deleted with next scheduled solr run
+		$post = get_post($post_id);
+		$this->plugin->solr_index->deletePost(array( $post ));
+		Flags\delete(array( "item_id" => $post_id), array('%d'));
 	}
 	
 	/**
@@ -120,29 +48,43 @@ class Posts {
 	 * @return array
 	 */
 	public function getModified( $number ) {
-		return get_posts(array(
-			'post_type'           => 'any',
-			'post_status'         => array( 'publish' ),
-			'orderby'             => array( 'modified', 'date', 'ID' ),
-			'order'               => 'DESC',
-			'posts_per_page'      => $number,
-			'ignore_sticky_posts' => TRUE,
-			'meta_query'          => array(
-				'relation' => 'AND',
-				array(
-					'key'     => Plugin::POST_META_INDEXED,
-					'compare' => 'NOT EXISTS',
-				),
-				array(
-					'key'     => Plugin::POST_META_IGNORED,
-					'compare' => 'NOT EXISTS',
-				),
-				array(
-					'key'     => Plugin::POST_META_ERROR,
-					'compare' => 'NOT EXISTS',
-				),
-			),
-		));
+
+		global $wpdb;
+
+		$post_types = apply_filters( Plugin::FILTER_SOLR_INDEX_POST_TYPES, array('post') );
+		$where_post_types = array();
+		foreach ($post_types as $post_type){
+			$where_post_types[] = " p.post_type = '{$post_type}' ";
+		}
+		$where_post_types_string = implode(' OR ', $where_post_types);
+
+
+		$flags_table = Flags\tablename();
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"
+				SELECT p.ID FROM {$wpdb->posts} as p 
+				LEFT JOIN {$flags_table} as f  on ( p.ID = f.item_id AND f.type = %s )  
+				WHERE (f.flag IS NULL OR f.flag = %s) AND p.post_status = 'publish' AND ({$where_post_types_string})
+				ORDER BY p.ID DESC LIMIT %d
+				",
+				"post",
+				SOLR_FLAG_MODIFIED,
+				$number
+			)
+		);
+
+		if( !is_wp_error($ids) && is_array($ids) && count($ids) > 0){
+			return get_posts(array(
+				'post_type'           => $post_types,
+				'post_status'         => array( 'publish' ),
+				'posts_per_page'      => $number,
+				'ignore_sticky_posts' => TRUE,
+				'post__in' => $ids,
+			));
+		}
+
+		return array();
 	}
 	
 }

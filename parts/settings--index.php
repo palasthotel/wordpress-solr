@@ -39,7 +39,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 				break;
 			case 'delete':
 				$this->plugin->solr_index->deleteAll();
-				$this->plugin->posts->reset_meta();
+				SolrPlugin\Flags\delete(array('type' => 'post'), array('%s'));
 				$this->plugin->solr_index->optimize();
 				echo '<p>Index deleted</p>';
 				break;
@@ -48,7 +48,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 				echo '<p>Index optimized</p>';
 				break;
 			case 'enqueue-errored':
-				$result = $wpdb->delete( $wpdb->postmeta, array( 'meta_key' => SolrPlugin\Plugin::POST_META_ERROR),	array( '%s' ));
+				$result = SolrPlugin\Flags\delete(array('flag' => SOLR_FLAG_ERRORED), array('%s'));
 				echo "<p>Added {$result} documents to queue.</p>";
 				break;
 			default:
@@ -75,12 +75,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 		</tr>
 		<tr>
 			<?php
-			$indexed = $wpdb->get_var(
-			  $wpdb->prepare(
-				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
-				\SolrPlugin\Plugin::POST_META_INDEXED
-			  )
-			);
+			$indexed = SolrPlugin\Flags\count(SOLR_FLAG_INDEXED);
 			?>
 			<th>Contents indexed</th>
 			<td>
@@ -90,12 +85,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 		</tr>
 		<tr>
 			<?php
-			$ignored = $wpdb->get_var(
-			  $wpdb->prepare(
-				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
-				  \SolrPlugin\Plugin::POST_META_IGNORED
-			  )
-			);
+			$ignored = SolrPlugin\Flags\count(SOLR_FLAG_IGNORED);
 			?>
 			<th>Contents ignored</th>
 			<td>
@@ -105,12 +95,7 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 		</tr>
 		<tr>
 			<?php
-			$error = $wpdb->get_var(
-			  $wpdb->prepare(
-				"SELECT sum(meta_value) FROM ".$wpdb->postmeta." WHERE meta_key = %s",
-				  \SolrPlugin\Plugin::POST_META_ERROR
-			  )
-			);
+			$error = SolrPlugin\Flags\count(SOLR_FLAG_ERRORED);
 			?>
 			<th>Contents with error</th>
 			<td>
@@ -124,30 +109,38 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 	</table>
 
 	<?php
-	$query = new \WP_Query(
-	  array(
-		'post_type' => 'any',
-		'orderby' => array('modified', 'date', 'ID'),
-		'order' => 'DESC',
-		'posts_per_page' => 10,
-		'ignore_sticky_posts' => TRUE,
-		'meta_query' => array(
-		  array(
-			'key' => \SolrPlugin\Plugin::POST_META_ERROR,
-			'compare' => 'EXISTS',
-		  ),
-		)
-	  )
-	);
-	if($query->have_posts()){
-		?>
-		<h3>Newest Posts with error</h3>
-		<?php
+
+	global $wpdb;
+	$ids = $wpdb->get_col($wpdb->prepare(
+		"
+		SELECT item_id FROM ".SolrPlugin\Flags\tablename()." WHERE flag = %s LIMIT 50
+		",
+		SOLR_FLAG_ERRORED
+	));
+	if( count($ids) > 0){
+		$query = new \WP_Query(
+			array(
+				'post_type' => 'any',
+				'orderby' => array('modified', 'date', 'ID'),
+				'order' => 'DESC',
+				'posts_per_page' => 10,
+				'ignore_sticky_posts' => TRUE,
+				'post__in' => $ids,
+			)
+		);
+
+		if($query->have_posts()){
+			?>
+			<h3>Newest Posts with error</h3>
+			<?php
+		}
+		while($query->have_posts()) {
+			$query->the_post();
+			echo "<p><a href='".get_the_permalink()."'>".get_the_title()."</a></p>";
+		}
+		wp_reset_postdata();
 	}
-	while($query->have_posts()) {
-		$query->the_post();
-		echo "<p><a href='".get_the_permalink()."'>".get_the_title()."</a></p>";
-	}
-	wp_reset_postdata();
+
+
 	?>
 </div>

@@ -64,7 +64,7 @@ class IndexRunner {
 			if ( ! apply_filters( Plugin::FILTER_SOLR_INDEX_IGNORE_POST, false, $post ) ) {
 				$index_posts[] = $post;
 			} else {
-				$this->plugin->posts->set_ignored( $post->ID );
+				Flags\set_ignored( $post->ID, "post" );
 			}
 		}
 
@@ -92,7 +92,7 @@ class IndexRunner {
 			 */
 			for ( $i = 0; $i < count( $index_posts ); $i ++ ) {
 				$post = $index_posts[ $i ];
-				$this->plugin->posts->set_error( $post->ID );
+				Flags\set_error( $post->ID, "post" );
 			}
 		}
 		
@@ -121,7 +121,7 @@ class IndexRunner {
 		if ( is_object( $result ) && ! empty( $result ) && $result->getStatus() === 0 ) {
 			foreach ( $posts as $counter => $post ) {
 				/* @var $post \WP_Post */
-				$this->plugin->posts->set_indexed( $post->ID );
+				Flags\set_indexed( $post->ID, "post" );
 			}
 			
 			return (object) array( "posts" => $posts, "result" => $result, "error" => FALSE );

@@ -43,6 +43,7 @@ class Plugin {
 	const FILTER_SOLR_INDEX_FIELDS_POST = "solr_add_fields_post";
 	const FILTER_SOLR_INDEX_FIELDS_COMMENT = "solr_add_fields_comment";
 	const FILTER_SOLR_INDEX_IGNORE_POST = "solr_post_ignore";
+	const FILTER_SOLR_INDEX_POST_TYPES = "solr_index_post_types";
 	
 	/**
 	 * shortcodes
@@ -65,6 +66,7 @@ class Plugin {
 	/**
 	 * options
 	 */
+	const OPTION_DATA_VERSION = "solr_data_version";
 	const OPTION_ENABLED = "solr_enabled";
 	const OPTION_HOST = "solr_host";
 	const OPTION_PORT = "solr_port";
@@ -82,8 +84,17 @@ class Plugin {
 	/**
 	 * meta fields
 	 */
+	/**
+	 * @deprecated
+	 */
 	const POST_META_INDEXED = "solr_indexed";
+	/**
+	 * @deprecated
+	 */
 	const POST_META_IGNORED = "solr_ignored";
+	/**
+	 * @deprecated
+	 */
 	const POST_META_ERROR = "solr_error";
 
 	/**
@@ -110,6 +121,11 @@ class Plugin {
 		 * solarium singlelton
 		 */
 		require_once dirname(__FILE__).'/inc/solarium.php';
+
+		/**
+		 * post flagging system
+		 */
+		require_once dirname(__FILE__). '/inc/flags.php';
 		
 		/**
 		 * solar index operations class
@@ -188,7 +204,11 @@ class Plugin {
 		 */
 		require_once dirname(__FILE__). '/inc/frontend-search-page.php';
 		$this->frontend_search_page = new FrontendSearchPage( $this );
-		
+
+		require_once dirname(__FILE__). '/inc/update.php';
+		$this->update = new Update($this);
+
+
 		/**
 		 * activate and deactivate hook
 		 */
@@ -209,6 +229,13 @@ class Plugin {
 	 * on activation
 	 */
 	function on_activate() {
+
+		if( !$this->update->has_version() ){
+			// if there is no version might be first activation
+			$this->update->set_version(Update::VERSION);
+			Flags\install();
+		}
+
 		$this->ajax->add_endpoints();
 		$this->schedule->register();
 		flush_rewrite_rules();
