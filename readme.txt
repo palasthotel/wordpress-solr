@@ -42,6 +42,7 @@ Create a 'solr' folder in your theme to overwrite templates. You can copy the te
 = 0.5 =
 * Stable version
 * JSON file config overwrites
+* solr index flags moved to custom table
 
 = 0.4.1 =
 * the_content needs global $post context fix
