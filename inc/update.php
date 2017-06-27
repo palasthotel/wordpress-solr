@@ -7,6 +7,7 @@
  */
 
 namespace SolrPlugin;
+use function SolrPlugin\Flags\tablename;
 
 /**
  * Class Update
@@ -57,7 +58,18 @@ class Update {
 	}
 
 	function update_1(){
+
 		Flags\install();
+		global $wpdb;
+		$query = "
+		INSERT INTO ".tablename()." (item_id, type, flag) 
+		SELECT post_id as item_id, 'post' as type, %s as flag FROM {$wpdb->postmeta} 
+		WHERE meta_key = %s
+		";
+		$wpdb->query($wpdb->prepare($query, SOLR_FLAG_INDEXED, "solr_indexed"));
+		$wpdb->query($wpdb->prepare($query, SOLR_FLAG_IGNORED, "solr_ignored"));
+		$wpdb->query($wpdb->prepare($query, SOLR_FLAG_ERRORED,"solr_error"));
+
 	}
 
 }
