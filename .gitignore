@@ -1,8 +1,0 @@
-/.buildpath
-/.project
-/.settings
-/composer.lock
-/config.php
-/vendor
-*.DS_Store
-.idea
