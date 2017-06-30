@@ -97,17 +97,10 @@ class Ajax {
 	 * @param $param
 	 */
 	function search_handler( $param ) {
-		
-		$solarium = Solarium::instance( $this->plugin );
-		
-		$query = $solarium->createSelect();
-		$query->setQuery( $param );
-		
-		/**
-		 *
-		 * @var \Solarium\QueryType\Select\Result\Result $results
-		 */
-		$results = $solarium->execute( $query );
+
+		$args = array();
+		$args[SearchFields::PARAM_QUERY] = $param;
+		$results = $this->plugin->solr_search->execute($args);
 		
 		do_action( Plugin::ACTION_AJAX_SEARCH_RENDER, $results, $param );
 		

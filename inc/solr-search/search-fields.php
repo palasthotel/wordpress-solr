@@ -4,6 +4,9 @@ namespace SolrPlugin;
 
 
 class SearchFields {
+
+	const PARAM_QUERY = "s";
+
 	/**
 	 * SearchFields constructor.
 	 *
@@ -43,8 +46,8 @@ class SearchFields {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_query($select,$search_args, $config){
-		if(!empty($search_args) && !empty($search_args['s'])){
-			$query = $search_args['s'];
+		if(!empty($search_args) && !empty($search_args[self::PARAM_QUERY])){
+			$query = $search_args[self::PARAM_QUERY];
 			$select->setQuery($query);
 		}
 		return $select;
@@ -98,7 +101,7 @@ class SearchFields {
 	public function search_select_boost($select,$search_args, $config){
 		
 		// empty search args ends up in no results here
-		if(empty($search_args['s'])) return $select;
+		if(empty($search_args[self::PARAM_QUERY])) return $select;
 		
 		if( !empty($config['boost_functions']) && count($config['boost_functions']) > 0 ) {
 			$dismax = $select->getDisMax();
@@ -130,7 +133,7 @@ class SearchFields {
 	public function search_select_weight($select,$search_args,$config){
 		
 		// empty search args ends up in no results here
-		if(empty($search_args['s'])) return $select;
+		if(empty($search_args[self::PARAM_QUERY])) return $select;
 		
 		// weight of fields
 		$dismax = $select->getDisMax();
@@ -165,7 +168,7 @@ class SearchFields {
 	 * @return \Solarium\QueryType\Select\Query\Query
 	 */
 	public function search_select_highlight_fields($select,$search_args, $config){
-		if(!empty($search_args) && !empty($search_args['s'])){
+		if(!empty($search_args) && !empty($search_args[self::PARAM_QUERY])){
 			
 			$select->getHighlighting()->setFields( $config['highlight_fields'] );
 			$select->getHighlighting()->setSimplePrefix( '<b>' );
