@@ -43,7 +43,9 @@ Create a 'solr' folder in your theme to overwrite templates. You can copy the te
 * 404 state on search page 2+ fix
 
 = 0.5.2 =
-* Child theme templates path fix
+* Empty search bugfix
+* Childtheme render parent theme templates fix
+* Solr test search in backend
 
 = 0.5.1 =
 * Always use same search execution for same results

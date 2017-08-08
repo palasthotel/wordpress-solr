@@ -16,6 +16,16 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 		<a class="button-primary" href="<?php echo $base_url.'&action=optimize'; ?>"><?php esc_attr_e('Optimize index'); ?></a>
 		<a id="solr-delete" class="button-primary solr-delete do-solr-delete" href="<?php echo $base_url.'&action=delete'; ?>"><?php esc_attr_e('Delete index'); ?></a>
 	</p>
+
+	<p>
+	<form method="GET">
+		<button class="button-primary">Search</button>
+		<input name="query" class="regular-text" type="text" value="<?php echo (isset($_GET["query"]))? $_GET["query"]:"" ?>" />
+		<input name="action" type="hidden" value="search" />
+		<input name="page"  type="hidden" value="solr" />
+		<input name="tab"  type="hidden" value="index" />
+	</form>
+	</p>
 	<div class="solr-operation-result"><?php
 
 
@@ -50,6 +60,25 @@ $base_url =  admin_url('options-general.php?page=solr&tab='.$current);
 			case 'enqueue-errored':
 				$result = SolrPlugin\Flags\delete(array('flag' => SOLR_FLAG_ERRORED), array('%s'));
 				echo "<p>Added {$result} documents to queue.</p>";
+				break;
+			case 'search':
+				if(isset($_GET["query"])){
+					$results = $this->plugin->solr_search->execute(array(
+						\SolrPlugin\SearchFields::PARAM_QUERY => $_GET["query"],
+					));
+					echo "<p>Found: {$results->getNumFound()}</p>";
+					if($results->getNumFound()>1){
+						echo "<ul>";
+						foreach ($results as $document) {
+							/**
+							 * @var \Solarium\QueryType\Select\Result\Result $document
+							 */
+							echo "<li>{$document->ts_title}</li>";
+						}
+						echo "</ul>";
+					}
+
+				}
 				break;
 			default:
 				echo '<p>Unknown action "'.$_GET['action'].'"</p>';

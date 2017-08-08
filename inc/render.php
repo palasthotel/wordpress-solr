@@ -32,7 +32,7 @@ class Render {
 				return get_template_directory()."/$path";
 			}
 		}
-
+		
 		return $this->plugin->dir . 'template/' . $template;
 	}
 	
