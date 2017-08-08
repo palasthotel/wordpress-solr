@@ -20,11 +20,19 @@ class Render {
 	 * @return string|false
 	 */
 	function get_template_path( $template ) {
-		
+
+		// child or parent theme
 		if ( $overridden_template = locate_template( $this->get_template_dirs($template) ) ) {
 			return $overridden_template;
 		}
-		
+
+		// parent theme
+		foreach ($this->get_template_dirs($template) as $path){
+			if( is_file( get_template_directory()."/$path")){
+				return get_template_directory()."/$path";
+			}
+		}
+
 		return $this->plugin->dir . 'template/' . $template;
 	}
 	

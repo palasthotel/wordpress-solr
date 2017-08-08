@@ -2,8 +2,8 @@
 Contributors: edwardbock katharinarompf
 Tags: search, solr
 Requires at least: 4.0
-Tested up to: 4.8
-Stable tag: 0.5.1
+Tested up to: 4.8.1
+Stable tag: 0.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,12 @@ Create a 'solr' folder in your theme to overwrite templates. You can copy the te
 
 
 == Changelog ==
+
+= 0.5.3 =
+* 404 state on search page 2+ fix
+
+= 0.5.2 =
+* Child theme templates path fix
 
 = 0.5.1 =
 * Always use same search execution for same results

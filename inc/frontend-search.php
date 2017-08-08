@@ -19,6 +19,7 @@ class FrontendSearch {
 			 * and do the search if needed
 			 */
 			add_filter( 'posts_request', array( $this, 'disable_search_query' ), 10, 2 );
+			add_filter('pre_handle_404', array($this, 'pre_handle_404'));
 		}
 	}
 
@@ -44,5 +45,16 @@ class FrontendSearch {
 		return $request;
 	}
 
+	function pre_handle_404($preempt){
+		global $wp_query;
+		if ( $wp_query->is_main_query() &&
+		     $this->plugin->request->is_search() &&
+		     ! is_admin()
+		) {
+			status_header( 200 );
+			return true;
+		}
+		return $preempt;
+	}
 
 }
