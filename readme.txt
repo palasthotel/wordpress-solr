@@ -3,7 +3,7 @@ Contributors: edwardbock katharinarompf
 Tags: search, solr
 Requires at least: 4.0
 Tested up to: 4.8.1
-Stable tag: 0.5.3
+Stable tag: 0.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ Create a 'solr' folder in your theme to overwrite templates. You can copy the te
 
 
 == Changelog ==
+
+= 0.5.4 =
+* Filter for autosuggest ajax solr query
 
 = 0.5.3 =
 * 404 state on search page 2+ fix
