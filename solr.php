@@ -44,6 +44,7 @@ class Plugin {
 	const FILTER_SOLR_INDEX_FIELDS_COMMENT = "solr_add_fields_comment";
 	const FILTER_SOLR_INDEX_IGNORE_POST = "solr_post_ignore";
 	const FILTER_SOLR_INDEX_POST_TYPES = "solr_index_post_types";
+	const FILTER_SOLR_AJAX_SUGGEST_QUERY = "solr_ajax_suggest_query";
 	
 	/**
 	 * shortcodes

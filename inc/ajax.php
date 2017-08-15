@@ -19,6 +19,7 @@ class Ajax {
 		
 		$this->suggests = new Ajax_Endpoint( self::KEY_SUGGESTS, array( $this, "suggests_handler" ) );
 		add_action( Plugin::ACTION_AJAX_SUGGEST_RENDER, array( $this, "suggest_render" ), 99, 2 );
+		add_filter(Plugin::FILTER_SOLR_AJAX_SUGGEST_QUERY, array($this, "suggest_query"),10,2);
 
 		$this->search = new Ajax_Endpoint( self::KEY_SEARCH, array( $this, "search_handler" ) );
 		add_action( Plugin::ACTION_AJAX_SEARCH_RENDER, array( $this, "search_render" ), 99, 2 );
@@ -31,6 +32,18 @@ class Ajax {
 		$this->suggests->add_endpoint();
 		$this->search->add_endpoint();
 	}
+
+	/**
+	 * @param \Solarium\QueryType\Suggester\Query $query
+	 * @param String $param
+	 *
+	 * @return \Solarium\QueryType\Suggester\Query
+	 */
+	function suggest_query($query, $param){
+		$query->setQuery( urldecode( $param ) );
+		$query->setOnlyMorePopular(true);
+		return $query;
+	}
 	
 	/**
 	 * @param $param
@@ -40,8 +53,7 @@ class Ajax {
 		$solarium = Solarium::instance( $this->plugin );
 		
 		$query = $solarium->createSuggester();
-		$query->setQuery( urldecode( $param ) );
-		
+		$query = apply_filters(Plugin::FILTER_SOLR_AJAX_SUGGEST_QUERY, $query, $param);
 		
 		/**
 		 *
