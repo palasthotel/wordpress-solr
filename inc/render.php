@@ -66,11 +66,7 @@ class Render {
 		}
 		return $this->sub_dirs;
 	}
-	
-	
-	
-	
-	
+
 	/**
 	 * Render template
 	 *
