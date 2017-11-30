@@ -7,6 +7,8 @@ define( 'WP_USE_THEMES', false );
 $paths = explode( 'wp-content', __FILE__ );
 require_once( $paths[0] . 'wp-load.php' );
 
+do_action(\SolrPlugin\Plugin::ACTION_CRON_START);
+
 ini_set( 'memory_limit', '-1' );
 
 // output to shell
@@ -81,5 +83,7 @@ do {
 		break;
 	}
 } while ( true );
+
+do_action(\SolrPlugin\Plugin::ACTION_CRON_FINISH );
 
 // TODO: optimize index
