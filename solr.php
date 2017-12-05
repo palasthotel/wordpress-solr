@@ -32,6 +32,9 @@ class Plugin {
 	const ACTION_AJAX_SUGGEST_RENDER = "solr_ajax_suggest_render";
 	const ACTION_AJAX_SEARCH_RENDER = "solr_ajax_search_render";
 	
+	const ACTION_CRON_START = "solr_cron_start";
+	const ACTION_CRON_FINISH = "solr_cron_finish";
+	
 	/**
 	 * plugin filters
 	 */
