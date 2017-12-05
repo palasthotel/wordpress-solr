@@ -47,6 +47,7 @@ class SolrPostFields {
 			$author = get_user_by('id', $author_id);
 			if($author instanceof \WP_User){
 				$document->addField('sm_author', $author->display_name);
+				$document->addField('tm_author', $author->display_name);
 			}
 		}
 
@@ -62,6 +63,7 @@ class SolrPostFields {
 		if(false != $categories){
 			foreach ($categories as $category) {
 				$document->addField('sm_category', $category->cat_name);
+				$document->addField('tm_category', $category->cat_name);
 			}
 		}
 		
@@ -71,6 +73,7 @@ class SolrPostFields {
 		if(false != $tags){
 			foreach ($tags as $tag) {
 				$document->addField('sm_tag', $tag->name);
+				$document->addField('tm_tag', $tag->name);
 			}
 		}
 		
@@ -80,6 +83,7 @@ class SolrPostFields {
 		$poststatus = get_post_status ( $post->ID );
 		$document->ss_status = $poststatus;
 		$document->ss_type = $post->post_type;
+		$document->ts_type = $post->post_type;
 		
 		return $document;
 	}
