@@ -41,6 +41,7 @@ Create a 'plugin-parts' folder in your theme to overwrite templates. You can cop
 
 = 1.0.1 =
 * search_fields boost fix
+* added boost query
 
 = 1.0 =
 * Renaming

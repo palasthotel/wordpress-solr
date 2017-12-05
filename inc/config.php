@@ -112,6 +112,12 @@ class Config {
 				// magic...
 				'recip(abs(ms(NOW,ds_published)),3.16e-11,1,1)^5',
 			),
+			'boost_query'            => array(
+				// magic...
+				' ss_type:"page"^32',
+				'OR ss_type:"post"^8',
+			),
+
 			// list of fields to search and their corresponding weight
 			'search_fields'          => array(
 				// please only boost full text fields
