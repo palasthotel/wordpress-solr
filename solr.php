@@ -2,7 +2,7 @@
 /*
 Plugin Name: Sunny Search
 Description: Replaces WordPress search engine by Solr search engine.
-Version: 1.0.1
+Version: 1.0.2
 Author: Palasthotel by Edward Bock, Katharina Rompf
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
@@ -102,6 +102,11 @@ class Plugin {
 	const POST_META_ERROR = "solr_error";
 
 	/**
+	 * post meta fields
+	 */
+	const POST_META_IGNORE = "_solr_ignore_post";
+
+	/**
 	 * singleton
 	 * @return Plugin
 	 */
@@ -178,6 +183,12 @@ class Plugin {
 		 */
 		require_once dirname(__FILE__) .'/inc/posts.php' ;
 		$this->posts = new Posts( $this );
+
+		/**
+		 * post meta box
+		 */
+		require_once dirname(__FILE__) .'/inc/meta-box.php' ;
+		$this->meta_box = new MetaBox( $this );
 		
 		/**
 		 * class for any needed endpoints
@@ -219,6 +230,10 @@ class Plugin {
 		register_activation_hook( __FILE__, array( $this, 'on_activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'on_deactivate' ) );
 		
+	}
+
+	function getName(){
+		return __("Sunny Search", Plugin::DOMAIN);
 	}
 	
 	/**

@@ -2,8 +2,8 @@
 Contributors: edwardbock katharinarompf
 Tags: search, solr
 Requires at least: 4.0
-Tested up to: 4.9.1
-Stable tag: 1.0.1
+Tested up to: 4.9.2
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ Create a 'plugin-parts' folder in your theme to overwrite templates. You can cop
 
 
 == Changelog ==
+
+= 1.0.2 =
+* Meta box for manually ignore indexing post
 
 = 1.0.1 =
 * search_fields boost fix
