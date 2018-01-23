@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Fast Search powered by Solr
-Description: Replaces Wordpress search engine by Solr search engine.
-Version: 0.5.4
+Plugin Name: Sunny Search
+Description: Replaces WordPress search engine by Solr search engine.
+Version: 1.0.1
 Author: Palasthotel by Edward Bock, Katharina Rompf
 URI: http://palasthotel.de/
 Plugin URI: https://github.com/palasthotel/wordpress-solr
@@ -31,6 +31,9 @@ class Plugin {
 	const ACTION_SEARCH_PAGINATION = "solr_search_pagination";
 	const ACTION_AJAX_SUGGEST_RENDER = "solr_ajax_suggest_render";
 	const ACTION_AJAX_SEARCH_RENDER = "solr_ajax_search_render";
+	
+	const ACTION_CRON_START = "solr_cron_start";
+	const ACTION_CRON_FINISH = "solr_cron_finish";
 	
 	/**
 	 * plugin filters

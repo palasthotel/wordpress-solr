@@ -1,9 +1,9 @@
-=== Fast Search powered by Solr ===
+=== Sunny Search ===
 Contributors: edwardbock katharinarompf
 Tags: search, solr
 Requires at least: 4.0
-Tested up to: 4.8.1
-Stable tag: 0.5.4
+Tested up to: 4.9.1
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,10 +18,10 @@ Markdown parsed.
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/solr` directory, or install the plugin through the WordPress plugins screen directly.
+1. Upload the plugin files to the `/wp-content/plugins/sunny-search` directory, or install the plugin through the WordPress plugins screen directly.
 1. Activate the plugin through the 'Plugins' screen in WordPress
 1. Use the Settings->Solr screen to configure the plugin
-1. Copy the `/wp-content/plugins/solr/templates/*` files to your '/wp-content/themes/theme/solr/*' directory to overwrite the templates
+1. Copy the `/wp-content/plugins/sunny-search/templates/*` files to your '/wp-content/themes/theme/plugin-parts/*' directory to overwrite the templates
 
 
 == Frequently Asked Questions ==
@@ -32,12 +32,20 @@ You can use our config examples in the plugins 'solr-config' folder.
 
 = How can I overwrite search templates? =
 
-Create a 'solr' folder in your theme to overwrite templates. You can copy the templates in the plugin directory in 'templates'.
+Create a 'plugin-parts' folder in your theme to overwrite templates. You can copy the templates in the plugin directory.
 
 == Screenshots ==
 
 
 == Changelog ==
+
+= 1.0.1 =
+* search_fields boost fix
+* added boost query
+
+= 1.0 =
+* Renaming
+* Overwritten theme templates moved to plugin-parts folder
 
 = 0.5.4 =
 * Filter for autosuggest ajax solr query
@@ -72,3 +80,7 @@ Create a 'solr' folder in your theme to overwrite templates. You can copy the te
 
 = 0.3 =
 * First release
+
+== Upgrade Notice ==
+
+Please check your theme templates. With version 1.0 they moved from 'solr' to 'plugin-parts'

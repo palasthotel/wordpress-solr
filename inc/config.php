@@ -112,15 +112,23 @@ class Config {
 				// magic...
 				'recip(abs(ms(NOW,ds_published)),3.16e-11,1,1)^5',
 			),
+			'boost_query'            => array(
+				// magic...
+				' ss_type:"page"^32',
+				'OR ss_type:"post"^8',
+			),
+
 			// list of fields to search and their corresponding weight
-			'search_fields' => array(
+			'search_fields'          => array(
+				// please only boost full text fields
 				'default_search_field' => 2.0,
 				'ts_title'             => 4.0,
 				'ds_published'         => 0.5,
-				'sm_author'            => 1.0,
 				'content'              => 3.0,
-				'sm_category'          => 2.0,
-				'sm_tag'               => 2.0,
+				'tm_author'            => 1.0,
+				'tm_category'          => 2.0,
+				'tm_tag'               => 2.0,
+				'ts_type'              => 1.0,
 			),
 			// list of fields to return
 			'result_fields' => array(
