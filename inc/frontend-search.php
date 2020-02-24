@@ -19,7 +19,7 @@ class FrontendSearch {
 			 * and do the search if needed
 			 */
 			add_filter( 'posts_request', array( $this, 'disable_search_query' ), 10, 2 );
-			add_filter('pre_handle_404', array($this, 'pre_handle_404'));
+			add_filter( 'pre_handle_404', array($this, 'pre_handle_404' ));
 		}
 	}
 
@@ -39,7 +39,9 @@ class FrontendSearch {
 		     $this->plugin->request->is_search() &&
 		     ! is_admin()
 		) {
-			return false;
+			global $wpdb;
+			// deliver zero results as we will use solr for results
+			return "SELECT SQL_CALC_FOUND_ROWS  $wpdb->posts.* FROM $wpdb->posts WHERE 1=0";
 		}
 
 		return $request;

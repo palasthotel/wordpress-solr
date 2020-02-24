@@ -26,6 +26,10 @@ function set_modified($item_id, $type ){
 	return _update($item_id, $type, SOLR_FLAG_MODIFIED);
 }
 
+function is_modified($item_id, $type ){
+	return _isFlagged($item_id, $type, SOLR_FLAG_MODIFIED);
+}
+
 /**
  * set post indexed
  *
@@ -37,6 +41,10 @@ function set_modified($item_id, $type ){
  */
 function set_indexed($item_id, $type ){
 	return _update($item_id, $type, SOLR_FLAG_INDEXED);
+}
+
+function is_indexed($item_id, $type ){
+	return _isFlagged($item_id, $type, SOLR_FLAG_INDEXED);
 }
 
 /**
@@ -51,6 +59,9 @@ function set_indexed($item_id, $type ){
 function set_error($item_id, $type){
 	return _update($item_id, $type, SOLR_FLAG_ERRORED);
 }
+function is_errored($item_id, $type ){
+	return _isFlagged($item_id, $type, SOLR_FLAG_ERRORED);
+}
 
 /**
  * set post ignored
@@ -63,6 +74,9 @@ function set_error($item_id, $type){
  */
 function set_ignored($item_id, $type){
 	return _update($item_id, $type, SOLR_FLAG_IGNORED);
+}
+function is_ignored($item_id, $type ){
+	return _isFlagged($item_id, $type, SOLR_FLAG_IGNORED);
 }
 
 /**
@@ -96,6 +110,24 @@ function delete($args, $format = null){
 		$args,
 		$format
 	);
+}
+
+/**
+ * @param $itemId
+ * @param $type
+ * @param $flag
+ *
+ * @return bool
+ */
+function _isFlagged($itemId, $type, $flag){
+	global $wpdb;
+	$table = tablename();
+	return intval($wpdb->get_var($wpdb->prepare(
+		"SELECT count(id) FROM $table WHERE item_id = ? AND type = ? AND flag = ?",
+		$itemId,
+		$type,
+		$flag
+	))) > 0;
 }
 
 /**
